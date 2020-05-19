@@ -1,13 +1,14 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
+import 'antd/dist/antd.css';
+import './assets/css/index.css';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
-import Settings from './services/settings';
+import Settings from './services/Settings';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
-  <React.StrictMode>
+  <React.Fragment>
     <Router>
       <Switch>
         <Route exact path="/">
@@ -18,7 +19,7 @@ ReactDOM.render(
         </Route>
       </Switch>
     </Router>
-  </React.StrictMode>,
+  </React.Fragment>,
   document.getElementById('root')
 );
 
