@@ -5,6 +5,7 @@ import './assets/css/index.css';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
 import Settings from './services/Settings';
+import FacebookLogin from './services/FacebookLogin';
 import * as serviceWorker from './serviceWorker';
 
 ReactDOM.render(
@@ -16,6 +17,9 @@ ReactDOM.render(
         </Route>
         <Route exact path="/settings">
           <Settings/>
+        </Route>
+        <Route exact path="/facebook_login">
+          <FacebookLogin/>
         </Route>
       </Switch>
     </Router>
