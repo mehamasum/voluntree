@@ -10,10 +10,32 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+import environ
 import os
 
-# Build paths inside the project like this: os.path.join(BASE_DIR, ...)
+# Project Base Paths
+# project_root/api/config/settings.py - 3 = project_root/
+ROOT_DIR = environ.Path(__file__) - 3
+API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+# Load OS environment variables and then prepare to use them
+env = environ.Env()
+DJANGO_ENV = env.str('DJANGO_ENV', default='development')
+
+# Loading .env file from root directory to set environment.
+# OS Environment variables have precedence over variables defined
+# in the .env file, that is to say variables from the .env files
+# will only be used if not defined as environment variables.
+env_file = ROOT_DIR('.env')
+env.read_env(env_file)
+
+if DJANGO_ENV == 'development':
+    # SECURITY WARNING: don't run with debug turned on in production!
+    # https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DEBUG
+
+    DEBUG = True
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -61,6 +83,7 @@ REST_FRAMEWORK = {
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
     ),
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
 
@@ -144,3 +167,6 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 API_BROWSER_HEADER = 'Voluntree'
+
+FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
+FACEBOOK_APP_SECRET = env.str('FACEBOOK_APP_SECRET', default='')
