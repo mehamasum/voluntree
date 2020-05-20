@@ -7,7 +7,7 @@ class FacebookService:
     REDIRECT_URI = getattr(settings, 'FACEBOOK_OAUTH_REDIRECT_URI', '')
     STATE = getattr(settings, 'FACEBOOK_OAUTH_STATE', '')
     SCOPE = getattr(settings, 'FACEBOOK_OAUTH_SCOPE', '')
-    OAUTH_BASE_URL = 'https://www.facebook.com/v6.0/dialog/oauth'
+    OAUTH_BASE_URL = 'https://www.facebook.com/v7.0/dialog/oauth'
     ACCESS_TOKEN_BASE_URL = 'https://graph.facebook.com/v7.0/oauth/access_token'
     DEBUG_TOKEN_BASE_URL = 'https://graph.facebook.com/debug_token'
 
@@ -58,4 +58,5 @@ class FacebookService:
             user_id, access_token)
         if not access_token or not user_id or not pages_token:
             return False
+        print(pages_token)
         return True

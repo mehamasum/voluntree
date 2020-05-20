@@ -9,7 +9,7 @@ const Settings = props => {
   const [oauth_url] = useFetch('/api/voluntree/facebook/oauth_url/')
 
   const onClickConnect = () => {
-    window.open(oauth_url, "Popup", "width=1000,height=800");
+    window.open(oauth_url, "Popup", "width=800,height=800");
   };
 
   return (

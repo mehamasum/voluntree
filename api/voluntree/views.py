@@ -19,7 +19,7 @@ class FacebookApiViewSet(ViewSet):
 
     @action(detail=False, methods=['post'])
     def verify_oauth(self, request):
-        code = request.POST.get('code')
+        code = request.data.get('code')
         if FacebookService.save_pages_access_token(code):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
