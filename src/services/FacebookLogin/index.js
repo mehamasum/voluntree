@@ -6,12 +6,14 @@ function useQuery() {
 }
 
 const FacebookLogin = props => {
+  const query = useQuery();
+
   useEffect(() => {
     //window.opener.location.reload();
     //window.close();
   }, []);
 
-  console.log("params", useQuery().get('error'));
+  console.log("params", useQuery().get('code'));
 
   return (
     <React.Fragment>
