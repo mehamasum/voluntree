@@ -1,5 +1,33 @@
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
+## Preparing Project for Development
+
+# goto project root
+cd YOUR_PROJECT_ROOT_DIRECTORY
+
+# setup python virtual environment for project 
+```py
+    virtualenv -p python3.6 .venv # for linux
+    virtualenv .venv # for windows
+```
+
+# install backend (api) dependencies
+pip install -r api/requirements.txt
+
+
+# activate virtual environment
+```py
+    source .venv/bin/activate # for linux
+    .venv/Scripts/activate  # for windowns
+
+```
+
+# migrate database with the application models
+python api/manage.py migrate
+
+# run backend server
+python api/manage.py runserver
+
 ## Available Scripts
 
 In the project directory, you can run:
