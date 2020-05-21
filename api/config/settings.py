@@ -60,7 +60,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'django_filters'
+    'django_filters',
+    'voluntree'
 ]
 
 REST_FRAMEWORK = {
@@ -146,6 +147,12 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+# Custom User Model
+# https://docs.djangoproject.com/en/2.0/topics/auth/customizing/#substituting-a-custom-user-model
+
+AUTH_USER_MODEL = 'voluntree.User'
+
 
 
 # Internationalization
