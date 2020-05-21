@@ -4,23 +4,22 @@ import 'antd/dist/antd.css';
 import './assets/css/index.css';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import App from './App';
+import {LoginView} from './services/Auth';
 import Settings from './services/Settings';
 import FacebookLogin from './services/FacebookLogin';
 import * as serviceWorker from './serviceWorker';
+import PrivateRoute from './routes/PrivateRoute';
 
 ReactDOM.render(
   <React.Fragment>
     <Router>
       <Switch>
-        <Route exact path="/">
-          <App/>
+        <Route exact path="/login">
+          <LoginView/>
         </Route>
-        <Route exact path="/settings">
-          <Settings/>
-        </Route>
-        <Route exact path="/facebook_login">
-          <FacebookLogin/>
-        </Route>
+        <PrivateRoute exact path="/" component={App} />
+        <PrivateRoute exact path="/settings/" component={Settings} />
+        <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} />
       </Switch>
     </Router>
   </React.Fragment>,

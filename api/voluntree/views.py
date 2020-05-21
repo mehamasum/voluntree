@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .services import FacebookService
 
@@ -15,7 +15,7 @@ class VoluntreeApiListView(APIView):
 
 
 class FacebookApiViewSet(ViewSet):
-    permission_classes = (AllowAny, )
+    permission_classes = (IsAuthenticated, )
 
     @action(detail=False, methods=['post'])
     def verify_oauth(self, request):
