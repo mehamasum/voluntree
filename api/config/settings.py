@@ -47,7 +47,7 @@ SECRET_KEY = 'x%j(oz1=qzs+f_zrmtqz8%49$y@7pq6--fvko%4i_x_z@!js0e'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework.authtoken',
     'django_filters',
     'voluntree'
 ]
@@ -69,6 +70,7 @@ REST_FRAMEWORK = {
     ('rest_framework.permissions.DjangoModelPermissions', ),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
+        'rest_framework.authentication.TokenAuthentication'
     ),
     'DEFAULT_THROTTLE_CLASSES': (
         'rest_framework.throttling.AnonRateThrottle',

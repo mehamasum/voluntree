@@ -20,7 +20,9 @@ const FacebookLogin = props => {
     if(!code) return;
     fetch('/api/voluntree/facebook/verify_oauth/', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem('token')}`},
       body: JSON.stringify({'code': code})
     })
     .then(response => response.status)

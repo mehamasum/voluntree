@@ -10,17 +10,20 @@ export const useFetch = (fetch_url = '') => {
     const abortController = new AbortController();
     const signal = abortController.signal;
     setIsLoading(true);
-    fetch(url, { signal: signal })
-      .then(results => results.json())
-      .then(response => {
-        setIsLoading(false);
-        setResponse(response);
-      })
-      .catch(err => {
-        setIsLoading(false);
-        if (err.name === 'AbortError') return;
-        setError(err);
-        //throw err;
+    fetch(url, {
+    signal: signal,
+    headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
+    })
+    .then(results => results.json())
+    .then(response => {
+      setIsLoading(false);
+      setResponse(response);
+    })
+    .catch(err => {
+      setIsLoading(false);
+      if (err.name === 'AbortError') return;
+      setError(err);
+      //throw err;
       });
     return () => {
       abortController.abort();

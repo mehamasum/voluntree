@@ -22,6 +22,7 @@ from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 from voluntree.views import VoluntreeApiListView
 from .router import DefaultRouterWithAPIViews
+from rest_framework.authtoken.views import obtain_auth_token
 
 router = SimpleRouter()
 
@@ -32,6 +33,7 @@ voluntree_api_urls = include(('voluntree.urls', 'voluntree'), 'voluntree')
 
 urlpatterns = [
     path('api/', doc_urls),
+    path('api/auth/token/', obtain_auth_token, name='api_token_auth'),
     path('api/schema/', schema_view),
     path('api/browser/', api_browser_urls),
     path('api/admin/', admin.site.urls),
