@@ -5,28 +5,34 @@ This project was bootstrapped with [Create React App](https://github.com/faceboo
 # goto project root
 cd YOUR_PROJECT_ROOT_DIRECTORY
 
-# setup python virtual environment for project 
+### setup python virtual environment for project 
 ```py
     virtualenv -p python3.6 .venv # for linux
     virtualenv .venv # for windows
 ```
 
-# install backend (api) dependencies
+### install backend (api) dependencies
+```py
 pip install -r api/requirements.txt
+```
 
 
-# activate virtual environment
+### activate virtual environment
 ```py
     source .venv/bin/activate # for linux
     .venv/Scripts/activate  # for windowns
 
 ```
 
-# migrate database with the application models
+### migrate database with the application models
+```py
 python api/manage.py migrate
+```
 
-# run backend server
+### run backend server
+```py
 python api/manage.py runserver
+```
 
 ## Available Scripts
 
