@@ -28,3 +28,14 @@ class FacebookApiViewSet(ViewSet):
     def oauth_url(self, request):
         url = FacebookService.get_oauth_url()
         return Response(url)
+
+    @action(detail=False, methods=['get', 'post'])
+    def webhook(self, request):
+        if request.method == 'GET':
+            mode = request.query_params.get('hub.mode')
+            token = request.query_params.get('hub.verify_token')
+            challenge = request.query_params.get('hub.challenge')
+            print("mode", mode, "token", token, "challenge", challenge)
+            if mode == 'subscribe' and token == 'xyz':
+                return Response(int(challenge))
+            return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
