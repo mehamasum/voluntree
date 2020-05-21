@@ -1,5 +1,7 @@
 import requests
+from datetime import datetime, timedelta
 from django.conf import settings
+from .models import Page
 
 class FacebookService:
     FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
@@ -50,13 +52,31 @@ class FacebookService:
         return pages_token
 
     @staticmethod
-    def save_pages_access_token(code):
+    def save_pages_access_token(code, user):
         #TODO need to store pages token here
         access_token = FacebookService.get_access_token(code)
         user_id = FacebookService.get_user_id(access_token)
         pages_token = FacebookService.get_pages_access_token(
-            user_id, access_token)
+            user_id, access_token).get('data', [])
         if not access_token or not user_id or not pages_token:
             return False
-        print(pages_token)
+
+        organization = user.organization
+        for page in pages_token:
+            name = page.get('name', '')
+            facebook_page_id = page.get('id', '')
+            page_access_token = page.get('access_token', '')
+            page_expiry_token_date = datetime.now() + timedelta(days=59)
+            print("page", page)
+            print("organization", organization)
+            print("name", name)
+            print("facebook_page_id", facebook_page_id)
+            print("page_access_token", page_access_token)
+            print("page_expiry_token_date", page_expiry_token_date)
+            print("######")
+            Page.objects.update_or_create(
+                facebook_page_id=facebook_page_id,
+                defaults={'organization': organization, 'name': name,
+                          'user': user, 'page_access_token': page_access_token,
+                          'page_expiry_token_date': page_expiry_token_date})
         return True
