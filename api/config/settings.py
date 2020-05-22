@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django_celery_results',
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
@@ -131,6 +132,23 @@ DATABASES = {
     }
 }
 
+# Caching Settings
+# https://docs.djangoproject.com/en/2.0/topics/cache/
+
+REDIS_LOCATION = '{0}/{1}'.format(
+    env.str('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+CACHES = {
+    'default': {
+        'BACKEND': 'django_redis.cache.RedisCache',
+        'LOCATION': REDIS_LOCATION,
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+            'IGNORE_EXCEPTIONS': True,  # mimics memcache behavior.
+            # http://niwinz.github.io/django-redis/latest/#_memcached_exceptions_behavior
+        }
+    }
+}
+
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -177,8 +195,20 @@ USE_TZ = True
 STATIC_URL = '/static/'
 API_BROWSER_HEADER = 'Voluntree'
 
+
 FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
 FACEBOOK_APP_SECRET = env.str('FACEBOOK_APP_SECRET', default='')
 FACEBOOK_OAUTH_REDIRECT_URI = env.str('FACEBOOK_OAUTH_REDIRECT_URI', default='')
 FACEBOOK_OAUTH_STATE = env.str('FACEBOOK_OAUTH_STATE', default='')
 FACEBOOK_OAUTH_SCOPE = env.str('FACEBOOK_OAUTH_SCOPE', default='')
+
+
+# Celery Settings
+# http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
+
+CELERY_BROKER_URL = REDIS_LOCATION
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
