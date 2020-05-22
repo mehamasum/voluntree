@@ -4,7 +4,7 @@ const { Header } = Layout;
 
 const AuthenticatedLayout = props => {
   return (
-    <Layout>
+    <Layout style={{minHeight: '100vh'}}>
       <Header className="header">
         <div className="logo" />
         <Menu theme="dark" mode="horizontal" defaultSelectedKeys={['2']}>
@@ -13,9 +13,7 @@ const AuthenticatedLayout = props => {
           <Menu.Item key="3">nav 3</Menu.Item>
         </Menu>
       </Header>
-      <Layout>
-        {props.children}
-      </Layout>
+      {props.children}
     </Layout>
   );
 };

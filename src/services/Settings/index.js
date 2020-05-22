@@ -15,27 +15,25 @@ const Settings = props => {
   return (
     <React.Fragment>
       <AuthenticatedLayout>
-          <Layout style={{ padding: '0 24px 24px' }}>
-            <Content
-              className="site-layout-background"
-              style={{
-                padding: 24,
-                margin: 0,
-                minHeight: 280,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center'
-              }}
-            >
-              <Button
-                type="primary"
-                disabled={!oauth_url}
-                onClick={onClickConnect}
-              >
-                  Content With Page
-              </Button>
-            </Content>
-          </Layout>
+        <Content
+          className="site-layout-background"
+          style={{
+            padding: 24,
+            margin: 0,
+            minHeight: 280,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          <Button
+            type="primary"
+            disabled={!oauth_url}
+            onClick={onClickConnect}
+          >
+              Content With Page
+          </Button>
+        </Content>
       </AuthenticatedLayout>
     </React.Fragment>
   );
