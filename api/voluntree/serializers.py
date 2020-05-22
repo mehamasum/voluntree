@@ -9,9 +9,14 @@ class PageSerializer(serializers.ModelSerializer):
 
 
 class PostSerializer(serializers.ModelSerializer):
+    page_name = serializers.SerializerMethodField()
+
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page')
+        fields = ('id', 'status', 'page', 'page_name')
+
+    def get_page_name(self, obj):
+        return obj.page.name
 
     def create(self, validated_data):
         user = self.context.get('request').user

@@ -31,7 +31,7 @@ const PostCreateView = props => {
     })
     .then(result => {
       setLoading(false);
-      if(status===201) history.push("/");
+      if(status===201) history.push("/posts");
       else {
         setErrorMsg(result.error.message);
       }

@@ -29,7 +29,7 @@ class PostViewSet(ModelViewSet):
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        return Post.objects.all()
+        return self.request.user.posts.all()
 
     def create(self, request):
         serializer = self.serializer_class(
