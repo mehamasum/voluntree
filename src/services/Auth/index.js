@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import './styles.css';
-import { Form, Input, Button, Checkbox } from 'antd';
+import { Form, Input, Button } from 'antd';
 import { Redirect } from "react-router-dom";
 import { Layout } from 'antd';
 import { Card } from 'antd';

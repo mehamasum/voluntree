@@ -5,6 +5,7 @@ export const useFetch = (fetch_url = '') => {
   const [response, setResponse] = useState();
   const [error, setError] = useState();
   const [is_loading, setIsLoading] = useState(false);
+  const [status, setStatus] = useState();
   useEffect(() => {
     if (!url) return;
     const abortController = new AbortController();
@@ -14,7 +15,10 @@ export const useFetch = (fetch_url = '') => {
     signal: signal,
     headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
     })
-    .then(results => results.json())
+    .then(results => {
+      setStatus(results.status);
+      return results.json();
+    })
     .then(response => {
       setIsLoading(false);
       setResponse(response);
@@ -29,5 +33,5 @@ export const useFetch = (fetch_url = '') => {
       abortController.abort();
     };
   }, [url]);
-  return [response, setResponse, setUrl, error, is_loading];
+  return [response, setResponse, setUrl, error, status, is_loading];
 };
