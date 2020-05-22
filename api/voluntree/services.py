@@ -3,6 +3,18 @@ from datetime import datetime, timedelta
 from django.conf import settings
 from .models import Page
 
+class PostService:
+    @staticmethod
+    def create_post_on_facebook_page(page, status):
+        post_create_url = ('https://graph.facebook.com/%s/feed'
+                           % page.facebook_page_id)
+        params = {
+            'access_token': page.page_access_token,
+            'message': status
+        }
+        return requests.post(post_create_url, params)
+
+
 class FacebookService:
     FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
     FACEBOOK_APP_SECRET = getattr(settings, 'FACEBOOK_APP_SECRET', '')

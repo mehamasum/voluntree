@@ -3,16 +3,16 @@ import { Form, Input, Button, Select } from 'antd';
 const {Option} = Select;
 
 const PostForm = props => {
-  const {onSubmit = () => {}, initialValues={}} = props;
+  const {onSubmit = () => {}, initialValues={}, pages=[]} = props;
 
   return (
     <React.Fragment>
       <Form name="basic" initialValues={initialValues} onFinish={onSubmit}>
         <Form.Item name="page" label="Page" rules={[{ required: true }]}>
           <Select placeholder="Select a Page to give post" allowClear >
-            <Option value="F9.wink">F9.wink</Option>
-            <Option value="page1">page1</Option>
-            <Option value="page2">page2</Option>
+            {pages.map(page => {
+              return <Option value={page.id} key={page.id}>{page.name}</Option>;
+            })}
           </Select>
         </Form.Item>
 
