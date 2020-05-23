@@ -18,6 +18,13 @@ const { Header, Sider, Content, Footer } = Layout;
 const DashboardTemplate = ({ ...props }) => {
   const [state, setState] = useState(false);
  
+  const onLoggedOutClick = () => {
+    const hasToken = localStorage.getItem('token');
+    if( hasToken ) {
+      localStorage.removeItem('token');
+      window.location.reload(false);
+    }
+  }
 
   const toggle = () => {
     setState( state ? false : true );
@@ -40,7 +47,7 @@ const DashboardTemplate = ({ ...props }) => {
             <Menu.Item key="4" icon={<SettingOutlined />}>
               Settings
             </Menu.Item>
-            <Menu.Item key="5" icon={<LogoutOutlined />}>
+            <Menu.Item key="5" icon={<LogoutOutlined />} onClick={onLoggedOutClick}>
               Log Out
             </Menu.Item>
           </Menu>
