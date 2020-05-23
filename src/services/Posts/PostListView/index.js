@@ -1,5 +1,4 @@
 import React, { useMemo, useState, useCallback, useEffect } from 'react';
-import AuthenticatedLayout from '../../Layouts';
 import { useFetch } from '../../../hooks';
 import { Card } from 'antd';
 import { Layout } from 'antd';
@@ -52,14 +51,12 @@ const PostListView = props => {
 
   return (
     <React.Fragment>
-      <AuthenticatedLayout>
         <Content className="center-content">
           <Card title="Post List view" style={{width: '50%', height: '50%'}}>
             <Link to={`/posts/create`}>Post new</Link>
             <Table columns={columns} dataSource={tableData} pagination={pagination} onChange={onChangeTable}/>
           </Card>
         </Content>
-      </AuthenticatedLayout>
     </React.Fragment>
   );
 };
