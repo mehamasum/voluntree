@@ -2,9 +2,9 @@ import React from 'react';
 
 import Template from '../../template';
 
-const Dashboard = () => {
+const Dashboard = ({...props}) => {
     return (
-        <Template>
+        <Template {...props}>
             "Muri khao basay giya"
         </Template>
     )
