@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import AuthenticatedLayout from '../../Layouts';
+import Template from '../../../template';
 import { useParams } from "react-router-dom";
 import { Card } from 'antd';
 import { Layout } from 'antd';
@@ -16,13 +16,13 @@ const PostEditView = props => {
   console.log("post id", id);
   return (
     <React.Fragment>
-      <AuthenticatedLayout>
+      <Template {...props}>
         <Content className="center-content">
           <Card title="Edit Post" style={{width: '50%', height: '50%'}}>
             <PostFrom onSubmit={onSubmit} initialValues={{status: 'test'}}/>
           </Card>
         </Content>
-      </AuthenticatedLayout>
+      </Template>
     </React.Fragment>
   );
 };

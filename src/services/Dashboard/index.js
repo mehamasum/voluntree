@@ -1,11 +1,12 @@
 import React from 'react';
 
 import Template from '../../template';
+import PostList from '../Posts/PostListView';
 
-const Dashboard = () => {
+const Dashboard = ({...props}) => {
     return (
-        <Template>
-            "Muri khao basay giya"
+        <Template {...props}>
+            <PostList />
         </Template>
     )
 };

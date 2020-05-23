@@ -1,5 +1,5 @@
 import React from 'react';
-import AuthenticatedLayout from '../Layouts';
+import Template from '../../template';
 import { useFetch } from '../../hooks';
 import { Button } from 'antd';
 import { Layout } from 'antd';
@@ -14,7 +14,7 @@ const Settings = props => {
 
   return (
     <React.Fragment>
-      <AuthenticatedLayout>
+      <Template>
         <Content
           className="site-layout-background"
           style={{
@@ -34,7 +34,7 @@ const Settings = props => {
               Content With Page
           </Button>
         </Content>
-      </AuthenticatedLayout>
+      </Template>
     </React.Fragment>
   );
 };

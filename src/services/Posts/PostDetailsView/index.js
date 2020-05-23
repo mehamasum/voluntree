@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import AuthenticatedLayout from '../../Layouts';
+import Template from '../../../template';
 import { useParams } from "react-router-dom";
 import { useFetch } from '../../../hooks';
 import { Card } from 'antd';
@@ -18,7 +18,7 @@ const PostEditView = props => {
 
   return (
     <React.Fragment>
-      <AuthenticatedLayout>
+      <Template {...props}>
         <Content className="center-content">
           <Card title="Details View" style={{width: '50%', height: '50%'}}>
             {status===404 && <Alert message={"No Record Found"} type="error" banner closable/> }
@@ -27,7 +27,7 @@ const PostEditView = props => {
             <p>Details view status: {post.status}</p>
           </Card>
         </Content>
-      </AuthenticatedLayout>
+      </Template>
     </React.Fragment>
   );
 };

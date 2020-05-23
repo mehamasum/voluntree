@@ -18,6 +18,19 @@ const { Header, Sider, Content, Footer } = Layout;
 const DashboardTemplate = ({ ...props }) => {
   const [state, setState] = useState(false);
  
+  const onLoggedOutClick = () => {
+    const hasToken = localStorage.getItem('token');
+    if( hasToken ) {
+      localStorage.removeItem('token');
+      window.location.reload(false);
+    }
+  }
+
+  const goToPage = (url) => {
+    if(url) {
+      props.history.push(url);
+    }
+  }
 
   const toggle = () => {
     setState( state ? false : true );
@@ -28,19 +41,19 @@ const DashboardTemplate = ({ ...props }) => {
         <Sider trigger={null} collapsible collapsed={state}>
           <div className="logo" />
           <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <Menu.Item key="1" icon={<AppstoreOutlined />}>
+            <Menu.Item key="1" icon={<AppstoreOutlined />} onClick={() => goToPage('/')}>
               Dashboard
             </Menu.Item>
-            <Menu.Item key="2" icon={<FormOutlined />}>
+            <Menu.Item key="2" icon={<FormOutlined />}  onClick={() => goToPage('/posts/create/')}>
               Create New Post
             </Menu.Item>
-            <Menu.Item key="3" icon={<UnorderedListOutlined />}>
+            <Menu.Item key="3" icon={<UnorderedListOutlined />}  onClick={() => goToPage()}>
               Volunteer List 
             </Menu.Item>
-            <Menu.Item key="4" icon={<SettingOutlined />}>
+            <Menu.Item key="4" icon={<SettingOutlined />}  onClick={() => goToPage('/settings/')}>
               Settings
             </Menu.Item>
-            <Menu.Item key="5" icon={<LogoutOutlined />}>
+            <Menu.Item key="5" icon={<LogoutOutlined />} onClick={onLoggedOutClick}>
               Log Out
             </Menu.Item>
           </Menu>
