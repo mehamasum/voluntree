@@ -3,7 +3,7 @@ import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import './assets/css/index.css';
 import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
-import App from './App';
+import Dashboard from './services/Dashboard';
 import {LoginView} from './services/Auth';
 import * as serviceWorker from './serviceWorker';
 import PrivateRoute from './routes/PrivateRoute';
@@ -21,7 +21,7 @@ ReactDOM.render(
         <Route exact path="/login">
           <LoginView/>
         </Route>
-        <PrivateRoute exact path="/" component={App} />
+        <PrivateRoute exact path="/" component={Dashboard} />
         <PrivateRoute exact path="/settings/" component={Settings} />
         <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} />
         <PrivateRoute exact path="/posts/" component={PostListView} />
