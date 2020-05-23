@@ -1,3 +1,4 @@
+import json
 import requests
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -65,7 +66,6 @@ class FacebookService:
 
     @staticmethod
     def save_pages_access_token(code, user):
-        #TODO need to store pages token here
         access_token = FacebookService.get_access_token(code)
         user_id = FacebookService.get_user_id(access_token)
         pages_token = FacebookService.get_pages_access_token(
@@ -79,16 +79,25 @@ class FacebookService:
             facebook_page_id = page.get('id', '')
             page_access_token = page.get('access_token', '')
             page_expiry_token_date = datetime.now() + timedelta(days=59)
-            print("page", page)
-            print("organization", organization)
-            print("name", name)
-            print("facebook_page_id", facebook_page_id)
-            print("page_access_token", page_access_token)
-            print("page_expiry_token_date", page_expiry_token_date)
-            print("######")
             Page.objects.update_or_create(
                 facebook_page_id=facebook_page_id,
                 defaults={'organization': organization, 'name': name,
                           'user': user, 'page_access_token': page_access_token,
                           'page_expiry_token_date': page_expiry_token_date})
         return True
+
+    #SEND message on comment
+    # send_private_message(page, {"comment_id": "commentId"}, {"text": "msg"})
+    #SEND message on conversation
+    # send_private_message(page, {"id": "psid"}, {"text": "msg"})
+
+    def send_private_message(page, recipient, message):
+        headers = {'content-type': "application/json"}
+        url = 'https://graph.facebook.com/%s/messages' % page.facebook_page_id
+        params = json.dumps({
+            "access_token": page.page_access_token,
+            "recipient": recipient,
+            "message": message
+        })
+
+        return requests.post(url, headers=headers, data=params)
