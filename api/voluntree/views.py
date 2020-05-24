@@ -7,7 +7,7 @@ from rest_framework.response import Response
 from .services import FacebookService, PostService
 from .serializers import PageSerializer, PostSerializer
 from .models import Post
-from .tasks import send_message_on_comment
+from .ml.pipeline import pipleline
 
 
 class VoluntreeApiListView(APIView):
@@ -74,5 +74,6 @@ class FacebookApiViewSet(ViewSet):
             if mode == 'subscribe' and token == 'xyz':
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
-        send_message_on_comment.apply_async((request.data, ))
+        
+        pipleline(request.data)
         return Response(status.HTTP_200_OK)

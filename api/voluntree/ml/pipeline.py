@@ -5,7 +5,7 @@ import redisai
 import numpy as np
 import nltk
 from nltk.stem.lancaster import LancasterStemmer
-
+from ..tasks import send_message_on_comment
 
 
 nltk.download('punkt')
@@ -83,7 +83,8 @@ def envoke_task(result):
         return
 
     # TODO task(result['hook_payload'])
-    print('Intersted comment', result)
+    xlog("envoke_task", result)
+    send_message_on_comment.apply_async((result['hook_payload'], ))
 
 def pipleline(hook_payload):
     r = preprocess(hook_payload)
