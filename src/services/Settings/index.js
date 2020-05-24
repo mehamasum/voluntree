@@ -14,7 +14,7 @@ const Settings = props => {
 
   return (
     <React.Fragment>
-      <Template>
+      <Template {...props}>
         <Content
           className="site-layout-background"
           style={{
