@@ -1,6 +1,6 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { useHistory } from "react-router-dom";
-import AuthenticatedLayout from '../../Layouts';
+import Template from '../../../template';
 import { Spin, Space } from 'antd';
 import { useFetch } from '../../../hooks';
 import { Card } from 'antd';
@@ -48,7 +48,7 @@ const PostCreateView = props => {
 
   return (
     <React.Fragment>
-      <AuthenticatedLayout>
+      <Template {...props}>
         <Content className="center-content">
           <Card title="Create Post" style={{width: '50%', height: '50%'}}>
             <Space size="middle">
@@ -59,7 +59,7 @@ const PostCreateView = props => {
             <PostFrom onSubmit={onSubmit} pages={pages}/>
           </Card>
         </Content>
-      </AuthenticatedLayout>
+      </Template>
     </React.Fragment>
   );
 };
