@@ -37,7 +37,7 @@ python api/manage.py runserver
 ### run celery
 ```py
 cd api
-celery -A config worker -l info
+celery -A config worker -B -l info
 ```
 
 ## Available Scripts
