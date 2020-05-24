@@ -23,7 +23,7 @@ data = json.loads("""
 """)
 dictionary = data['words']
 output_classes = data['classes']
-
+target_class = output_classes.index("interested")
 
 def xlog(*args):
     """
@@ -31,7 +31,9 @@ def xlog(*args):
     """
     print(' '.join(map(str, args)))
 
-def preprocess(sentence):
+def preprocess(hook_payload):
+    sentence = hook_payload['value']['message']
+
     # tokenize the pattern
     sentence_words = nltk.word_tokenize(sentence)
     # stem each word
@@ -44,30 +46,49 @@ def preprocess(sentence):
             if w == s: 
                 embeding[i] = 1
     
-    xlog('Processed', embeding)
-    return {
-        'sentence': sentence,
+    res = {
+        'hook_payload': hook_payload,
         'embeding': embeding
     }
+    
+    xlog("preprocess", res)
+    return res
 
 def model_run(embedding):
-    print(embedding)
-    
-    res = conn.tensorset('tensor:input-interestnet', embedding['embeding'], shape=(1, 44), dtype='float')
-    print(res)
+    MODEL = 'model:interestnet'
+    INPUT = 'tensor:input-interestnet'
+    OUTPUT = 'tensor:output-interestnet'
 
-    res = conn.modelrun('model:interestnet', inputs=['tensor:input-interestnet'], outputs=['tensor:output-interestnet'])
-    print(res)
+    res = conn.tensorset(INPUT, embedding['embeding'], shape=(1, 44), dtype='float')
+    xlog("tensorset", INPUT, res)
 
-    res = conn.tensorget('tensor:output-interestnet', as_numpy=True)
-    print(res)
+    res = conn.modelrun(MODEL, inputs=[INPUT], outputs=[OUTPUT])
+    xlog("modelrun", MODEL, res)
+
+    res = conn.tensorget(OUTPUT, as_numpy=True)
+    xlog("tensorget", OUTPUT, res)
 
     index = np.argmax(res)
 
-    print("OUTPUT:", index, output_classes[index])
+    res = {
+        'hook_payload': embedding['hook_payload'],
+        'interested': True if index == target_class else False
+    }
 
-def envoke_task():
-    pass
+    xlog("model_run", res)
+    return res
+
+def envoke_task(result):
+    if not result['interested']:
+        return
+
+    # TODO task(result['hook_payload'])
+    print('Intersted comment', result)
+
+def pipleline(hook_payload):
+    r = preprocess(hook_payload)
+    r = model_run(r)
+    r = envoke_task(r)
 
 
 """
