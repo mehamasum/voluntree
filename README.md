@@ -34,6 +34,12 @@ python api/manage.py migrate
 python api/manage.py runserver
 ```
 
+### run celery
+```py
+cd api
+celery -A config worker -l info
+```
+
 ## Available Scripts
 
 In the project directory, you can run:
