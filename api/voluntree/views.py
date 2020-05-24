@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from .services import FacebookService, PostService
 from .serializers import PageSerializer, PostSerializer
 from .models import Post
+from .tasks import send_message_on_comment
 
 
 class VoluntreeApiListView(APIView):
@@ -41,7 +42,9 @@ class PostViewSet(ModelViewSet):
             if fb_post.status_code != 200:
                 return Response(
                     fb_post.json(), status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
+            post = serializer.save()
+            post.facebook_post_id = fb_post.json().get('id', 'x_y').split('_')[1]
+            post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -61,13 +64,15 @@ class FacebookApiViewSet(ViewSet):
         url = FacebookService.get_oauth_url()
         return Response(url)
 
-    @action(detail=False, methods=['get', 'post'])
-    def webhook(self, request):
+    @action(detail=False, methods=['get', 'post'], url_path='webhook:page',
+            permission_classes=[AllowAny])
+    def page_webhook(self, request):
         if request.method == 'GET':
             mode = request.query_params.get('hub.mode')
             token = request.query_params.get('hub.verify_token')
             challenge = request.query_params.get('hub.challenge')
-            print("mode", mode, "token", token, "challenge", challenge)
             if mode == 'subscribe' and token == 'xyz':
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
+        send_message_on_comment.apply_async((request.data, ))
+        return Response(status.HTTP_200_OK)

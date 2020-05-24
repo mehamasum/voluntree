@@ -32,6 +32,7 @@ const columns = [
 const PostListView = props => {
   const [posts_response,, setUrl] = useFetch('/api/voluntree/posts/?limit=25&offset=0');
   const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
+  const [total, setTotal] = useState(0);
 
   const tableData = useMemo(() => {
     if(!posts_response) return [];
@@ -46,15 +47,15 @@ const PostListView = props => {
 
   useEffect(() => {
     if(!posts_response) return;
-    setPagination({...pagination, total: posts_response.count});
+    setTotal(posts_response.count);
   }, [posts_response]);
 
   return (
     <React.Fragment>
         <Content className="center-content">
-          <Card title="Post List view" style={{width: '50%', height: '50%'}}>
+          <Card title="Post List view" style={{width: '50%'}}>
             <Link to={`/posts/create`}>Post new</Link>
-            <Table columns={columns} dataSource={tableData} pagination={pagination} onChange={onChangeTable}/>
+            <Table columns={columns} dataSource={tableData} pagination={{...pagination, total}} onChange={onChangeTable}/>
           </Card>
         </Content>
     </React.Fragment>
