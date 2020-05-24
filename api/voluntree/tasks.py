@@ -1,6 +1,8 @@
+import logging
 from config.celery import app
 from .models import Post
 from .services import FacebookService
+
 
 @app.task
 def nested():
@@ -20,6 +22,11 @@ def send_message_on_comment(data):
     try:
         post = Post.objects.get(facebook_post_id=post_id)
     except Post.DoesNotExist:
+        msg = (
+            "No post found in Voluntree System Associated with this comment %s"
+            % comment_id
+        )
+        logging.warning(msg)
         return
     page = post.page
     recipient = {'comment_id': comment_id}
