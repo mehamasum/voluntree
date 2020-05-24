@@ -63,7 +63,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework.authtoken',
     'django_filters',
-    'voluntree'
+    'voluntree',
+    'schedule_task'
 ]
 
 REST_FRAMEWORK = {
