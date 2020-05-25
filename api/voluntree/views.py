@@ -91,10 +91,11 @@ class FacebookApiViewSet(ViewSet):
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
         
-        print(request.data)
         volunteer = VolunteerService \
             .get_or_create_volunteer_from_postback_data(request.data)
-        InterestService.create_or_update_intereset_from_postback_data(
-            volunteer, request.data)
-        print("Volunteer", volunteer)
-        return Response(status.HTTP_200_OK)
+        success = InterestService \
+            .create_or_update_intereset_from_postback_data(
+                volunteer, request.data)
+        if success:
+            return Response(status.HTTP_200_OK)
+        return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
