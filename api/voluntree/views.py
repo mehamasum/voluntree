@@ -6,9 +6,11 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .services import (FacebookService, PostService, VolunteerService,
                        InterestService)
-from .serializers import PageSerializer, PostSerializer
-from .models import Post
+
+from .serializers import PageSerializer, PostSerializer, InterestGeterializer
+from .models import Post, Interest
 from .ml.pipeline import pipleline
+from .paginations import CreationTimeBasedPagination
 
 
 class VoluntreeApiListView(APIView):
@@ -48,7 +50,15 @@ class PostViewSet(ModelViewSet):
             post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+    
+    @action(detail=True)
+    def interests(self,request, pk):
+        paginator = CreationTimeBasedPagination()
+        queryset = Interest.objects.filter(post=pk, interested=True)
+        queryset = paginator.paginate_queryset(queryset, self.request, view=self)
+        serializer = InterestGeterializer(queryset, many=True)
+        paginated_response = paginator.get_paginated_response(serializer.data)
+        return paginated_response
 
 class FacebookApiViewSet(ViewSet):
     permission_classes = (IsAuthenticated, )

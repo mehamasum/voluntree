@@ -21,9 +21,7 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'generate_response',
-                'from_created_at': None,
-                'limit': 20,
-                'interested': True,
+                'message': 'succesfully connected'
             }
         )
 
@@ -52,11 +50,14 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
 
     # Receive message from room group
     async def generate_response(self, event):
-        from_created_at = event.get('from_created_at')
-        limit = event.get('limit', 20)
-        interested = event.get('interested')
-        queryset = Interest.objects.filter(
-            create_at__lt=from_created_at,interested=interested)[:limit]
+       
+
+        if from_created_at:
+            queryset = Interest.objects.filter(
+                create_at__lt=from_created_at,interested=interested)[:limit]
+        else:
+            queryset = Interest.objects.filter(interested=interested)[:limit]
+
         serializer = InterestGeterializer(queryset, many=True)
         response = InterestGeterializer()
 
