@@ -1,7 +1,9 @@
 import json
 from channels.generic.websocket import AsyncWebsocketConsumer
+from .models import Interest
+from .serializers import InterestGeterializer
 
-class VolunteerConsumer(AsyncWebsocketConsumer):
+class VolunteerInterestConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.room_name = self.scope['url_route']['kwargs']['post_id']
         self.room_group_name = 'interested_%s' % self.room_name
