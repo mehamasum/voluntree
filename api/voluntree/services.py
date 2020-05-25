@@ -2,7 +2,48 @@ import json
 import requests
 from datetime import datetime, timedelta
 from django.conf import settings
-from .models import Page
+from .models import Page, Volunteer, Post, Interest
+
+
+class VolunteerService:
+    @staticmethod
+    def get_or_create_volunteer_from_postback_data(data):
+        facebook_user_id = data.get('entry', [{}])[0] \
+            .get('messaging', [{}])[0].get('sender', {}).get('id')
+        volunteer, _ = Volunteer.objects.get_or_create(
+            facebook_user_id=facebook_user_id)
+        return volunteer
+
+
+class InterestService:
+    @staticmethod
+    def create_or_update_intereset_from_postback_data(volunteer, data):
+        payload = data.get('entry', [{}])[0] \
+            .get('messaging', [{}])[0].get('postback', {}) \
+            .get('payload', 'NO_x_y').split("_")
+        print("payload", payload)
+        status = payload[0]
+        post_id = payload[2]
+        print("status", status)
+        print("post_id", post_id)
+        post = None
+
+        try:
+            post = Post.objects.get(facebook_post_id=post_id)
+        except Post.DoesNotExist:
+            return False
+
+        print(post)
+        intereset, _ = Interest.objects.get_or_create(
+            post=post, volunteer=volunteer)
+
+        interested = False
+        if status == 'YES':
+            interested = True
+        intereset.interested = interested
+        intereset.save()
+        return True
+
 
 class PostService:
     @staticmethod
