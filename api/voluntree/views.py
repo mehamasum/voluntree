@@ -4,7 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from .services import FacebookService, PostService
+from .services import (FacebookService, PostService, VolunteerService,
+                       InterestService)
 from .serializers import PageSerializer, PostSerializer
 from .models import Post
 from .ml.pipeline import pipleline
@@ -77,3 +78,24 @@ class FacebookApiViewSet(ViewSet):
         
         pipleline(request.data)
         return Response(status.HTTP_200_OK)
+
+    @action(detail=False, methods=['get', 'post'],
+            url_path='webhook:messenger', permission_classes=[AllowAny])
+
+    def messenger_webhook(self, request):
+        if request.method == 'GET':
+            mode = request.query_params.get('hub.mode')
+            token = request.query_params.get('hub.verify_token')
+            challenge = request.query_params.get('hub.challenge')
+            if mode == 'subscribe' and token == 'xyz':
+                return Response(int(challenge))
+            return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
+        
+        volunteer = VolunteerService \
+            .get_or_create_volunteer_from_postback_data(request.data)
+        success = InterestService \
+            .create_or_update_intereset_from_postback_data(
+                volunteer, request.data)
+        if success:
+            return Response(status.HTTP_200_OK)
+        return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)

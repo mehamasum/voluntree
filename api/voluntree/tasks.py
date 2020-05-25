@@ -26,7 +26,7 @@ def send_message_on_comment(data):
         return
     page = post.page
     recipient = {'comment_id': comment_id}
-    message = build_comment_chip_message()
+    message = build_comment_chip_message(post)
     wellcome_msg = FacebookService.send_private_message(
         page, recipient, message)
     return wellcome_msg.json()
