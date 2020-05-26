@@ -1,5 +1,6 @@
 import React from 'react';
 import './template.css';
+import logo from '../logo-w-fixed.svg';
 
 import {Layout, Menu, Dropdown} from "antd";
 import {
@@ -34,17 +35,17 @@ const Template = (props) => {
 
   return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Header>
-          <div className="logo" />
+        <Header className="site-header">
+          <div className="app-logo"><img src={logo} className="App-logo" alt="logo" /></div>
           <div className="flex"></div>
           <Dropdown overlay={menu}>
             <a className="ant-dropdown-link" href="#">
-              <Avatar size="large" icon={<UserOutlined />} />
+              <Avatar icon={<UserOutlined />} />
             </a>
           </Dropdown>
         </Header>
         <Layout>
-          <Sider trigger={null} className="site-layout-background">
+          <Sider trigger={null} className="sider-background">
             <Menu mode="inline" defaultSelectedKeys={['1']}>
               <Menu.Item key="1" icon={<AppstoreOutlined />}>
                 <Link to="/">Dashboard</Link>
