@@ -49,7 +49,7 @@ const PostCreateView = props => {
   return (
     <React.Fragment>
       <Content className="center-content">
-        <Card title="Create Post" style={{width: '50%', height: '50%'}}>
+        <Card title="Create New Post">
           <Space size="middle">
             <Spin size="large" spinning={loading}/>
           </Space>
