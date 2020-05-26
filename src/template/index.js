@@ -1,83 +1,71 @@
-import React, { useState } from 'react';
-
-import { Layout, Menu } from 'antd';
-import {
-  MenuUnfoldOutlined,
-  MenuFoldOutlined,
-  AppstoreOutlined,
-  UnorderedListOutlined,
-  FormOutlined,
-  SettingOutlined,
-  LogoutOutlined
-} from '@ant-design/icons';
-
+import React from 'react';
 import './template.css';
 
+import {Layout, Menu, Dropdown} from "antd";
+import {
+  AppstoreOutlined,
+  UnorderedListOutlined,
+  SettingOutlined,
+  UserOutlined
+} from '@ant-design/icons';
+import { Avatar } from 'antd';
+import { Link } from 'react-router-dom';
 const { Header, Sider, Content, Footer } = Layout;
 
-const DashboardTemplate = ({ ...props }) => {
-  const [state, setState] = useState(false);
- 
+
+const Template = (props) => {
   const onLoggedOutClick = () => {
     const hasToken = localStorage.getItem('token');
     if( hasToken ) {
       localStorage.removeItem('token');
       window.location.reload(false);
     }
-  }
-
-  const goToPage = (url) => {
-    if(url) {
-      props.history.push(url);
-    }
-  }
-
-  const toggle = () => {
-    setState( state ? false : true );
   };
 
-    return (
+  const menu = (
+      <Menu>
+        <Menu.Item>
+          <a onClick={e => {e.preventDefault(); onLoggedOutClick();}}>
+            Log Out
+          </a>
+        </Menu.Item>
+      </Menu>
+  );
+
+  return (
       <Layout style={{ minHeight: '100vh' }}>
-        <Sider trigger={null} collapsible collapsed={state}>
+        <Header>
           <div className="logo" />
-          <Menu theme="dark" mode="inline" defaultSelectedKeys={['1']}>
-            <Menu.Item key="1" icon={<AppstoreOutlined />} onClick={() => goToPage('/')}>
-              Dashboard
-            </Menu.Item>
-            <Menu.Item key="2" icon={<FormOutlined />}  onClick={() => goToPage('/posts/create/')}>
-              Create New Post
-            </Menu.Item>
-            <Menu.Item key="3" icon={<UnorderedListOutlined />}  onClick={() => goToPage()}>
-              Volunteer List 
-            </Menu.Item>
-            <Menu.Item key="4" icon={<SettingOutlined />}  onClick={() => goToPage('/settings/')}>
-              Settings
-            </Menu.Item>
-            <Menu.Item key="5" icon={<LogoutOutlined />} onClick={onLoggedOutClick}>
-              Log Out
-            </Menu.Item>
-          </Menu>
-        </Sider>
-        <Layout className="site-layout">
-          <Header className="site-layout-background" style={{ padding: 0 }}>
-            {React.createElement(state ? MenuUnfoldOutlined : MenuFoldOutlined, {
-              className: 'trigger',
-              onClick: toggle,
-            })}
-          </Header>
-          <Content
-            style={{
-              margin: '24px 16px',
-              minHeight: 360,
-              background: '#fff'
-            }}
-          >
-             {props.children}
-          </Content>
-          <Footer style={{ textAlign: 'center' }}> Voluntree ©2020</Footer>
+          <div className="flex"></div>
+          <Dropdown overlay={menu}>
+            <a className="ant-dropdown-link" href="#">
+              <Avatar size="large" icon={<UserOutlined />} />
+            </a>
+          </Dropdown>
+        </Header>
+        <Layout>
+          <Sider trigger={null} className="site-layout-background">
+            <Menu mode="inline" defaultSelectedKeys={['1']}>
+              <Menu.Item key="1" icon={<AppstoreOutlined />}>
+                <Link to="/">Dashboard</Link>
+              </Menu.Item>
+              <Menu.Item key="2" icon={<UnorderedListOutlined />}>
+                <Link to="/volunteers">Volunteers</Link>
+              </Menu.Item>
+              <Menu.Item key="3" icon={<SettingOutlined />}>
+                <Link to="/settings">Settings</Link>
+              </Menu.Item>
+            </Menu>
+          </Sider>
+          <Layout>
+            <Content>
+              {props.children}
+            </Content>
+            <Footer style={{ textAlign: 'center' }}> Voluntree © 2020</Footer>
+          </Layout>
         </Layout>
       </Layout>
-    );
-}
+  );
+};
 
-export default DashboardTemplate;
+export default Template;

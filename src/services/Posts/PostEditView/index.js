@@ -15,13 +15,9 @@ const PostEditView = props => {
 
   return (
     <React.Fragment>
-      <Template {...props}>
-        <Content className="center-content">
-          <Card title="Edit Post" style={{width: '50%', height: '50%'}}>
-            <PostFrom onSubmit={onSubmit} initialValues={{status: 'test'}}/>
-          </Card>
-        </Content>
-      </Template>
+      <Card title="Edit Post" style={{width: '50%', height: '50%'}}>
+        <PostFrom onSubmit={onSubmit} initialValues={{status: 'test'}}/>
+      </Card>
     </React.Fragment>
   );
 };

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Redirect, Route } from "react-router-dom";
+import Template from "../template";
 
 const PrivateRoute = props => {
   const { component: Component, path, ...rest } = props;
@@ -10,7 +11,9 @@ const PrivateRoute = props => {
       {...rest}
       render={props =>
         isAuthenticated ? (
-          <Component {...props} />
+            <Template>
+                <Component {...props} />
+            </Template>
         ) : (
           <Redirect
             to={{
