@@ -20,17 +20,13 @@ const PostEditView = props => {
 
   return (
     <React.Fragment>
-      <Template {...props}>
-        <Content className="center-content">
-          <Card title="Details View" style={{width: '50%', height: '50%'}}>
+        <Card title="Details View" style={{width: '50%', height: '50%'}}>
             {status===404 && <Alert message={"No Record Found"} type="error" banner closable/> }
             <h1>Details view post: {id}</h1>
             <h2>Details view post: {post.page_name}</h2>
             <p>Details view status: {post.status}</p>
-          </Card>
-        </Content>
+        </Card>
         <InterestedVolunteers id={id} />
-      </Template>
     </React.Fragment>
   );
 };

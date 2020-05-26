@@ -1,8 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
 import './assets/css/index.css';
-import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
+import { Route, Switch, BrowserRouter as Router, Link } from 'react-router-dom';
 import Dashboard from './services/Dashboard';
 import {LoginView} from './services/Auth';
 import * as serviceWorker from './serviceWorker';
@@ -13,26 +13,29 @@ import PostCreateView from './services/Posts/PostCreateView';
 import PostEditView from './services/Posts/PostEditView';
 import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
+import Volunteers from './services/Volunteers';
 
-ReactDOM.render(
-  <React.Fragment>
-    <Router>
-      <Switch>
-        <Route exact path="/login">
-          <LoginView/>
-        </Route>
-        <PrivateRoute exact path="/" component={Dashboard} />
-        <PrivateRoute exact path="/settings/" component={Settings} />
-        <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} />
-        <PrivateRoute exact path="/posts/" component={PostListView} />
-        <PrivateRoute exact path="/posts/create/" component={PostCreateView} />
-        <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
-        <PrivateRoute exact path="/posts/:id/" component={PostDetailsView} />
-      </Switch>
-    </Router>
-  </React.Fragment>,
-  document.getElementById('root')
-);
+const App = (props) => {
+  return (
+      <Router>
+        <Switch>
+          <Route exact path="/login">
+            <LoginView/>
+          </Route>
+          <PrivateRoute exact path="/" component={Dashboard} />
+          <PrivateRoute exact path="/settings/" component={Settings} />
+          <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
+          <PrivateRoute exact path="/posts/" component={PostListView} />
+          <PrivateRoute exact path="/posts/create/" component={PostCreateView} />
+          <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
+          <PrivateRoute exact path="/posts/:id/" component={PostDetailsView} />
+          <PrivateRoute exact path="/volunteers" component={Volunteers} />
+        </Switch>
+      </Router>
+  );
+};
+
+ReactDOM.render(<App/>, document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change
 // unregister() to register() below. Note this comes with some pitfalls.
