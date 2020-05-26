@@ -59,8 +59,10 @@ const Template = (props) => {
             </Menu>
           </Sider>
           <Layout>
-            <Content>
-              {props.children}
+            <Content className="common-content-wrapper">
+              <div className="common-content">
+                {props.children}
+              </div>
             </Content>
             <Footer style={{ textAlign: 'center' }}> Voluntree © 2020</Footer>
           </Layout>

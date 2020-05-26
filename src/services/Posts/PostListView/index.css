@@ -1,0 +1,13 @@
+.page-name {
+    margin-left: 8px;
+}
+
+.page-list-view {
+    margin: 16px;
+}
+
+.create-new-post {
+    display: flex;
+    justify-content: flex-end;
+    margin: 16px;
+}

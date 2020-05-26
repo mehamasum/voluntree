@@ -3,7 +3,6 @@ import { useFetch } from '../../hooks';
 import { Table, Space } from 'antd';
 import { Avatar } from 'antd';
 import { Typography } from 'antd';
-import { UserOutlined } from '@ant-design/icons';
 
 
 const columns = [
@@ -13,7 +12,6 @@ const columns = [
     render: (text, record) => (
       <div>
         <Avatar
-          icon={<UserOutlined />}
           src={`https://graph.facebook.com/${record.facebook_page_id}/picture`}
         />
         <Typography.Text strong >{record.name}</Typography.Text>
