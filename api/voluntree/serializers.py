@@ -8,7 +8,7 @@ class PageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Page
-        fields = ('id', 'name', 'is_expired', 'facebook_page_id')
+        fields = ('id', 'name', 'is_expired', 'facebook_page_id', 'page_expiry_token_date')
 
     def get_is_expired(self, obj):
         return obj.page_expiry_token_date < datetime.now().date()

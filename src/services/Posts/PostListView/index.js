@@ -82,7 +82,7 @@ const PostListView = props => {
     }, [posts_response]);
 
     return (
-        <div className="page-list-view">
+        <div>
             <div className="create-new-post">
                 <Button type="primary"><Link to={`/posts/create`}>Create New Post</Link></Button>
             </div>
