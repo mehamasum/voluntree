@@ -16,15 +16,20 @@ class PageSerializer(serializers.ModelSerializer):
 
 class PostSerializer(serializers.ModelSerializer):
     page_name = serializers.SerializerMethodField()
+    facebook_page_id = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page', 'page_name',
+        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at',
                   'message_for_new_volunteer',
                   'message_for_returning_volunteer')
+        read_only_fields = ('facebook_post_id', 'created_at')
 
     def get_page_name(self, obj):
         return obj.page.name
+
+    def get_facebook_page_id(self, obj):
+        return obj.page.facebook_page_id
 
     def create(self, validated_data):
         user = self.context.get('request').user

@@ -39,6 +39,7 @@ class Post(models.Model):
     facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
     message_for_new_volunteer = models.TextField()
     message_for_returning_volunteer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
 
 
 class Volunteer(models.Model):

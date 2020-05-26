@@ -12,3 +12,12 @@
 .sider-background {
   background: #ffffff;
 }
+
+.common-content-wrapper {
+  width: 100%;
+}
+
+.common-content {
+  max-width: 1200px;
+  margin: auto;
+}
