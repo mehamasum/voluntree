@@ -7,8 +7,9 @@ from rest_framework.response import Response
 from .services import (FacebookService, PostService, VolunteerService,
                        InterestService)
 
-from .serializers import PageSerializer, PostSerializer, InterestGeterializer
-from .models import Post, Interest
+from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
+                          VolunteerSerializer)
+from .models import Post, Interest, Volunteer
 from .ml.pipeline import pipleline
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation
@@ -19,6 +20,17 @@ class VoluntreeApiListView(APIView):
 
     def get(self, request):
         return Response("Gis api root")
+
+
+class VolunteerViewSet(ReadOnlyModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = VolunteerSerializer
+
+    def get_queryset(self):
+        # TODO Need to change model design in future
+        volunteer_ids = self.request.user.pages.values_list(
+            'posts__interests__volunteer__id', flat=True).distinct()
+        return Volunteer.objects.filter(id__in=volunteer_ids)
 
 
 class PageViewSet(ReadOnlyModelViewSet):
