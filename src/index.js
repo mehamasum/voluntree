@@ -24,7 +24,7 @@ const App = (props) => {
           </Route>
           <PrivateRoute exact path="/" component={Dashboard} />
           <PrivateRoute exact path="/settings/" component={Settings} />
-          <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} />
+          <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
           <PrivateRoute exact path="/posts/" component={PostListView} />
           <PrivateRoute exact path="/posts/create/" component={PostCreateView} />
           <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />

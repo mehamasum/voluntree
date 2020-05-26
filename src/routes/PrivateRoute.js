@@ -3,25 +3,19 @@ import { Redirect, Route } from "react-router-dom";
 import Template from "../template";
 
 const PrivateRoute = props => {
-  const { component: Component, path, ...rest } = props;
+  const { component: Component, path, withoutTemplate, ...rest } = props;
   const isAuthenticated = !!localStorage.getItem('token');
+
+  const getPrivateView = (componentProps) => withoutTemplate ? <Component {...componentProps} /> : (
+      <Template>
+          <Component {...componentProps} />
+      </Template>
+  );
 
   return (
     <Route
       {...rest}
-      render={props =>
-        isAuthenticated ? (
-            <Template>
-                <Component {...props} />
-            </Template>
-        ) : (
-          <Redirect
-            to={{
-              pathname: '/login',
-            }}
-          />
-        )
-      }
+      render={props => isAuthenticated ? getPrivateView(props) : <Redirect to={{ pathname: '/login' }}/>}
     />
   );
 };
