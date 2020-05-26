@@ -50,33 +50,29 @@ const InterestedVolunteers = props => {
 
   return (
     <React.Fragment>
-      <Card>
-      <div className="demo-infinite-container">
-        <InfiniteScroll
-            initialLoad={false}
-            pageStart={0}
-            loadMore={() => nextUrl && setUrl(nextUrl.replace(host, ''))}
-            hasMore={!is_loading && (nextUrl ? true : false) }
-            loader={<div className="loader" key={0}>Loading ...</div>}
-            useWindow={false}
-          >
-          <List
-          header={<div style={{
-            textAlign: 'center',
-            height: 32,
-            lineHeight: '32px',
-          }}><h3>Interested Volunteers</h3></div>}
-          bordered
-          dataSource={listData}
-          renderItem={item => (
-            <List.Item>
-                <div>{item.volunteer.facebook_user_id}</div>
-            </List.Item>
-          )}
-        />
-        </InfiniteScroll>
-      </div>
-      </Card>
+      <InfiniteScroll
+          initialLoad={false}
+          pageStart={0}
+          loadMore={() => nextUrl && setUrl(nextUrl.replace(host, ''))}
+          hasMore={!is_loading && (nextUrl ? true : false) }
+          loader={<div className="loader" key={0}>Loading ...</div>}
+          useWindow={false}
+        >
+        <List
+        header={<div style={{
+          textAlign: 'center',
+          height: 32,
+          lineHeight: '32px',
+        }}><h3>Interested Volunteers</h3></div>}
+        bordered
+        dataSource={listData}
+        renderItem={item => (
+          <List.Item>
+              <div>{item.volunteer.facebook_user_id}</div>
+          </List.Item>
+        )}
+      />
+      </InfiniteScroll>
     </React.Fragment>
   );
 };
