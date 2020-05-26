@@ -48,14 +48,16 @@ const PostCreateView = props => {
 
   return (
     <React.Fragment>
-      <Card title="Create Post" style={{width: '50%', height: '50%'}}>
-        <Space size="middle">
-          <Spin size="large" spinning={loading}/>
-        </Space>
-        {errorMsg &&
-        <Alert message={errorMsg} type="error" banner closable/> }
-        <PostFrom onSubmit={onSubmit} pages={pages}/>
-      </Card>
+      <Content className="center-content">
+        <Card title="Create Post" style={{width: '50%', height: '50%'}}>
+          <Space size="middle">
+            <Spin size="large" spinning={loading}/>
+          </Space>
+          {errorMsg &&
+          <Alert message={errorMsg} type="error" banner closable/> }
+          <PostFrom onSubmit={onSubmit} pages={pages}/>
+        </Card>
+      </Content>
     </React.Fragment>
   );
 };

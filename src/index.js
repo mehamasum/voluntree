@@ -13,7 +13,7 @@ import PostCreateView from './services/Posts/PostCreateView';
 import PostEditView from './services/Posts/PostEditView';
 import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
-import Volunteers from './services/Volunteers';
+import VolunteerListView from './services/Volunteers/VolunteerListView';
 
 const App = (props) => {
   return (
@@ -29,7 +29,7 @@ const App = (props) => {
           <PrivateRoute exact path="/posts/create/" component={PostCreateView} />
           <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
           <PrivateRoute exact path="/posts/:id/" component={PostDetailsView} />
-          <PrivateRoute exact path="/volunteers" component={Volunteers} />
+          <PrivateRoute exact path="/volunteers" component={VolunteerListView} />
         </Switch>
       </Router>
   );
