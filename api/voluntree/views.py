@@ -27,6 +27,7 @@ class VolunteerViewSet(ReadOnlyModelViewSet):
     serializer_class = VolunteerSerializer
 
     def get_queryset(self):
+        # TODO Need to change model design in future
         volunteer_ids = self.request.user.pages.values_list(
             'posts__interests__volunteer__id', flat=True).distinct()
         return Volunteer.objects.filter(id__in=volunteer_ids)
