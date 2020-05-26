@@ -5,9 +5,10 @@ from .serializers import InterestGeterializer
 
 class VolunteerInterestConsumer(AsyncWebsocketConsumer):
     async def connect(self):
+        print('here in connect')
         self.room_name = self.scope['url_route']['kwargs']['post_id']
         self.room_group_name = 'interested_%s' % self.room_name
-
+        print('room_name', self.room_name)
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,
@@ -21,7 +22,9 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'generate_response',
-                'message': 'succesfully connected'
+                'data': {
+                    'status': 200,
+                }
             }
         )
 
@@ -52,13 +55,9 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
     async def generate_response(self, event):
        
 
-        if from_created_at:
-            queryset = Interest.objects.filter(
-                create_at__lt=from_created_at,interested=interested)[:limit]
-        else:
-            queryset = Interest.objects.filter(interested=interested)[:limit]
+        data = event['data']
 
-        serializer = InterestGeterializer(queryset, many=True)
-        response = InterestGeterializer()
-
-        await self.send(response)
+        # Send message to WebSocket
+        await self.send(text_data=json.dumps({
+            'data': data
+        }))

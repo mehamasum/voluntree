@@ -45,6 +45,8 @@ class Post(models.Model):
 class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     facebook_user_id = models.CharField(max_length=200)
+    def __str__(self):
+        return self.facebook_user_id 
 
 
 class Interest(models.Model):
