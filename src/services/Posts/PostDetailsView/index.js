@@ -5,12 +5,14 @@ import { useFetch } from '../../../hooks';
 import { Card } from 'antd';
 import { Alert } from 'antd';
 import { Layout } from 'antd';
+import InterestedVolunteers from '../InterestedVolunteers';
 const { Content } = Layout;
 
 const PostEditView = props => {
   const {id} = useParams();
   const [post_response, , , ,status] = useFetch(`/api/voluntree/posts/${id}`);
-
+  const [interest_response,, setUrl] = useFetch(`/api/voluntree/posts/${id}/interests/`);
+  
   const post = useMemo(() => {
     if(!post_response) return {};
     return post_response;
@@ -27,6 +29,7 @@ const PostEditView = props => {
             <p>Details view status: {post.status}</p>
           </Card>
         </Content>
+        <InterestedVolunteers id={id} />
       </Template>
     </React.Fragment>
   );

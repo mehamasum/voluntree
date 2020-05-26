@@ -13,7 +13,6 @@ const PostEditView = props => {
     console.log("onSubmit", values);
   }, []);
 
-  console.log("post id", id);
   return (
     <React.Fragment>
       <Template {...props}>
