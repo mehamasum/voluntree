@@ -10,26 +10,26 @@ from django.dispatch import receiver
 from .models import Interest
 
 
-def update_interests_volunteer_list(sender, instance, **kwargs):
-   
-    group_name = 'interested_%s' % str(instance.post.id)
-    channel_layer = channels.layers.get_channel_layer()
+def update_interests_volunteer_list(sender, instance, created, **kwargs):
+    if created and instance.interested:
+        group_name = 'interested_%s' % str(instance.post.id)
+        channel_layer = channels.layers.get_channel_layer()
 
-    async_to_sync(channel_layer.group_send)(
-        group_name,
-        {
-            'type': 'generate_response',
-            'data': {
-                'status': 201,
-                'response': {
-                    'post': str(instance.post.id),
-                    'volunteer': {
-                        'id': str(instance.volunteer.id),
-                        'facebook_user_id': instance.volunteer.facebook_user_id,
-                    },
-                    'interested': instance.interested,
-                    'created_at': str(instance.created_at)
+        async_to_sync(channel_layer.group_send)(
+            group_name,
+            {
+                'type': 'generate_response',
+                'data': {
+                    'status': 201,
+                    'response': {
+                        'post': str(instance.post.id),
+                        'volunteer': {
+                            'id': str(instance.volunteer.id),
+                            'facebook_user_id': instance.volunteer.facebook_user_id,
+                        },
+                        'interested': instance.interested,
+                        'created_at': str(instance.created_at)
+                    }
                 }
             }
-        }
-    )
+        )
