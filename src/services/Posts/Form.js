@@ -20,6 +20,14 @@ const PostForm = props => {
           <Input.TextArea />
         </Form.Item>
 
+        <Form.Item label="Message For new Volunteer" name="message_for_new_volunteer" rules={[{required: true}]}>
+          <Input.TextArea />
+        </Form.Item>
+
+        <Form.Item label="Message For Returning Volunteer" name="message_for_returning_volunteer" rules={[{required: true}]}>
+          <Input.TextArea />
+        </Form.Item>
+
         <Form.Item >
           <Button type="primary" htmlType="submit">
             Submit

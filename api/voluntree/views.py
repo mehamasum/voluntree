@@ -91,7 +91,6 @@ class FacebookApiViewSet(ViewSet):
 
     @action(detail=False, methods=['get', 'post'],
             url_path='webhook:messenger', permission_classes=[AllowAny])
-
     def messenger_webhook(self, request):
         if request.method == 'GET':
             mode = request.query_params.get('hub.mode')
