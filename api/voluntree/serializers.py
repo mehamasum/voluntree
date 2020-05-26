@@ -32,6 +32,12 @@ class PostSerializer(serializers.ModelSerializer):
         return post
 
 
+class VolunteerSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Volunteer
+        fields = ('id', 'facebook_user_id')
+
+
 class VolunteerGetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
