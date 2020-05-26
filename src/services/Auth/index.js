@@ -4,6 +4,7 @@ import { Form, Input, Button } from 'antd';
 import { Redirect } from "react-router-dom";
 import { Layout } from 'antd';
 import { Card } from 'antd';
+import logo from '../../logo-w-fixed.svg';
 
 const Demo = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -35,18 +36,14 @@ const Demo = () => {
 
   }, [isLoggedIn]);
 
+  if (isLoggedIn) return <Redirect to={{pathname: '/',}}/>
+
   return (
     <React.Fragment>
-    {isLoggedIn && 
-          <Redirect
-            to={{
-              pathname: '/',
-            }}
-          />
-    }
       <Layout className="login-layout">
         <Layout.Content className="login-content">
-          <Card title="Login" style={{ width: 300 }}>
+          <div className="login-app-logo-container"><img src={logo} className="login-app-logo" alt="logo" /></div>
+          <Card title="Admin Login" className="login-card">
             <Form
               name="basic"
               initialValues={{}}
@@ -54,7 +51,6 @@ const Demo = () => {
               onFinishFailed={onFinishFailed}
             >
               <Form.Item
-                label="Username"
                 name="username"
                 rules={[
                   {
@@ -63,11 +59,10 @@ const Demo = () => {
                   },
                 ]}
               >
-                <Input />
+                <Input placeholder="Username"/>
               </Form.Item>
 
               <Form.Item
-                label="Password"
                 name="password"
                 rules={[
                   {
@@ -76,10 +71,10 @@ const Demo = () => {
                   },
                 ]}
               >
-                <Input.Password />
+                <Input placeholder="Password" type="password"/>
               </Form.Item>
               <Form.Item >
-                <Button type="primary" htmlType="submit">
+                <Button type="primary" htmlType="submit" className="login-form-submit">
                   Login
                 </Button>
               </Form.Item>

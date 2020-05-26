@@ -8,16 +8,6 @@ from nltk.stem.lancaster import LancasterStemmer
 from ..tasks import send_message_on_comment
 
 
-nltk.download('punkt')
-stemmer = LancasterStemmer()
-
-# Set up Redis connection
-url = urlparse('redis://127.0.0.1:6379')
-conn = redisai.Client(host=url.hostname, port=url.port)
-if not conn.ping():
-    raise Exception('Redis unavailable')
-
-
 data = json.loads("""
 {"words": ["'m", "'s", "am", "anyon", "ar", "bye", "can", "card", "cash", "count", "credit", "day", "defin", "do", "good", "goodby", "hello", "help", "hi", "hour", "how", "i", "in", "interest", "is", "join", "lat", "mastercard", "me", "on", "op", "see", "thank", "that", "ther", "to", "today", "us", "want", "what", "when", "ye", "yo", "you"], "classes": ["goodbye", "greeting", "hours", "interested", "opentoday", "payments", "thanks"]}
 """)
@@ -32,6 +22,14 @@ def xlog(*args):
     print(' '.join(map(str, args)))
 
 def preprocess(hook_payload):
+    stemmer = LancasterStemmer()
+
+    # Set up Redis connection
+    url = urlparse('redis://127.0.0.1:6379')
+    conn = redisai.Client(host=url.hostname, port=url.port)
+    if not conn.ping():
+        raise Exception('Redis unavailable')
+
     sentence = hook_payload['value']['message']
 
     # tokenize the pattern

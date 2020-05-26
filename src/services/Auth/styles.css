@@ -1,10 +1,29 @@
 .login-layout {
-    min-height: 100vh;
+    height:100%;
     display: flex;
-    align-items: center;
 }
 
 .login-content {
+    margin: auto;
+    flex-direction: column;
+    justify-content: center;
     display: flex;
-    align-items: center;
+}
+
+.login-app-logo-container {
+    margin: 16px;
+    display: flex;
+}
+
+.login-app-logo {
+    height: 80px;
+    margin: auto;
+}
+
+.login-card {
+    width: 350px;
+}
+
+.login-form-submit {
+    width: 100%;
 }

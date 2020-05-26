@@ -1,8 +1,8 @@
-import React, {useState} from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import 'antd/dist/antd.css';
-import './assets/css/index.css';
-import { Route, Switch, BrowserRouter as Router, Link } from 'react-router-dom';
+import './index.css';
+import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import Dashboard from './services/Dashboard';
 import {LoginView} from './services/Auth';
 import * as serviceWorker from './serviceWorker';
