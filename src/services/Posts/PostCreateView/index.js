@@ -11,7 +11,7 @@ const { Content } = Layout;
 
 const PostCreateView = props => {
   const history = useHistory();
-  const [pages_response] = useFetch('/api/voluntree/pages/');
+  const [pages_response] = useFetch('/api/voluntree/pages/?limit=100');
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 

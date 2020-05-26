@@ -1,11 +1,17 @@
+from datetime import datetime
 from rest_framework import serializers
 from .models import Page, Post, Volunteer, Interest
 
 
 class PageSerializer(serializers.ModelSerializer):
+    is_expired = serializers.SerializerMethodField()
+
     class Meta:
         model = Page
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'is_expired', 'facebook_page_id')
+
+    def get_is_expired(self, obj):
+        return obj.page_expiry_token_date < datetime.now().date()
 
 
 class PostSerializer(serializers.ModelSerializer):
