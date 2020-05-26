@@ -13,7 +13,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page', 'page_name')
+        fields = ('id', 'status', 'page', 'page_name',
+                  'message_for_new_volunteer',
+                  'message_for_returning_volunteer')
 
     def get_page_name(self, obj):
         return obj.page.name

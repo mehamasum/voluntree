@@ -37,7 +37,8 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     status = models.TextField()
     facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
-    metadata = models.OneToOneField(PostMetaData, on_delete=models.SET_NULL, null=True, blank=True)
+    message_for_new_volunteer = models.TextField()
+    message_for_returning_volunteer = models.TextField()
 
 
 class Volunteer(models.Model):
