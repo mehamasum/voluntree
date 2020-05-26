@@ -2,8 +2,11 @@ import React, { useMemo } from 'react';
 import Template from '../../../template';
 import { useParams } from "react-router-dom";
 import { useFetch } from '../../../hooks';
-import { Card } from 'antd';
-import { Alert } from 'antd';
+import { Card, Space } from 'antd';
+import { Alert, Typography } from 'antd';
+import {
+    LinkOutlined,
+} from '@ant-design/icons';
 import { Layout } from 'antd';
 import InterestedVolunteers from '../InterestedVolunteers';
 const { Content } = Layout;
@@ -20,13 +23,17 @@ const PostEditView = props => {
 
   return (
     <React.Fragment>
-        <Card title="Details View" style={{width: '50%', height: '50%'}}>
+      <Card title="Details" style={{width: '50%', height: '50%'}} extra={
+        <a target="_blank" rel="noopener noreferrer"
+          href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}>
+
+          <LinkOutlined/> View on Facebook</a>}>
             {status===404 && <Alert message={"No Record Found"} type="error" banner closable/> }
-            <h1>Details view post: {id}</h1>
-            <h2>Details view post: {post.page_name}</h2>
-            <p>Details view status: {post.status}</p>
+            <Typography.Title level={3}>Page Name: {post.page_name}</Typography.Title>
+            <Typography.Title level={4}>status:</Typography.Title>
+            <Typography.Text>{post.status}</Typography.Text>
+            <InterestedVolunteers id={id} />
         </Card>
-        <InterestedVolunteers id={id} />
     </React.Fragment>
   );
 };
