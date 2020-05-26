@@ -23,13 +23,6 @@ def xlog(*args):
 
 def preprocess(hook_payload):
     stemmer = LancasterStemmer()
-
-    # Set up Redis connection
-    url = urlparse('redis://127.0.0.1:6379')
-    conn = redisai.Client(host=url.hostname, port=url.port)
-    if not conn.ping():
-        raise Exception('Redis unavailable')
-
     sentence = hook_payload['value']['message']
 
     # tokenize the pattern
@@ -53,6 +46,12 @@ def preprocess(hook_payload):
     return res
 
 def model_run(embedding):
+    # Set up Redis connection
+    url = urlparse('redis://127.0.0.1:6379')
+    conn = redisai.Client(host=url.hostname, port=url.port)
+    if not conn.ping():
+        raise Exception('Redis unavailable')
+
     MODEL = 'model:interestnet'
     INPUT = 'tensor:input-interestnet'
     OUTPUT = 'tensor:output-interestnet'
