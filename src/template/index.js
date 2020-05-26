@@ -46,14 +46,14 @@ const Template = (props) => {
         </Header>
         <Layout>
           <Sider trigger={null} className="sider-background">
-            <Menu mode="inline" defaultSelectedKeys={['1']}>
-              <Menu.Item key="1" icon={<AppstoreOutlined />}>
+            <Menu mode="inline" defaultSelectedKeys={['1']} selectedKeys={[props.path]}>
+              <Menu.Item key="/" icon={<AppstoreOutlined />}>
                 <Link to="/">Dashboard</Link>
               </Menu.Item>
-              <Menu.Item key="2" icon={<UnorderedListOutlined />}>
+              <Menu.Item key="/volunteers" icon={<UnorderedListOutlined />}>
                 <Link to="/volunteers">Volunteers</Link>
               </Menu.Item>
-              <Menu.Item key="3" icon={<SettingOutlined />}>
+              <Menu.Item key="/settings" icon={<SettingOutlined />}>
                 <Link to="/settings">Settings</Link>
               </Menu.Item>
             </Menu>

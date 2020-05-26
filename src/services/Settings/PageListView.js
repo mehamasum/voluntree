@@ -4,6 +4,8 @@ import { Table, Space } from 'antd';
 import { Avatar } from 'antd';
 import { Typography } from 'antd';
 
+import { formatTime } from "../../utils";
+
 
 const columns = [
   {
@@ -14,7 +16,7 @@ const columns = [
         <Avatar
           src={`https://graph.facebook.com/${record.facebook_page_id}/picture`}
         />
-        <Typography.Text strong >{record.name}</Typography.Text>
+        <Typography.Text>&nbsp; &nbsp;<a href={`https://facebook.com/${record.facebook_page_id}`} target='blank'>{record.name}</a></Typography.Text>
       </div>
     )
   },
@@ -22,17 +24,16 @@ const columns = [
     title: 'Status',
     dataIndex: 'is_expired',
     render: (text, record) => (
-      record.is_expired ? 'Expired' : 'Up To Date'
+      record.is_expired ? 'Expired' : 'Connected'
     )
   },
   {
-    title: 'Action',
+    title: 'Expiry Date',
+    dataIndex: 'is_expired',
     render: (text, record) => (
-      <Space size="middle">
-        <a href={`https://facebook.com/${record.facebook_page_id}`} target='blank'>View in Facebook</a>
-      </Space>
-    ),
-  },
+        <Typography.Text>{formatTime(record.page_expiry_token_date)}</Typography.Text>
+    )
+  }
 ];
 
 
