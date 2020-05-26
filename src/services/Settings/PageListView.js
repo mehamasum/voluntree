@@ -3,6 +3,7 @@ import { useFetch } from '../../hooks';
 import { Table, Space } from 'antd';
 import { Avatar } from 'antd';
 import { Typography } from 'antd';
+import { Tag } from 'antd';
 
 import { formatTime } from "../../utils";
 
@@ -24,7 +25,7 @@ const columns = [
     title: 'Status',
     dataIndex: 'is_expired',
     render: (text, record) => (
-      record.is_expired ? 'Expired' : 'Connected'
+      record.is_expired ? <Tag color="error">Expired</Tag> : <Tag color="success">Connected</Tag>
     )
   },
   {
