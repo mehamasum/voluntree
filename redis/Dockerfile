@@ -1,0 +1,2 @@
+FROM redislabs/redismod:edge
+

@@ -32,6 +32,23 @@ Run the Python interpreter and type the commands:
 >>> exit()
 ```
 
+### Custom ML download
+```bash
+python 
+>>> import nltk
+>>> nltk.download('punkt')
+>>> exit()
+
+# run redis
+docker-compose build
+docker-compose up
+
+# load model and gear to redis
+cd api/ml
+python init-model.py
+python init-gear.py
+```
+
 ### migrate database with the application models
 ```py
 python api/manage.py migrate

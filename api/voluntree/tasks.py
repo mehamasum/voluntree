@@ -4,8 +4,33 @@ from .models import Post, Volunteer, Notification
 from .services import FacebookService
 from .utils import (build_comment_chip_message, build_confirmation_message,
                     build_notification_message)
+import redis
+import json
+from urllib.parse import urlparse
+from .preprocess import sentence_to_embeding
 
 
+@app.task
+def preprocess_comment_for_ml(hook_payload):
+    url = urlparse('redis://127.0.0.1:6379')
+    conn = redis.Redis(host=url.hostname, port=url.port, decode_responses=True)
+    if not conn.ping():
+        raise Exception('Redis unavailable')
+
+    logging.debug('redis', conn)
+    
+    sentence = hook_payload['value']['message']
+    embeding = sentence_to_embeding(sentence)
+
+    logging.debug('preprocess_comment_for_ml', sentence, embeding)
+    res = {
+        'payload': hook_payload,
+        'embeding': embeding
+    }
+    conn.xadd('comments:fb', { 'comment': json.dumps(res) })
+    # conn.lpush('test:fb-queue', json.dumps(res))
+    return res
+    
 @app.task
 def send_message_on_comment(data):
     comment_id = data.get('value', {}).get('comment_id')
