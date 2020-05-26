@@ -1,5 +1,5 @@
 import React, { useMemo, useState, useEffect, useCallback} from 'react';
-import { List, Avatar, Button, Space } from 'antd';
+import { List, Card, Button, Space } from 'antd';
 import { useFetch } from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 
@@ -50,6 +50,7 @@ const InterestedVolunteers = props => {
 
   return (
     <React.Fragment>
+      <Card>
       <div className="demo-infinite-container">
         <InfiniteScroll
             initialLoad={false}
@@ -75,6 +76,7 @@ const InterestedVolunteers = props => {
         />
         </InfiniteScroll>
       </div>
+      </Card>
     </React.Fragment>
   );
 };
