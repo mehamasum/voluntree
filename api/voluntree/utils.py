@@ -1,3 +1,11 @@
+def build_confirmation_message(post, created):
+    msg = post.message_for_returning_volunteer
+    if created:
+        msg = post.message_for_new_volunteer
+    return {
+        'text': msg
+    }
+
 def build_comment_chip_message(post):
     return {
         "attachment": {

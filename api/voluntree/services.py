@@ -10,30 +10,26 @@ class VolunteerService:
     def get_or_create_volunteer_from_postback_data(data):
         facebook_user_id = data.get('entry', [{}])[0] \
             .get('messaging', [{}])[0].get('sender', {}).get('id')
-        volunteer, _ = Volunteer.objects.get_or_create(
+        volunteer = Volunteer.objects.get_or_create(
             facebook_user_id=facebook_user_id)
         return volunteer
 
 
 class InterestService:
     @staticmethod
-    def create_or_update_intereset_from_postback_data(volunteer, data):
+    def get_interested_status_from_postback_data(data):
         payload = data.get('entry', [{}])[0] \
             .get('messaging', [{}])[0].get('postback', {}) \
             .get('payload', 'NO_x_y').split("_")
-        print("payload", payload)
-        status = payload[0]
-        post_id = payload[2]
-        print("status", status)
-        print("post_id", post_id)
-        post = None
 
-        try:
-            post = Post.objects.get(facebook_post_id=post_id)
-        except Post.DoesNotExist:
+        status = payload[0]
+        return status
+
+    @staticmethod
+    def create_or_update_intereset_from_postback_data(volunteer, post, status):
+        if post is None:
             return False
 
-        print(post)
         intereset, _ = Interest.objects.get_or_create(
             post=post, volunteer=volunteer)
 
@@ -46,6 +42,19 @@ class InterestService:
 
 
 class PostService:
+    @staticmethod
+    def get_post_from_postback_data(data):
+        payload = data.get('entry', [{}])[0] \
+            .get('messaging', [{}])[0].get('postback', {}) \
+            .get('payload', 'NO_x_y').split("_")
+        post_id = payload[2]
+
+        try:
+            post = Post.objects.get(facebook_post_id=post_id)
+        except Post.DoesNotExist:
+            post = None
+        return post
+
     @staticmethod
     def create_post_on_facebook_page(page, status):
         post_create_url = ('https://graph.facebook.com/%s/feed'

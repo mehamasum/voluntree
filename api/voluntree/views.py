@@ -11,6 +11,7 @@ from .serializers import PageSerializer, PostSerializer, InterestGeterializer
 from .models import Post, Interest
 from .ml.pipeline import pipleline
 from .paginations import CreationTimeBasedPagination
+from .tasks import send_message_on_yes_confirmation
 
 
 class VoluntreeApiListView(APIView):
@@ -100,11 +101,18 @@ class FacebookApiViewSet(ViewSet):
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
         
-        volunteer = VolunteerService \
+        volunteer, created = VolunteerService \
             .get_or_create_volunteer_from_postback_data(request.data)
+        post = PostService.get_post_from_postback_data(request.data)
+        postback_status = InterestService \
+            .get_interested_status_from_postback_data(request.data)
         success = InterestService \
             .create_or_update_intereset_from_postback_data(
-                volunteer, request.data)
+                volunteer, post, postback_status)
+
+        if success and postback_status == 'YES':
+            send_message_on_yes_confirmation.apply_async((
+                volunteer.id, created, post.id))
         if success:
             return Response(status.HTTP_200_OK)
         return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
