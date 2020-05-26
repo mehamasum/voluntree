@@ -1,3 +1,12 @@
 #root {
     height: 100%;
 }
+
+.messenger-icon {
+    fill: white;
+    margin: 0 8px;
+}
+
+.messenger-btn {
+    display: flex;
+}
