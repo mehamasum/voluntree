@@ -1,32 +1,41 @@
 import React from 'react';
 import Template from '../../template';
-import { useFetch } from '../../hooks';
-import { Card, Space } from 'antd';
-import { Button } from 'antd';
+import {useFetch} from '../../hooks';
+import {Card, Space, Typography} from 'antd';
+import {Button} from 'antd';
 import PageListView from './PageListView';
-import { Layout } from 'antd';
+import {Layout} from 'antd';
 import {Link} from "react-router-dom";
-const { Content } = Layout;
+import FormLayoutDemo from "./Webhooks";
+
 
 const Settings = props => {
-  const [oauth_url] = useFetch('/api/voluntree/facebook/oauth_url/')
+    const [oauth_url] = useFetch('/api/voluntree/facebook/oauth_url/')
 
-  const onClickConnect = () => {
-    window.open(oauth_url, "Popup", "width=800,height=800");
-  };
+    const onClickConnect = () => {
+        window.open(oauth_url, "Popup", "width=800,height=800");
+    };
 
-  return (
-    <div>
-      <div className="create-new-post">
-        <Button type="primary" disabled={!oauth_url} onClick={onClickConnect}>
-          Connect Facebook Pages
-        </Button>
-      </div>
-      <Card title="Connected Pages">
-        <PageListView/>
-      </Card>
-    </div>
-  );
+    return (
+        <div>
+            <div className="create-new-post">
+                <Button type="primary" disabled={!oauth_url} onClick={onClickConnect}>
+                    Connect Facebook Pages
+                </Button>
+            </div>
+            <Card title="Connected Pages">
+                <PageListView/>
+            </Card>
+
+            <br/>
+
+            <div>
+                <Card title="Webhooks">
+                    <FormLayoutDemo/>
+                </Card>
+            </div>
+        </div>
+    );
 };
 
 export default Settings;
