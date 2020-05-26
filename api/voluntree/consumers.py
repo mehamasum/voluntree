@@ -22,7 +22,9 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
             self.room_group_name,
             {
                 'type': 'generate_response',
-                'message': 'succesfully connected'
+                'data': {
+                    'status': 200,
+                }
             }
         )
 
@@ -53,9 +55,9 @@ class VolunteerInterestConsumer(AsyncWebsocketConsumer):
     async def generate_response(self, event):
        
 
-        message = event['message']
+        data = event['data']
 
         # Send message to WebSocket
         await self.send(text_data=json.dumps({
-            'message': message
+            'data': data
         }))
