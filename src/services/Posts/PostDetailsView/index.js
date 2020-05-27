@@ -53,6 +53,18 @@ const PostEditView = props => {
                     </Descriptions.Item>
                 </Descriptions>
 
+                <Descriptions>
+                    <Descriptions.Item label="Message For New Volunteer">
+                        <Typography.Paragraph>{post.message_for_new_volunteer}</Typography.Paragraph>
+                    </Descriptions.Item>
+                </Descriptions>
+
+                <Descriptions>
+                    <Descriptions.Item label="Message For Returning Volunteer">
+                        <Typography.Paragraph>{post.message_for_returning_volunteer}</Typography.Paragraph>
+                    </Descriptions.Item>
+                </Descriptions>
+
                 <div className="fb-post-embed-wrapper">
                     <div className="fb-post-embed">
                         {
