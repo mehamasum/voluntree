@@ -5,12 +5,6 @@ from .services import FacebookService
 from .utils import build_comment_chip_message, build_confirmation_message
 
 
-@app.task(name="voluntree.add")
-def add():
-    logging.debug(f"Run Task Add")
-    return "hello"
-
-
 @app.task
 def send_message_on_comment(data):
     comment_id = data.get('value', {}).get('comment_id')

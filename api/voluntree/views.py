@@ -8,8 +8,8 @@ from .services import (FacebookService, PostService, VolunteerService,
                        InterestService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
-                          VolunteerSerializer)
-from .models import Post, Interest, Volunteer
+                          VolunteerSerializer, NotificationSerializer)
+from .models import Post, Interest, Volunteer, Notification
 from .ml.pipeline import pipleline
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation
@@ -63,6 +63,13 @@ class PostViewSet(ModelViewSet):
             post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=True)
+    def notifications(self, request, pk):
+        queryset = self.get_object().notifications.all()
+        serializer = NotificationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     
     @action(detail=True)
     def interests(self,request, pk):
@@ -72,6 +79,13 @@ class PostViewSet(ModelViewSet):
         serializer = InterestGeterializer(queryset, many=True)
         paginated_response = paginator.get_paginated_response(serializer.data)
         return paginated_response
+
+
+class NotificationViewSet(ModelViewSet):
+    queryset = Notification.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = NotificationSerializer
+
 
 class FacebookApiViewSet(ViewSet):
     permission_classes = (IsAuthenticated, )

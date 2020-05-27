@@ -61,4 +61,3 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
-    Volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='notifications')
