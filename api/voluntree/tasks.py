@@ -1,8 +1,9 @@
 import logging
 from config.celery import app
-from .models import Post, Volunteer
+from .models import Post, Volunteer, Notification
 from .services import FacebookService
-from .utils import build_comment_chip_message, build_confirmation_message
+from .utils import (build_comment_chip_message, build_confirmation_message,
+                    build_notification_message)
 
 
 @app.task
@@ -35,3 +36,14 @@ def send_message_on_yes_confirmation(volunteer_id, created, post_id):
     wellcome_msg = FacebookService.send_private_message(
         page, recipient, message)
     return wellcome_msg.json()
+
+@app.task
+def send_notification_on_interested_person(notification_id):
+    notification = Notification.objects.get(id=notification_id)
+    page = notification.post.page
+    interests = notification.post.interests.filter(interested=True)
+    for interest in interests:
+        volunteer = interest.volunteer
+        recipient = {'id': volunteer.facebook_user_id}
+        message = build_notification_message(notification)
+        FacebookService.send_private_message(page, recipient, message)
