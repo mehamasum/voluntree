@@ -16,13 +16,13 @@ def build_comment_chip_message(post):
                 "buttons": [
                     {
                         "type": "postback",
-                        "title": "YES I'm Interested",
+                        "title": "Yes, Lets do this!",
                         "payload": ("YES_%s_%s" % (
                             post.page.facebook_page_id, post.facebook_post_id))
                     },
                     {
                         "type": "postback",
-                        "title": "No I'm Not Interested",
+                        "title": "No, Not Interested",
                         "payload": ("NO_%s_%s" % (
                             post.page.facebook_page_id, post.facebook_post_id))
                     },
