@@ -12,11 +12,20 @@ class VolunteerService:
             .get('messaging', [{}])[0].get('sender', {}).get('id')
         facebook_page_id = data.get('entry', [{}])[0] \
                     .get('messaging', [{}])[0].get('recipient', {}).get('id')
-        volunteer = Volunteer.objects.get_or_create(
+        volunteer, created = Volunteer.objects.get_or_create(
             facebook_user_id=facebook_user_id,
             facebook_page_id=facebook_page_id
         )
-        return volunteer
+        if created:
+            post = PostService.get_post_from_postback_data(data)
+            meta_data = FacebookService.get_user_metadata(
+                post.page, facebook_user_id)
+            volunteer.first_name = meta_data['first_name']
+            volunteer.last_name = meta_data['last_name']
+            volunteer.profile_pic = meta_data['profile_pic']
+            volunteer.save()
+        
+        return [volunteer, created]
 
 
 class InterestService:
@@ -155,3 +164,10 @@ class FacebookService:
         })
 
         return requests.post(url, headers=headers, data=params)
+
+    def get_user_metadata(page, recipient_id):
+        url = 'https://graph.facebook.com/%s' % recipient_id
+        params = {
+            "access_token": page.page_access_token,
+        }
+        return requests.get(url, params).json()
