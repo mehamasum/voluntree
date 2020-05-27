@@ -10,8 +10,12 @@ class VolunteerService:
     def get_or_create_volunteer_from_postback_data(data):
         facebook_user_id = data.get('entry', [{}])[0] \
             .get('messaging', [{}])[0].get('sender', {}).get('id')
+        facebook_page_id = data.get('entry', [{}])[0] \
+                    .get('messaging', [{}])[0].get('recipient', {}).get('id')
         volunteer = Volunteer.objects.get_or_create(
-            facebook_user_id=facebook_user_id)
+            facebook_user_id=facebook_user_id,
+            facebook_page_id=facebook_page_id
+        )
         return volunteer
 
 
