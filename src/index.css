@@ -10,3 +10,13 @@
 .messenger-btn {
     display: flex;
 }
+
+.fb-post-embed-wrapper {
+    display: flex;
+    width: 100%;
+}
+
+.fb-post-embed {
+    padding: 8px;
+    margin: auto;
+}

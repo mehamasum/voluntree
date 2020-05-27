@@ -2,6 +2,7 @@ import React from 'react';
 import './template.css';
 import logo from '../logo-w-fixed.svg';
 
+
 import {Layout, Menu, Dropdown} from "antd";
 import {
   AppstoreOutlined,
@@ -13,6 +14,9 @@ import {
 } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import { Link } from 'react-router-dom';
+import { FacebookProvider, Like } from 'react-facebook';
+
+
 const { Header, Sider, Content, Footer } = Layout;
 
 
@@ -66,7 +70,9 @@ const Template = (props) => {
           <Layout>
             <Content className="common-content-wrapper">
               <div className="common-content">
-                {props.children}
+                <FacebookProvider appId={process.env.REACT_APP_FACEBOOK_APP_ID}>
+                  {props.children}
+                </FacebookProvider>
               </div>
             </Content>
             <Footer style={{ textAlign: 'center' }}> Voluntree ©2020</Footer>

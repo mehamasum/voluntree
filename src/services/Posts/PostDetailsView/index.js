@@ -1,8 +1,8 @@
-import React, {useMemo, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import Template from '../../../template';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
-import {Avatar, Badge, Button, Card, Space} from 'antd';
+import {Avatar, Badge, Button, Card, Space, Spin} from 'antd';
 import {Alert, Typography, Modal, Input} from 'antd';
 import { Descriptions } from 'antd';
 import {
@@ -15,6 +15,7 @@ import { Row, Col } from 'antd';
 import { PageHeader } from 'antd';
 import { Tag } from 'antd';
 import { Checkbox } from 'antd';
+import { FacebookProvider, EmbeddedPost } from 'react-facebook';
 
 const {Content} = Layout;
 const {TextArea} = Input;
@@ -47,28 +48,18 @@ const PostEditView = props => {
                 <Button danger>Stop Collecting Responses</Button>
             }>
                 <Descriptions>
-                    <Descriptions.Item label="Posted to">
-                        <Avatar
-                            src={`https://graph.facebook.com/${post.facebook_page_id}/picture`}
-                        />
-                        &nbsp;&nbsp;
-                        {post.page_name}
-                    </Descriptions.Item>
-                </Descriptions>
-
-
-                <Descriptions>
-                    <Descriptions.Item label="Posted at">{formatTime(post.created_at)}</Descriptions.Item>
                     <Descriptions.Item label="Facebook Link">
                         <Typography.Paragraph copyable>{`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}</Typography.Paragraph>
                     </Descriptions.Item>
                 </Descriptions>
 
-                <Descriptions>
-                    <Descriptions.Item label="Status">
-                        <Typography.Paragraph ellipsis={{ rows: 3, expandable: true }}>{post.status}</Typography.Paragraph>
-                    </Descriptions.Item>
-                </Descriptions>
+                <div className="fb-post-embed-wrapper">
+                    <div className="fb-post-embed">
+                        {
+                            post_response ? <EmbeddedPost href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}/`} width="500" /> : <Spin size="large" spinning/>
+                        }
+                    </div>
+                </div>
             </Card>
 
             <br/>
