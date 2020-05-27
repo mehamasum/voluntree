@@ -10,8 +10,8 @@ const columns = [
     title: 'Name',
     render: (text, record) => (
         <div>
-          <Avatar icon={"F"}/>&nbsp;&nbsp;
-          <Typography.Text>Facebook User</Typography.Text>
+          <Avatar src={record.profile_pic}/>&nbsp;&nbsp;
+          <Typography.Text>{record.first_name} {record.last_name}</Typography.Text>
         </div>
     )
   },
@@ -39,6 +39,7 @@ const VolunteerListView = props => {
     return volunteers_response.results.map(r => ({...r, key: r.id}));
   }, [volunteers_response]);
 
+  console.log("table data", tableData);
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
     const offset = (pag.current -1) * 25;

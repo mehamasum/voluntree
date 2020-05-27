@@ -27,6 +27,9 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                             'id': str(instance.volunteer.id),
                             'facebook_user_id': instance.volunteer.facebook_user_id,
                             'facebook_page_id': instance.volunteer.facebook_page_id,
+                            'first_name': instance.volunteer.first_name,
+                            'last_name': instance.volunteer.last_name,
+                            'profile_pic': instance.volunteer.profile_pic
                         },
                         'interested': instance.interested,
                         'created_at': str(instance.created_at)
