@@ -65,8 +65,8 @@ const InterestedVolunteers = props => {
                     renderItem={item => (
                         <List.Item>
                           <div>
-                            <Avatar icon={"F"}/>&nbsp;&nbsp;
-                            <Typography.Text>Facebook User</Typography.Text>
+                            <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
+                            <Typography.Text>{item.volunteer.first_name} {item.volunteer.last_name}</Typography.Text>
                           </div>
                             <a href={`https://www.facebook.com/${item.volunteer.facebook_page_id}/inbox/`} target="_blank" rel="noopener noreferrer">
                                 <Button type="primary" className="messenger-btn">

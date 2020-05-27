@@ -46,6 +46,10 @@ class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     facebook_user_id = models.CharField(max_length=200) #PSID
     facebook_page_id = models.CharField(max_length=200) #PSID for this page
+    first_name = models.CharField(max_length=100, null=True, blank=True)
+    last_name = models.CharField(max_length=100, null=True, blank=True)
+    profile_pic = models.CharField(max_length=500, null=True, blank=True)
+
     def __str__(self):
         return "PSID " + self.facebook_user_id + " for " + self.facebook_page_id
 
