@@ -8,6 +8,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 
 from .models import Interest
+from .tasks import send_notification_on_interested_person
 
 
 def update_interests_volunteer_list(sender, instance, created, **kwargs):
@@ -37,3 +38,8 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                 }
             }
         )
+
+
+def send_notification_on_create(sender, instance, created, **kwargs):
+    if created:
+        send_notification_on_interested_person.apply_async((instance.id, ))

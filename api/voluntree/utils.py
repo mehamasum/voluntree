@@ -1,3 +1,8 @@
+def build_notification_message(notification):
+    return {
+        'text': notification.message
+    }
+
 def build_confirmation_message(post, created):
     msg = post.message_for_returning_volunteer
     if created:
