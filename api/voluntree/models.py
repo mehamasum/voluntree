@@ -44,9 +44,10 @@ class Post(models.Model):
 
 class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    facebook_user_id = models.CharField(max_length=200)
+    facebook_user_id = models.CharField(max_length=200) #PSID
+    facebook_page_id = models.CharField(max_length=200) #PSID for this page
     def __str__(self):
-        return self.facebook_user_id 
+        return "PSID " + self.facebook_user_id + " for " + self.facebook_page_id
 
 
 class Interest(models.Model):
