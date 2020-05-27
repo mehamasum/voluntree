@@ -2,7 +2,7 @@ import React, {useMemo} from 'react';
 import Template from '../../../template';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
-import {Avatar, Button, Card, Space} from 'antd';
+import {Avatar, Badge, Button, Card, Space} from 'antd';
 import {Alert, Typography} from 'antd';
 import { Descriptions } from 'antd';
 import {
@@ -12,6 +12,9 @@ import {Layout} from 'antd';
 import InterestedVolunteers from '../InterestedVolunteers';
 import {formatTime} from "../../../utils";
 import { Row, Col } from 'antd';
+import { PageHeader } from 'antd';
+import { Tag } from 'antd';
+import { Checkbox } from 'antd';
 
 const {Content} = Layout;
 
@@ -27,24 +30,30 @@ const PostEditView = props => {
 
     return (
         <React.Fragment>
+            <PageHeader
+                onBack={() => window.history.back()}
+                title="Post Details"
+                tags={[<Tag color="success">Published</Tag>, <Tag color="success">Collecting Response</Tag>]}
+            />
             <Card title="Details" extra={
-                <a target="_blank" rel="noopener noreferrer"
-                   href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}>
-                    <LinkOutlined/> View on Facebook</a>
-                }>
-                {status === 404 && <Alert message={"No Record Found"} type="error" banner closable/>}
-
+                <Button danger>Stop Collecting Responses</Button>
+            }>
                 <Descriptions>
                     <Descriptions.Item label="Posted to">
                         <Avatar
                             src={`https://graph.facebook.com/${post.facebook_page_id}/picture`}
-                            size="small"
                         />
                         &nbsp;&nbsp;
                         {post.page_name}
                     </Descriptions.Item>
+                </Descriptions>
+
+
+                <Descriptions>
                     <Descriptions.Item label="Posted at">{formatTime(post.created_at)}</Descriptions.Item>
-                    <Descriptions.Item label="Accepting Volunteers">Yes</Descriptions.Item>
+                    <Descriptions.Item label="Facebook Link">
+                        <Typography.Paragraph copyable>{`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}</Typography.Paragraph>
+                    </Descriptions.Item>
                 </Descriptions>
 
                 <Descriptions>

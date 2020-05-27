@@ -7,7 +7,9 @@ import {
   AppstoreOutlined,
   UnorderedListOutlined,
   SettingOutlined,
-  UserOutlined
+  UserOutlined,
+  ClockCircleOutlined,
+  TeamOutlined
 } from '@ant-design/icons';
 import { Avatar } from 'antd';
 import { Link } from 'react-router-dom';
@@ -50,11 +52,14 @@ const Template = (props) => {
               <Menu.Item key="/" icon={<AppstoreOutlined />}>
                 <Link to="/">Dashboard</Link>
               </Menu.Item>
-              <Menu.Item key="/volunteers" icon={<UnorderedListOutlined />}>
+              <Menu.Item key="/posts" icon={<ClockCircleOutlined />}>
+                <Link to="/posts">Posts</Link>
+              </Menu.Item>
+              <Menu.Item key="/volunteers" icon={<TeamOutlined />}>
                 <Link to="/volunteers">Volunteers</Link>
               </Menu.Item>
               <Menu.Item key="/settings" icon={<SettingOutlined />}>
-                <Link to="/settings">Settings</Link>
+                <Link to="/settings">Pages</Link>
               </Menu.Item>
             </Menu>
           </Sider>
@@ -64,7 +69,7 @@ const Template = (props) => {
                 {props.children}
               </div>
             </Content>
-            <Footer style={{ textAlign: 'center' }}> Voluntree © 2020</Footer>
+            <Footer style={{ textAlign: 'center' }}> Voluntree ©2020</Footer>
           </Layout>
         </Layout>
       </Layout>
