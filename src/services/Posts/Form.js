@@ -4,7 +4,7 @@ import post from '../../assets/post.png';
 import messenger from '../../assets/messenger.png';
 import React from 'react';
 import { Form, Input, Button, Select, Typography } from 'antd';
-import { Row, Col } from 'antd';
+import { Row, Col, Divider } from 'antd';
 
 const {Option} = Select;
 
@@ -17,8 +17,7 @@ const PostForm = props => {
       <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical">
         <Row>
           <Col span={12} className="post-form">
-            <Typography.Title level={4}>Facebook Post</Typography.Title>
-            <br/>
+            <Divider orientation="left">Facebook Post</Divider>
 
             <Form.Item name="page" label="Select Page" rules={[{ required: true }]}>
               <Select placeholder="Which page do you want to post to?" allowClear >
@@ -36,7 +35,7 @@ const PostForm = props => {
             <br/>
 
 
-            <Typography.Title level={4}>Messenger Interaction</Typography.Title>
+            <Divider orientation="left">Messenger Interaction</Divider>
             <Typography.Text type="secondary">Instruction/Info sharing when a person confirms interest on messenger</Typography.Text>
             <br/>
             <br/>
@@ -64,8 +63,6 @@ const PostForm = props => {
             <img src={post} className="post-preview-img"/>
 
             <br/>
-            <br/>
-
 
             <Typography.Text type="secondary">Initial interaction with volunteer</Typography.Text>
             <img src={messenger} className="message-preview-img"/>
