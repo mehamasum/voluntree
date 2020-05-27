@@ -1,9 +1,10 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useMemo, useState, useEffect} from 'react';
 import Template from '../../../template';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
+import {postFetch} from '../../../actions';
 import {Avatar, Badge, Button, Card, Space, Spin} from 'antd';
-import {Alert, Typography, Modal, Input} from 'antd';
+import {Alert, Typography, Modal, Input, Table} from 'antd';
 import { Descriptions } from 'antd';
 import {
     LinkOutlined,
@@ -16,27 +17,70 @@ import { PageHeader } from 'antd';
 import { Tag } from 'antd';
 import { Checkbox } from 'antd';
 import { FacebookProvider, EmbeddedPost } from 'react-facebook';
+import {truncateString} from '../../../utils';
 
 const {Content} = Layout;
 const {TextArea} = Input;
+
+const columns = [
+    {
+        title: 'message',
+        dataIndex: 'message',
+        render: (text, record) => (
+            <Typography.Text>{truncateString(record.message, 240)}</Typography.Text>
+        )
+    },
+];
 
 const PostEditView = props => {
     const {id} = useParams();
     const [post_response, , , , status] = useFetch(`/api/voluntree/posts/${id}`);
     const [interest_response, , setUrl] = useFetch(`/api/voluntree/posts/${id}/interests/`);
+    const [notification_response, setNotificationResponse ,setUrlNotification] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
     const [showModal, setShowModal] = useState(false);
     const [modalValue, setModalValue] = useState('');
+    const [newNotificationFetch, setNewNotificationFetch] = useState(false);
+
     const post = useMemo(() => {
         if (!post_response) return {};
         return post_response;
     }, [post_response]);
 
+    const tableData = useMemo(() => {
+        if (!notification_response) return [];
+        return notification_response.map(r => ({...r, key: r.id}));
+    }, [notification_response]);
+
+    useEffect(() => {
+        if(newNotificationFetch) {
+            fetch(`/api/voluntree/posts/${id}/notifications/`, {
+                headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
+            }).then(results => {
+                return results.json();
+              })
+              .then(response => {
+                setNotificationResponse(response);
+                return response;
+            })
+            setNewNotificationFetch(false);
+        }
+    }, [newNotificationFetch])
+
+
+
     const onModalOk = () => {
-        // write code
-        setModalValue('');
-        setShowModal(false);
+        const postData = {
+            'post': id,
+            'message': modalValue
+        }
+        const[response, status, error] = postFetch(`/api/voluntree/notifications/`, postData);
+        if(!error) {
+            setNewNotificationFetch(true);
+            setModalValue('');
+            setShowModal(false);
+        } else console.log('error', error);
     }
- 
+
     return (
         <React.Fragment>
             <PageHeader
@@ -84,7 +128,7 @@ const PostEditView = props => {
                             Send new update
                         </Button>
                     }>
-                        Table of Notifications
+                        <Table columns={columns} dataSource={tableData}/>
                     </Card>
                 </Col>
                 <Col span={12}>
@@ -104,7 +148,7 @@ const PostEditView = props => {
                 <TextArea
                     value={modalValue}
                     onChange={e => setModalValue(e.target.value)}
-                    placeholder="Controlled autosize"
+                    placeholder="type message"
                     autoSize={{ minRows: 3, maxRows: 5 }}
                 />
                 </Modal>
