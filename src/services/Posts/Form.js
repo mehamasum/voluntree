@@ -30,11 +30,17 @@ const PostForm = props => {
             <Form.Item label="Status" name="status" rules={[{required: true}]}>
               <Input.TextArea rows={6} placeholder="What do you want to share?"/>
             </Form.Item>
+          </Col>
+          <Col span={12} className="post-preview">
+            <Typography.Text type="secondary">This will show up as a regular post on your page</Typography.Text>
+            <img src={post} className="post-preview-img"/>
+          </Col>
+        </Row>
 
-            <br/>
-            <br/>
+        <br/>
 
-
+        <Row>
+          <Col span={12} className="post-form">
             <Divider orientation="left">Messenger Interaction</Divider>
             <Typography.Text type="secondary">Instruction/Info sharing when a person confirms interest on messenger</Typography.Text>
             <br/>
@@ -59,11 +65,6 @@ const PostForm = props => {
             </Form.Item>
           </Col>
           <Col span={12} className="post-preview">
-            <Typography.Text type="secondary">This will show up as a regular post on your page</Typography.Text>
-            <img src={post} className="post-preview-img"/>
-
-            <br/>
-
             <Typography.Text type="secondary">Initial interaction with volunteer</Typography.Text>
             <img src={messenger} className="message-preview-img"/>
           </Col>
