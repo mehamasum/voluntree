@@ -9,8 +9,10 @@ const InterestedVolunteers = props => {
     const {id} = props;
     const host = process.env.REACT_APP_BACKEND_HOST;
     const [interest_response, , setUrl, , , is_loading] = useFetch(`/api/voluntree/posts/${id}/interests/`);
+    const [initialcount_of_interested_volunteers] = useFetch(`/api/voluntree/posts/${id}/volunteers/`);
     const [listData, setListData] = useState([]);
     const [nextUrl, setNextUrl] = useState(null);
+    const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
 
 
     const onMessage = useCallback((e) => {
@@ -19,8 +21,17 @@ const InterestedVolunteers = props => {
         let data = json_parsed_data.data
         if (data.status == 201) { // newly created instance
             setListData(prevListData => ([data.response, ...prevListData]));
+            setNumberOfVolunteer( prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
+        } else if(data.status == 200 ) {
+            setNumberOfVolunteer(data.count);
         }
     }, [listData]);
+
+    useEffect(() => {
+        if(initialcount_of_interested_volunteers) {
+            setNumberOfVolunteer(initialcount_of_interested_volunteers.count);
+        }
+    }, [initialcount_of_interested_volunteers])
 
     useEffect(() => {
         const endPoint = 'ws://localhost:8000' + `/ws/volunteers/${id}/`;
@@ -51,6 +62,9 @@ const InterestedVolunteers = props => {
     return (
         <React.Fragment>
             <div className="demo-infinite-container">
+            <div>
+            <Typography.Text>Total Interest Received: {numberOfVolunteer}</Typography.Text>
+            </div>
             <InfiniteScroll
                 initialLoad={false}
                 pageStart={0}
@@ -59,6 +73,7 @@ const InterestedVolunteers = props => {
                 loader={<div className="loader" key={0}>Loading ...</div>}
                 useWindow={false}
             >
+                
                 <List
                     bordered
                     dataSource={listData}

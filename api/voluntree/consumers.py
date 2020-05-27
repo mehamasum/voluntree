@@ -5,10 +5,8 @@ from .serializers import InterestGeterializer
 
 class VolunteerInterestConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        print('here in connect')
         self.room_name = self.scope['url_route']['kwargs']['post_id']
         self.room_group_name = 'interested_%s' % self.room_name
-        print('room_name', self.room_name)
         # Join room group
         await self.channel_layer.group_add(
             self.room_group_name,

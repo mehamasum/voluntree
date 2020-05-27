@@ -79,6 +79,12 @@ class PostViewSet(ModelViewSet):
         serializer = InterestGeterializer(queryset, many=True)
         paginated_response = paginator.get_paginated_response(serializer.data)
         return paginated_response
+    
+    @action(detail=True)
+    def volunteers(self,request, pk):
+        volunteers = Interest.objects.filter(post=pk, interested=True).count()
+        return Response({'count': volunteers})
+
 
 
 class NotificationViewSet(ModelViewSet):
