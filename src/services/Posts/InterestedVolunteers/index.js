@@ -50,6 +50,7 @@ const InterestedVolunteers = props => {
 
     return (
         <React.Fragment>
+            <div className="demo-infinite-container">
             <InfiniteScroll
                 initialLoad={false}
                 pageStart={0}
@@ -81,6 +82,7 @@ const InterestedVolunteers = props => {
                     )}
                 />
             </InfiniteScroll>
+            </div>
         </React.Fragment>
     );
 };
