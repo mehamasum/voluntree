@@ -8,11 +8,14 @@ import redis
 import json
 from urllib.parse import urlparse
 from .preprocess import sentence_to_embeding
+from celery import shared_task
 
+import environ
+env = environ.Env()
 
 @app.task
 def preprocess_comment_for_ml(hook_payload):
-    url = urlparse('redis://127.0.0.1:6379')
+    url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379'))
     conn = redis.Redis(host=url.hostname, port=url.port, decode_responses=True)
     if not conn.ping():
         raise Exception('Redis unavailable')
@@ -28,7 +31,6 @@ def preprocess_comment_for_ml(hook_payload):
         'embeding': embeding
     }
     conn.xadd('comments:fb', { 'comment': json.dumps(res) })
-    # conn.lpush('test:fb-queue', json.dumps(res))
     return res
     
 @app.task
@@ -72,3 +74,11 @@ def send_notification_on_interested_person(notification_id):
         recipient = {'id': volunteer.facebook_user_id}
         message = build_notification_message(notification)
         FacebookService.send_private_message(page, recipient, message)
+
+@shared_task
+def add_us(x, y):
+    return x + y
+
+@app.task
+def add_me(x, y):
+    return x + y

@@ -23,27 +23,19 @@ cd YOUR_PROJECT_ROOT_DIRECTORY
 pip install -r api/requirements.txt
 ```
 
-### Install ML dependencies
-See README in `/api/voluntree/ml`
-Run the Python interpreter and type the commands:
-```py
->>> import nltk
->>> nltk.download('punkt')
->>> exit()
-```
+### Run redis
+docker-compose build
+docker-compose up
 
-### Custom ML download
+
+### Install ML dependencies
 ```bash
 python 
 >>> import nltk
 >>> nltk.download('punkt')
 >>> exit()
 
-# run redis
-docker-compose build
-docker-compose up
-
-# load model and gear to redis
+# load model and gears to redis
 cd api/ml
 python init-model.py
 python init-gear.py
