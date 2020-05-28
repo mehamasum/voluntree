@@ -1,9 +1,7 @@
-import React, {useEffect, useState} from 'react';
 import './styles.css';
-import { Form, Input, Button } from 'antd';
+import React, {useEffect, useState} from 'react';
+import { Form, Input, Button, Layout, Card } from 'antd';
 import { Redirect } from "react-router-dom";
-import { Layout } from 'antd';
-import { Card } from 'antd';
 import logo from '../../logo-w-fixed.svg';
 
 const LoginView = () => {

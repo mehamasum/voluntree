@@ -15,9 +15,13 @@ const Settings = props => {
     return (
         <div>
             <div className="create-new-post">
-                <Button type="primary" disabled={!oauth_url} onClick={onClickConnect}>
-                    Connect Facebook Pages
-                </Button>
+              <Button
+                type="primary"
+                disabled={!oauth_url}
+                onClick={onClickConnect}
+              >
+                Connect Facebook Pages
+              </Button>
             </div>
             <Card title="Connected Pages">
                 <PageListView/>

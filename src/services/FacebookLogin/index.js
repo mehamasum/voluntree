@@ -1,10 +1,7 @@
-import React, { useEffect, useState } from 'react';
 import './style.css';
-import { Spin, Space } from 'antd';
+import React, { useEffect, useState } from 'react';
+import { Layout, Card, Spin, Space } from 'antd';
 import { useLocation } from "react-router-dom";
-import { Card } from 'antd';
-import { Layout } from 'antd';
-const { Content } = Layout;
 
 function useQuery() {
   return new URLSearchParams(useLocation().search);
@@ -46,14 +43,14 @@ const FacebookLogin = props => {
 
   return (
     <Layout style={{height:"100vh"}} className="middle-align">
-      <Content className="middle-align">
+      <Layout.Content className="middle-align">
         <Card title="Facebook Login" style={{ width: 300 }}>
           <Space size="middle">
             <Spin size="large" spinning={loading}/>
           </Space>
           <h2>{message}</h2>
         </Card>
-      </Content>
+      </Layout.Content>
     </Layout>
   );
 };
