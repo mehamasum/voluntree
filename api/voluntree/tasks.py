@@ -75,10 +75,3 @@ def send_notification_on_interested_person(notification_id):
         message = build_notification_message(notification)
         FacebookService.send_private_message(page, recipient, message)
 
-@shared_task
-def add_us(x, y):
-    return x + y
-
-@app.task
-def add_me(x, y):
-    return x + y

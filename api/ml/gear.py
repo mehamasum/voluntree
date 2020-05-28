@@ -3,14 +3,6 @@ import numpy as np
 from redisgears import executeCommand as execute
 import redisAI
 
-from celery import Celery
-
-
-celery = Celery('gears')
-class Config:
-    broker_url = 'redis://127.0.0.1:6379'
-celery.config_from_object(Config)
-
 def xlog(*args):
     execute('XADD', 'logs', '*', 'msg', ' '.join(map(str, args)))
 
@@ -56,11 +48,7 @@ def model_run(message):
     xlog("model_run output", is_interested)
 
     if is_interested:
-        # TODO: why can't celery access redis broker?
-        # celery.send_task('voluntree.tasks.send_message_on_comment', (payload, ))
-
-    del runner
-    del model_replies
+        execute('XADD', 'interests:fb', '*', 'comment', json.dumps(payload))
 
 
 GearsBuilder('StreamReader').\

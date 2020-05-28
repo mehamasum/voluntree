@@ -20,5 +20,5 @@ if __name__ == '__main__':
     print('Setting up gears')  
     with open('gear.py', 'rb') as f:
         gear = f.read()
-        res = conn.execute_command('RG.PYEXECUTE', gear, "REQUIREMENTS", "numpy", "celery", "redis")
+        res = conn.execute_command('RG.PYEXECUTE', gear, "REQUIREMENTS", "numpy")
         print(res)

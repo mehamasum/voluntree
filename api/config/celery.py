@@ -21,6 +21,10 @@ app.conf.beat_schedule = {
     "trigger-fetch-comment": {
         "task": "schedule_task.webhook.fetch_comment",
         "schedule": crontab(minute="*")
+    },
+    "ingest-interests-from-redis-stream": {
+        "task": "schedule_task.internal.ingest_interests",
+        "schedule": crontab(minute="*")
     }
 }
 
