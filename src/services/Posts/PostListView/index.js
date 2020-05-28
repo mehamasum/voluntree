@@ -2,9 +2,8 @@ import './index.css';
 
 import React, {useMemo, useState, useCallback, useEffect} from 'react';
 import {useFetch} from '../../../hooks';
-import {Avatar, Card, Typography, Button} from 'antd';
+import {Avatar, Card, Typography, Button, Table, Space} from 'antd';
 import {Link} from "react-router-dom";
-import {Table, Space} from 'antd';
 import {
     LinkOutlined,
 } from '@ant-design/icons';

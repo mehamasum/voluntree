@@ -1,5 +1,4 @@
 import './form.css';
-
 import post from '../../assets/post.png';
 import messenger from '../../assets/messenger.png';
 import React from 'react';
@@ -33,7 +32,7 @@ const PostForm = props => {
           </Col>
           <Col span={12} className="post-preview">
             <Typography.Text type="secondary">This will show up as a regular post on your page</Typography.Text>
-            <img src={post} className="post-preview-img"/>
+            <img src={post} className="post-preview-img" alt="post-prev-img"/>
           </Col>
         </Row>
 
@@ -66,7 +65,7 @@ const PostForm = props => {
           </Col>
           <Col span={12} className="post-preview">
             <Typography.Text type="secondary">Initial interaction with volunteer</Typography.Text>
-            <img src={messenger} className="message-preview-img"/>
+            <img src={messenger} className="message-preview-img" alt="message-preview-img"/>
           </Col>
         </Row>
       </Form>

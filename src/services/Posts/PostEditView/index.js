@@ -1,14 +1,8 @@
 import React, { useCallback } from 'react';
-import Template from '../../../template';
-import { useParams } from "react-router-dom";
 import { Card } from 'antd';
-import { Layout } from 'antd';
 import PostFrom from '../Form';
-const { Content } = Layout;
 
 const PostEditView = props => {
-  const {id} = useParams();
-
   const onSubmit = useCallback(values => {
     console.log("onSubmit", values);
   }, []);

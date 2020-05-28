@@ -1,13 +1,8 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { Spin, Space, Card, Layout, Alert } from 'antd';
 import { useHistory } from "react-router-dom";
-import Template from '../../../template';
-import { Spin, Space } from 'antd';
 import { useFetch } from '../../../hooks';
-import { Card } from 'antd';
-import { Layout } from 'antd';
-import { Alert } from 'antd';
 import PostFrom from '../Form';
-const { Content } = Layout;
 
 const PostCreateView = props => {
   const history = useHistory();
@@ -48,7 +43,7 @@ const PostCreateView = props => {
 
   return (
     <React.Fragment>
-      <Content className="center-content">
+      <Layout.Content className="center-content">
         <Card title="Create New Post">
           <Space size="middle">
             <Spin size="large" spinning={loading}/>
@@ -57,7 +52,7 @@ const PostCreateView = props => {
           <Alert message={errorMsg} type="error" banner closable/> }
           <PostFrom onSubmit={onSubmit} pages={pages}/>
         </Card>
-      </Content>
+      </Layout.Content>
     </React.Fragment>
   );
 };

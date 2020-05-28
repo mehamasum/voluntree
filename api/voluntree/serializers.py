@@ -54,7 +54,7 @@ class InterestGeterializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('message', 'post')
+        fields = ('id', 'message', 'post')
         
     def create(self, validated_data):
         user = self.context.get('request').user

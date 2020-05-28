@@ -1,10 +1,6 @@
 import React, {useEffect, useMemo, useState, useCallback} from 'react';
+import { Table, Avatar, Typography, Tag } from 'antd';
 import { useFetch } from '../../hooks';
-import { Table, Space } from 'antd';
-import { Avatar } from 'antd';
-import { Typography } from 'antd';
-import { Tag } from 'antd';
-
 import { formatTime } from "../../utils";
 
 
@@ -17,7 +13,14 @@ const columns = [
         <Avatar
           src={`https://graph.facebook.com/${record.facebook_page_id}/picture`}
         />
-        <Typography.Text>&nbsp; &nbsp;<a href={`https://facebook.com/${record.facebook_page_id}`} target='blank'>{record.name}</a></Typography.Text>
+            <Typography.Text>
+              &nbsp; &nbsp;
+              <a
+                href={`https://facebook.com/${record.facebook_page_id}`}
+                target='blank'>
+                {record.name}
+              </a>
+            </Typography.Text>
       </div>
     )
   },
@@ -25,14 +28,17 @@ const columns = [
     title: 'Status',
     dataIndex: 'is_expired',
     render: (text, record) => (
-      record.is_expired ? <Tag color="error">Expired</Tag> : <Tag color="success">Connected</Tag>
+      record.is_expired ? <Tag color="error">Expired</Tag> :
+        <Tag color="success">Connected</Tag>
     )
   },
   {
     title: 'Expiry Date',
     dataIndex: 'is_expired',
     render: (text, record) => (
-        <Typography.Text>{formatTime(record.page_expiry_token_date)}</Typography.Text>
+      <Typography.Text>
+        {formatTime(record.page_expiry_token_date)}
+      </Typography.Text>
     )
   }
 ];

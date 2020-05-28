@@ -6,7 +6,6 @@ import logo from '../logo-w-fixed.svg';
 import {Layout, Menu, Dropdown} from "antd";
 import {
   AppstoreOutlined,
-  UnorderedListOutlined,
   SettingOutlined,
   UserOutlined,
   ClockCircleOutlined,
@@ -29,11 +28,9 @@ const Template = (props) => {
   };
 
   const menu = (
-      <Menu>
+      <Menu onClick={e => {onLoggedOutClick();}}>
         <Menu.Item>
-          <a onClick={e => {e.preventDefault(); onLoggedOutClick();}}>
             Log Out
-          </a>
         </Menu.Item>
       </Menu>
   );
@@ -41,10 +38,12 @@ const Template = (props) => {
   return (
       <Layout style={{ minHeight: '100vh' }}>
         <Header className="site-header">
-          <div className="app-logo"><img src={logo} className="App-logo" alt="logo" /></div>
+          <div className="app-logo">
+            <img src={logo} className="App-logo" alt="logo" />
+          </div>
           <div className="flex"></div>
           <Dropdown overlay={menu}>
-            <a className="ant-dropdown-link" href="#">
+            <a className="ant-dropdown-link" href={window.location.href}>
               <Avatar icon={<UserOutlined />} />
             </a>
           </Dropdown>

@@ -1,11 +1,7 @@
 import React from 'react';
-import Template from '../../template';
+import {Card, Button} from 'antd';
 import {useFetch} from '../../hooks';
-import {Card, Space, Typography} from 'antd';
-import {Button} from 'antd';
 import PageListView from './PageListView';
-import {Layout} from 'antd';
-import {Link} from "react-router-dom";
 import FormLayoutDemo from "./Webhooks";
 
 
@@ -19,9 +15,13 @@ const Settings = props => {
     return (
         <div>
             <div className="create-new-post">
-                <Button type="primary" disabled={!oauth_url} onClick={onClickConnect}>
-                    Connect Facebook Pages
-                </Button>
+              <Button
+                type="primary"
+                disabled={!oauth_url}
+                onClick={onClickConnect}
+              >
+                Connect Facebook Pages
+              </Button>
             </div>
             <Card title="Connected Pages">
                 <PageListView/>
