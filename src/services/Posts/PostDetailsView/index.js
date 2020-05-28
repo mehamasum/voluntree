@@ -32,7 +32,7 @@ const columns = [
     },
 ];
 
-const PostEditView = props => {
+const PostDetailsView = props => {
     const {id} = useParams();
     const [post_response] = useFetch(`/api/voluntree/posts/${id}`);
     const [notification_response, setNotificationResponse] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
@@ -85,7 +85,9 @@ const PostEditView = props => {
             <PageHeader
                 onBack={() => window.history.back()}
                 title="Post Details"
-                tags={[<Tag color="success">Published</Tag>, <Tag color="success">Collecting Response</Tag>]}
+                tags={[
+                  <Tag color="success" key="tag1">Published</Tag>,
+                  <Tag color="success" key="tag2">Collecting Response</Tag>]}
             />
 
             <Card title="Post Details" extra={
@@ -180,4 +182,4 @@ const PostEditView = props => {
     );
 };
 
-export default PostEditView;
+export default PostDetailsView;
