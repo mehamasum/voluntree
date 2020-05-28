@@ -1,21 +1,17 @@
 import React, {useMemo, useState, useEffect} from 'react';
-import Template from '../../../template';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {postFetch} from '../../../actions';
-import {Avatar, Badge, Button, Card, Space, Spin} from 'antd';
-import {Alert, Typography, Modal, Input, Table} from 'antd';
+import {Avatar, Button, Card, } from 'antd';
+import {Typography, Modal, Input, Table} from 'antd';
 import { Descriptions } from 'antd';
-import {Layout} from 'antd';
 import InterestedVolunteers from '../InterestedVolunteers';
 import {formatTime} from "../../../utils";
 import { Row, Col } from 'antd';
 import { PageHeader } from 'antd';
 import { Tag } from 'antd';
 import {truncateString} from '../../../utils';
-import { Skeleton, Switch } from 'antd';
-
-const {Content} = Layout;
+import { Skeleton, } from 'antd';
 const {TextArea} = Input;
 
 const columns = [
@@ -30,9 +26,8 @@ const columns = [
 
 const PostEditView = props => {
     const {id} = useParams();
-    const [post_response, , , , status] = useFetch(`/api/voluntree/posts/${id}`);
-    const [interest_response, , setUrl] = useFetch(`/api/voluntree/posts/${id}/interests/`);
-    const [notification_response, setNotificationResponse ,setUrlNotification] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
+    const [post_response] = useFetch(`/api/voluntree/posts/${id}`);
+    const [notification_response, setNotificationResponse] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
     const [showModal, setShowModal] = useState(false);
     const [modalValue, setModalValue] = useState('');
     const [newNotificationFetch, setNewNotificationFetch] = useState(false);
@@ -60,7 +55,7 @@ const PostEditView = props => {
             })
             setNewNotificationFetch(false);
         }
-    }, [newNotificationFetch])
+    }, [newNotificationFetch, id, setNotificationResponse])
 
 
 
@@ -69,7 +64,7 @@ const PostEditView = props => {
             'post': id,
             'message': modalValue
         }
-        const[response, status, error] = postFetch(`/api/voluntree/notifications/`, postData);
+        const[, , error] = postFetch(`/api/voluntree/notifications/`, postData);
         if(!error) {
             setNewNotificationFetch(true);
             setModalValue('');

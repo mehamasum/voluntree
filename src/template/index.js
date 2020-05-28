@@ -6,7 +6,6 @@ import logo from '../logo-w-fixed.svg';
 import {Layout, Menu, Dropdown} from "antd";
 import {
   AppstoreOutlined,
-  UnorderedListOutlined,
   SettingOutlined,
   UserOutlined,
   ClockCircleOutlined,
@@ -29,11 +28,9 @@ const Template = (props) => {
   };
 
   const menu = (
-      <Menu>
+      <Menu onClick={e => {onLoggedOutClick();}}>
         <Menu.Item>
-          <a onClick={e => {e.preventDefault(); onLoggedOutClick();}}>
             Log Out
-          </a>
         </Menu.Item>
       </Menu>
   );

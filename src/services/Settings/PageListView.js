@@ -1,10 +1,6 @@
 import React, {useEffect, useMemo, useState, useCallback} from 'react';
+import { Table, Avatar, Typography, Tag } from 'antd';
 import { useFetch } from '../../hooks';
-import { Table, Space } from 'antd';
-import { Avatar } from 'antd';
-import { Typography } from 'antd';
-import { Tag } from 'antd';
-
 import { formatTime } from "../../utils";
 
 

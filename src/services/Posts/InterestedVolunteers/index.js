@@ -1,10 +1,11 @@
-import React, {useMemo, useState, useEffect, useCallback} from 'react';
-import {List, Card, Button, Space, Avatar, Typography} from 'antd';
+import React, {useState, useEffect, useCallback} from 'react';
+import {List, Button, Avatar, Typography} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 
 import './styles.css';
 
+// TODO Refactor the whole WebSocket logic
 const InterestedVolunteers = props => {
     const {id} = props;
     const host = process.env.REACT_APP_BACKEND_HOST;
@@ -19,13 +20,13 @@ const InterestedVolunteers = props => {
 
         let json_parsed_data = JSON.parse(e.data);
         let data = json_parsed_data.data
-        if (data.status == 201) { // newly created instance
+        if (data.status === 201) { // newly created instance
             setListData(prevListData => ([data.response, ...prevListData]));
             setNumberOfVolunteer( prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
-        } else if(data.status == 200 ) {
-            setNumberOfVolunteer(data.count);
+        } else if(data.status === 200 ) {
+          //setNumberOfVolunteer(data.count);
         }
-    }, [listData]);
+    }, []);
 
     useEffect(() => {
         if(initialcount_of_interested_volunteers) {
@@ -34,7 +35,7 @@ const InterestedVolunteers = props => {
     }, [initialcount_of_interested_volunteers])
 
     useEffect(() => {
-        const endPoint = 'ws://localhost:8000' + `/ws/volunteers/${id}/`;
+        const endPoint = `ws://localhost:8000/ws/volunteers/${id}/`;
         const ws = new WebSocket(endPoint);
         ws.onerror = (e) => {
             console.log('error', e);

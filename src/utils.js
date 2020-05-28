@@ -21,11 +21,6 @@ function truncateString(str, num) {
     }
 }
 
-function currentPage(path) {
-    const paths = ['/']
-
-}
-
 export {
     formatTime,
     truncateString
