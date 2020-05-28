@@ -1,4 +1,4 @@
-import React, {useState, useEffect, useCallback} from 'react';
+import React, {useState, useEffect} from 'react';
 import {List, Button, Avatar, Typography} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
@@ -17,7 +17,7 @@ const InterestedVolunteers = props => {
     const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
 
 
-    const onMessage = useCallback((e) => {
+    const onMessage = (e) => {
 
         let json_parsed_data = JSON.parse(e.data);
         let data = json_parsed_data.data
@@ -27,7 +27,7 @@ const InterestedVolunteers = props => {
         } else if(data.status === 200 ) {
           //setNumberOfVolunteer(data.count);
         }
-    }, []);
+    };
 
     useEffect(() => {
         if(initialcount_of_interested_volunteers) {
@@ -52,14 +52,13 @@ const InterestedVolunteers = props => {
             console.log('onclose', e);
         }
 
-    }, []);
+    }, [id]);
 
     useEffect(() => {
-        if (interest_response) {
-            setListData(prevListData => ([...prevListData, ...interest_response.results]));
-            setNextUrl(interest_response.next);
-        }
-    }, [interest_response && interest_response.results])
+      if(!interest_response || !interest_response.results) return;
+      setListData(prevListData => ([...prevListData, ...interest_response.results]));
+      setNextUrl(interest_response.next);
+    }, [interest_response])
 
     return (
         <React.Fragment>

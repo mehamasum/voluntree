@@ -43,7 +43,7 @@ const Template = (props) => {
           </div>
           <div className="flex"></div>
           <Dropdown overlay={menu}>
-            <a className="ant-dropdown-link" href="#">
+            <a className="ant-dropdown-link" href={window.location.href}>
               <Avatar icon={<UserOutlined />} />
             </a>
           </Dropdown>
