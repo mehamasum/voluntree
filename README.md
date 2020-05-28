@@ -11,17 +11,25 @@ cd YOUR_PROJECT_ROOT_DIRECTORY
     virtualenv .venv # for windows
 ```
 
-### install backend (api) dependencies
-```py
-pip install -r api/requirements.txt
-```
-
-
 ### activate virtual environment
 ```py
     source .venv/bin/activate # for linux
     .venv/Scripts/activate  # for windowns
 
+```
+
+### install backend (api) dependencies
+```py
+pip install -r api/requirements.txt
+```
+
+### Install ML dependencies
+See README in `/api/voluntree/ml`
+Run the Python interpreter and type the commands:
+```py
+>>> import nltk
+>>> nltk.download('punkt')
+>>> exit()
 ```
 
 ### migrate database with the application models
