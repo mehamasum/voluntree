@@ -1,17 +1,25 @@
 import React, {useMemo, useState, useEffect} from 'react';
+import {
+  Typography, 
+  Modal, 
+  Input, 
+  Table, 
+  Avatar, 
+  Button, 
+  Card, 
+  Descriptions, 
+  Row, 
+  Col, 
+  PageHeader, 
+  Tag, 
+  Skeleton
+} from 'antd';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {postFetch} from '../../../actions';
-import {Avatar, Button, Card, } from 'antd';
-import {Typography, Modal, Input, Table} from 'antd';
-import { Descriptions } from 'antd';
 import InterestedVolunteers from '../InterestedVolunteers';
 import {formatTime} from "../../../utils";
-import { Row, Col } from 'antd';
-import { PageHeader } from 'antd';
-import { Tag } from 'antd';
 import {truncateString} from '../../../utils';
-import { Skeleton, } from 'antd';
 const {TextArea} = Input;
 
 const columns = [

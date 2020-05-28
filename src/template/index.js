@@ -38,7 +38,9 @@ const Template = (props) => {
   return (
       <Layout style={{ minHeight: '100vh' }}>
         <Header className="site-header">
-          <div className="app-logo"><img src={logo} className="App-logo" alt="logo" /></div>
+          <div className="app-logo">
+            <img src={logo} className="App-logo" alt="logo" />
+          </div>
           <div className="flex"></div>
           <Dropdown overlay={menu}>
             <a className="ant-dropdown-link" href="#">

@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState, useCallback} from 'react';
-import { useFetch } from '../../../hooks';
 import {Table, Card, Layout, Button, Avatar, Typography} from 'antd';
-const { Content } = Layout;
+import { useFetch } from '../../../hooks';
+import {MessengerIcon} from '../../../assets/icons';
 
 
 const columns = [
@@ -10,27 +10,35 @@ const columns = [
     render: (text, record) => (
         <div>
           <Avatar src={record.profile_pic}/>&nbsp;&nbsp;
-          <Typography.Text>{record.first_name} {record.last_name}</Typography.Text>
+          <Typography.Text>
+            {record.first_name} {record.last_name}
+          </Typography.Text>
         </div>
     )
   },
   {
     title: 'Actions',
     render: (text, record) => (
-        <a href={`https://www.facebook.com/${record.facebook_page_id}/inbox/`} target="_blank" rel="noopener noreferrer">
-            <Button type="primary" className="messenger-btn">
-              <svg className="messenger-icon" width="24" height="24" xmlns="http://www.w3.org/2000/svg" fill-rule="evenodd" clip-rule="evenodd"><path d="M12 0c-6.627 0-12 4.975-12 11.111 0 3.497 1.745 6.616 4.472 8.652v4.237l4.086-2.242c1.09.301 2.246.464 3.442.464 6.627 0 12-4.974 12-11.111 0-6.136-5.373-11.111-12-11.111zm1.193 14.963l-3.056-3.259-5.963 3.259 6.559-6.963 3.13 3.259 5.889-3.259-6.559 6.963z"/></svg>
-              Messenger
-            </Button>
-        </a>
+      <a
+        href={`https://www.facebook.com/${record.facebook_page_id}/inbox/`}
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <Button type="primary" className="messenger-btn">
+          <MessengerIcon/>
+            Messenger
+        </Button>
+      </a>
     )
   },
 ];
 
 
 const VolunteerListView = props => {
-  const [volunteers_response,, setUrl] = useFetch('api/voluntree/volunteers/?limit=25&offset=0');
-  const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
+  const [volunteers_response,, setUrl] = useFetch(
+  'api/voluntree/volunteers/?limit=25&offset=0');
+  const [pagination, setPagination] = useState({
+    current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
 
   const tableData = useMemo(() => {
@@ -38,7 +46,6 @@ const VolunteerListView = props => {
     return volunteers_response.results.map(r => ({...r, key: r.id}));
   }, [volunteers_response]);
 
-  console.log("table data", tableData);
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
     const offset = (pag.current -1) * 25;
@@ -52,7 +59,7 @@ const VolunteerListView = props => {
 
   return (
     <React.Fragment>
-      <Content className="center-content">
+      <Layout.Content className="center-content">
         <Card title="Connected Volunteers">
           <Table
             columns={columns}
@@ -61,7 +68,7 @@ const VolunteerListView = props => {
             onChange={onChangeTable}
             scroll={{y: 500 }}/>
           </Card>
-      </Content>
+      </Layout.Content>
     </React.Fragment>
   );
 };
