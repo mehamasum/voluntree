@@ -48,7 +48,7 @@ class InterestGeterializer(serializers.ModelSerializer):
     volunteer = VolunteerSerializer(read_only=True)
     class Meta:
         model = Interest
-        fields = ('post', 'volunteer', 'interested', 'created_at')
+        fields = ('id', 'post', 'volunteer', 'interested', 'created_at')
 
 
 class NotificationSerializer(serializers.ModelSerializer):

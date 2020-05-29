@@ -179,9 +179,7 @@ const PostDetailsView = props => {
       </Col>
 
       <Col span={12}>
-        <Card title="Confirmed Volunteers">
-          <InterestedVolunteers id={id}/>
-            </Card>
+        <InterestedVolunteers id={id}/>
       </Col>
     </Row>
 
