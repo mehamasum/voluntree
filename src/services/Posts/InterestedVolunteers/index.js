@@ -21,10 +21,10 @@ const InterestedVolunteers = props => {
 
   const onMessage = (e) => {
     let json_parsed_data = JSON.parse(e.data);
-    console.log("come new data", json_parsed_data);
+    console.log("come new data", e);
     let data = json_parsed_data.data
-    if (data.status === 201) { // newly created instance
-      setInterestDetailsUrl(`/api/voluntree/interests/${data.response.id}/`);
+    if (data.status === 'created') { // newly created instance
+      setInterestDetailsUrl(`/api/voluntree/interests/${data.id}/`);
     }
   };
 
@@ -35,7 +35,7 @@ const InterestedVolunteers = props => {
   }, [initialcount_of_interested_volunteers])
 
   useEffect(() => {
-    const endPoint = `${WEB_SOCKET_HOST}/ws/volunteers/${id}/`;
+    const endPoint = `${WEB_SOCKET_HOST}/ws/voluntree/posts/${id}/interests`;
     const ws = new WebSocket(endPoint);
     ws.onerror = (e) => {
       console.log('error', e);
