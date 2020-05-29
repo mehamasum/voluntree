@@ -1,4 +1,4 @@
-export const postFetch = (fetchUrl, postData) => {
+export const postFetch = (fetchUrl, postData = {}) => {
     const requestOptions = {
       method: 'POST',
       headers: { 
