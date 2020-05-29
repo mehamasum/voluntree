@@ -10,9 +10,8 @@ from .services import (FacebookService, PostService, VolunteerService,
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer)
 from .models import Post, Interest, Volunteer, Notification
-from .ml.pipeline import pipleline
 from .paginations import CreationTimeBasedPagination
-from .tasks import send_message_on_yes_confirmation
+from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
 
 
 class VoluntreeApiListView(APIView):
@@ -119,8 +118,9 @@ class FacebookApiViewSet(ViewSet):
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
         
-        pipleline(request.data)
+        preprocess_comment_for_ml.apply_async((request.data, ))
         return Response(status.HTTP_200_OK)
+
 
     @action(detail=False, methods=['get', 'post'],
             url_path='webhook:messenger', permission_classes=[AllowAny])
