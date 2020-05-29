@@ -23,6 +23,7 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                 'data': {
                     'status': 201,
                     'response': {
+                        'id': instance.id,
                         'post': str(instance.post.id),
                         'volunteer': {
                             'id': str(instance.volunteer.id),

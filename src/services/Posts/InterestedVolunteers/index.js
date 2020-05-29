@@ -1,64 +1,66 @@
-import React, {useState, useEffect} from 'react';
+import React, {useState, useEffect, useMemo} from 'react';
 import {List, Button, Avatar, Typography} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 import {MessengerIcon} from '../../../assets/icons';
-
 import './styles.css';
+
+
+const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST;
+const host = process.env.REACT_APP_BACKEND_HOST;
 
 // TODO Refactor the whole WebSocket logic
 const InterestedVolunteers = props => {
-    const {id} = props;
-    const host = process.env.REACT_APP_BACKEND_HOST;
-    const [interest_response, , setUrl, , , is_loading] = useFetch(`/api/voluntree/posts/${id}/interests/`);
-    const [initialcount_of_interested_volunteers] = useFetch(`/api/voluntree/posts/${id}/volunteers/`);
-    const [listData, setListData] = useState([]);
-    const [nextUrl, setNextUrl] = useState(null);
-    const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
+  const {id} = props;
+  const [interests_response, , setInterestsUrl, , , is_loading] = useFetch(`/api/voluntree/posts/${id}/interests/`);
+  const [interest_details_response, , setInterestDetailsUrl] = useFetch();
+  const [initialcount_of_interested_volunteers] = useFetch(`/api/voluntree/posts/${id}/volunteers/`);
+  const [listData, setListData] = useState([]);
+  const [nextUrl, setNextUrl] = useState(null);
+  const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
 
+  const onMessage = (e) => {
+    let json_parsed_data = JSON.parse(e.data);
+    console.log("come new data", json_parsed_data);
+    let data = json_parsed_data.data
+    if (data.status === 201) { // newly created instance
+      setInterestDetailsUrl(`/api/voluntree/interests/${data.response.id}/`);
+    }
+  };
 
-    const onMessage = (e) => {
+  useEffect(() => {
+    if(initialcount_of_interested_volunteers) {
+      setNumberOfVolunteer(initialcount_of_interested_volunteers.count);
+    }
+  }, [initialcount_of_interested_volunteers])
 
-        let json_parsed_data = JSON.parse(e.data);
-        let data = json_parsed_data.data
-        if (data.status === 201) { // newly created instance
-            setListData(prevListData => ([data.response, ...prevListData]));
-            setNumberOfVolunteer( prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
-        } else if(data.status === 200 ) {
-          //setNumberOfVolunteer(data.count);
-        }
-    };
+  useEffect(() => {
+    const endPoint = `${WEB_SOCKET_HOST}/ws/volunteers/${id}/`;
+    const ws = new WebSocket(endPoint);
+    ws.onerror = (e) => {
+      console.log('error', e);
+    }
 
-    useEffect(() => {
-        if(initialcount_of_interested_volunteers) {
-            setNumberOfVolunteer(initialcount_of_interested_volunteers.count);
-        }
-    }, [initialcount_of_interested_volunteers])
+    ws.onmessage = onMessage;
+    ws.onopen = (e) => {
+      console.log('onopen', e);
+    }
+    ws.onclose = (e) => {
+      console.log('onclose', e);
+    }
+  }, [id]);
 
-    useEffect(() => {
-        const endPoint = `ws://localhost:8000/ws/volunteers/${id}/`;
-        const ws = new WebSocket(endPoint);
-        ws.onerror = (e) => {
-            console.log('error', e);
-        }
+  useEffect(() => {
+    if(!interests_response) return;
+    setListData([...listData, ...interests_response.results]);
+    setNextUrl(interests_response.next);
+  }, [interests_response])
 
-        ws.onmessage = onMessage;
-
-        ws.onopen = (e) => {
-            console.log('onopen', e);
-        }
-
-        ws.onclose = (e) => {
-            console.log('onclose', e);
-        }
-
-    }, [id]);
-
-    useEffect(() => {
-      if(!interest_response || !interest_response.results) return;
-      setListData(prevListData => ([...prevListData, ...interest_response.results]));
-      setNextUrl(interest_response.next);
-    }, [interest_response])
+  useEffect(() => {
+    if(!interest_details_response) return;
+    setListData([interest_details_response, ...listData])
+    setNumberOfVolunteer( numberOfVolunteer + 1 );
+  }, [interest_details_response]);
 
     return (
         <React.Fragment>
@@ -69,12 +71,11 @@ const InterestedVolunteers = props => {
             <InfiniteScroll
                 initialLoad={false}
                 pageStart={0}
-                loadMore={() => nextUrl && setUrl(nextUrl.replace(host, ''))}
+                loadMore={() => nextUrl && setInterestsUrl(nextUrl.replace(host, ''))}
                 hasMore={!is_loading && (nextUrl ? true : false)}
                 loader={<div className="loader" key={0}>Loading ...</div>}
                 useWindow={false}
             >
-                
                 <List
                     bordered
                     dataSource={listData}
