@@ -27,7 +27,7 @@ class VolunteerViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         # TODO Need to change model design in future
-        volunteer_ids = self.request.user.pages.values_list(
+        volunteer_ids = self.request.user.organization.pages.values_list(
             'posts__interests__volunteer__id', flat=True).distinct()
         return Volunteer.objects.filter(id__in=volunteer_ids)
 
@@ -37,7 +37,7 @@ class PageViewSet(ReadOnlyModelViewSet):
     serializer_class = PageSerializer
 
     def get_queryset(self):
-        return self.request.user.pages.all()
+        return self.request.user.organization.pages.all()
 
 
 class PostViewSet(ModelViewSet):
@@ -51,7 +51,7 @@ class PostViewSet(ModelViewSet):
         serializer = self.serializer_class(
             data=request.data, context={'request': request})
         if serializer.is_valid():
-            page = request.user.pages.get(id=request.data.get('page'))
+            page = request.user.organization.pages.get(id=request.data.get('page'))
             fb_post = PostService.create_post_on_facebook_page(
                 page, request.data.get('status'))
             if fb_post.status_code != 200:
