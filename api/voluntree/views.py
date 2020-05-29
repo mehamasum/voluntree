@@ -100,6 +100,12 @@ class NotificationViewSet(ModelViewSet):
     serializer_class = NotificationSerializer
 
 
+class InterestViewSet(ReadOnlyModelViewSet):
+    queryset = Interest.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = InterestGeterializer
+
+
 class FacebookApiViewSet(ViewSet):
     permission_classes = (IsAuthenticated, )
 
