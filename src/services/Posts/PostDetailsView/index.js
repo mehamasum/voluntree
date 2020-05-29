@@ -85,10 +85,9 @@ const PostDetailsView = props => {
 
 
   const onDisablePostClick = () => {
-    // TODO: postFetch doesnt work. response is always undefined here
-    // we are setting disabled regardless
-    postFetch(`/api/voluntree/posts/${id}/disable/`);
-    setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
+    postFetch(`/api/voluntree/posts/${id}/disable/`).then( response => {
+      setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
+    })
   };
 
   return (
