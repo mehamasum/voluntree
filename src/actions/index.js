@@ -1,5 +1,4 @@
 export const postFetch = (fetchUrl, postData) => {
-    let response, status, error = null;
     const requestOptions = {
       method: 'POST',
       headers: { 
@@ -8,16 +7,6 @@ export const postFetch = (fetchUrl, postData) => {
       },
       body: JSON.stringify(postData)
     };
-    fetch(fetchUrl, requestOptions)
-      .then(response => {
-        status = response.status;
-        response = response.json;
-        return response;
-      })
-      .catch(err => {
-        error = err;
-      });
-
-      return [response, status, error];
-
+    return fetch(fetchUrl, requestOptions)
+      .then(response => response.json())
 }

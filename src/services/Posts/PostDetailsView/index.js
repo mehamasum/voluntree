@@ -69,17 +69,18 @@ const PostDetailsView = props => {
     }
   }, [newNotificationFetch, id, setNotificationResponse])
 
-  const onModalOk = () => {
+  const onModalOk = async() => {
     const postData = {
       'post': id,
       'message': modalValue
     };
-    const[, , error] = postFetch(`/api/voluntree/notifications/`, postData);
-    if(!error) {
+    postFetch(`/api/voluntree/notifications/`, postData).then( response => {
       setNewNotificationFetch(true);
       setModalValue('');
       setShowModal(false);
-    } else console.log('error', error);
+    }).catch(error=> {
+      console.log('error', error);
+    });
   };
 
 
@@ -89,8 +90,6 @@ const PostDetailsView = props => {
     postFetch(`/api/voluntree/posts/${id}/disable/`);
     setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
   };
-
-
 
   return (
     <React.Fragment>
