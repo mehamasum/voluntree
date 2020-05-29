@@ -1,15 +1,14 @@
-import React, {useState, useEffect, useMemo} from 'react';
-import {List, Button, Avatar, Typography} from 'antd';
+import React, {useState, useEffect} from 'react';
+import {List, Button, Avatar, Typography, Card} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 import {MessengerIcon} from '../../../assets/icons';
+import {DisconnectOutlined} from '@ant-design/icons';
 import './styles.css';
 
-
 const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST;
-const host = process.env.REACT_APP_BACKEND_HOST;
 
-// TODO Refactor the whole WebSocket logic
+
 const InterestedVolunteers = props => {
   const {id} = props;
   const [interests_response, , setInterestsUrl, , , is_loading] = useFetch(`/api/voluntree/posts/${id}/interests/`);
@@ -18,15 +17,7 @@ const InterestedVolunteers = props => {
   const [listData, setListData] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
-
-  const onMessage = (e) => {
-    let json_parsed_data = JSON.parse(e.data);
-    console.log("come new data", e);
-    let data = json_parsed_data.data
-    if (data.status === 'created') { // newly created instance
-      setInterestDetailsUrl(`/api/voluntree/interests/${data.id}/`);
-    }
-  };
+  const [isSocketClose, setIsSocketClose] = useState(false);
 
   useEffect(() => {
     if(initialcount_of_interested_volunteers) {
@@ -38,66 +29,80 @@ const InterestedVolunteers = props => {
     const endPoint = `${WEB_SOCKET_HOST}/ws/voluntree/posts/${id}/interests`;
     const ws = new WebSocket(endPoint);
     ws.onerror = (e) => {
-      console.log('error', e);
+      setIsSocketClose(true);
     }
-
-    ws.onmessage = onMessage;
+    ws.onmessage = (e) => {
+      const json_parsed_data = JSON.parse(e.data);
+      const data = json_parsed_data.data
+      if (data.status === 'created') {
+        setInterestDetailsUrl(`/api/voluntree/interests/${data.id}/`);
+      }
+    };
     ws.onopen = (e) => {
-      console.log('onopen', e);
+      setIsSocketClose(false);
     }
     ws.onclose = (e) => {
-      console.log('onclose', e);
+      setIsSocketClose(true);
     }
-  }, [id]);
+  }, [id, setInterestDetailsUrl, setIsSocketClose]);
 
   useEffect(() => {
     if(!interests_response) return;
-    setListData([...listData, ...interests_response.results]);
+    setListData(prevList => [...prevList, ...interests_response.results]);
     setNextUrl(interests_response.next);
   }, [interests_response])
 
   useEffect(() => {
     if(!interest_details_response) return;
-    setListData([interest_details_response, ...listData])
-    setNumberOfVolunteer( numberOfVolunteer + 1 );
+    setListData(prevList => [interest_details_response, ...prevList])
+    setNumberOfVolunteer(prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
   }, [interest_details_response]);
 
-    return (
-        <React.Fragment>
-            <div className="demo-infinite-container">
-            <div>
-            <Typography.Text>Total Interest Received: {numberOfVolunteer}</Typography.Text>
-            </div>
-            <InfiniteScroll
-                initialLoad={false}
-                pageStart={0}
-                loadMore={() => nextUrl && setInterestsUrl(nextUrl.replace(host, ''))}
-                hasMore={!is_loading && (nextUrl ? true : false)}
-                loader={<div className="loader" key={0}>Loading ...</div>}
-                useWindow={false}
-            >
-                <List
-                    bordered
-                    dataSource={listData}
-                    renderItem={item => (
-                        <List.Item>
-                          <div>
-                            <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
-                            <Typography.Text>{item.volunteer.first_name} {item.volunteer.last_name}</Typography.Text>
-                          </div>
-                            <a href={`https://www.facebook.com/${item.volunteer.facebook_page_id}/inbox/`} target="_blank" rel="noopener noreferrer">
-                                <Button type="primary" className="messenger-btn">
-                                    <MessengerIcon/>
-                                    Messenger
-                                </Button>
-                            </a>
-                        </List.Item>
-                    )}
-                />
-            </InfiniteScroll>
-            </div>
-        </React.Fragment>
-    );
+  return (
+    <Card
+      title="Confirmed Volunteers"
+      extra={isSocketClose && <DisconnectOutlined style={{color: 'red'}}/>}>
+      <div>
+        <Typography.Text>
+          Total Interest Received: {numberOfVolunteer}
+        </Typography.Text>
+      </div>
+
+      <div className="infinite-container">
+        <InfiniteScroll
+          initialLoad={false}
+          pageStart={0}
+          loadMore={() => nextUrl && setInterestsUrl(nextUrl)}
+          hasMore={!is_loading && (nextUrl ? true : false)}
+          loader={<div className="loader" key={0}>Loading ...</div>}
+          useWindow={false}>
+          <List
+            bordered
+            dataSource={listData}
+            renderItem={item => (
+            <List.Item>
+              <div>
+                <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
+                  <Typography.Text>
+                    {item.volunteer.first_name} {item.volunteer.last_name}
+                  </Typography.Text>
+              </div>
+
+              <a
+                href={`https://www.facebook.com/${item.volunteer.facebook_page_id}/inbox/`}
+                target="_blank"
+                rel="noopener noreferrer">
+                <Button type="primary" className="messenger-btn">
+                  <MessengerIcon/>
+                  Messenger
+                </Button>
+              </a>
+            </List.Item>)}
+          />
+        </InfiniteScroll>
+      </div>
+    </Card>
+  );
 };
 
 export default InterestedVolunteers;

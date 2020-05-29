@@ -48,6 +48,7 @@ SECRET_KEY = 'x%j(oz1=qzs+f_zrmtqz8%49$y@7pq6--fvko%4i_x_z@!js0e'
 DEBUG = True
 
 ALLOWED_HOSTS = ['*']
+USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 
 
 # Application definition
