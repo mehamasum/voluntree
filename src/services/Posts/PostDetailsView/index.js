@@ -69,7 +69,7 @@ const PostDetailsView = props => {
     }
   }, [newNotificationFetch, id, setNotificationResponse])
 
-  const onModalOk = async() => {
+  const onModalOk = () => {
     const postData = {
       'post': id,
       'message': modalValue
