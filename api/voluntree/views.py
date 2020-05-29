@@ -45,7 +45,7 @@ class PostViewSet(ModelViewSet):
     serializer_class = PostSerializer
 
     def get_queryset(self):
-        return self.request.user.posts.all()
+        return self.request.user.posts.all().order_by('-created_at')
 
     def create(self, request):
         serializer = self.serializer_class(
@@ -67,6 +67,14 @@ class PostViewSet(ModelViewSet):
     def notifications(self, request, pk):
         queryset = self.get_object().notifications.all()
         serializer = NotificationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def disable(self, request, pk):
+        post = self.get_object()
+        post.disabled = True
+        post.save()
+        serializer = self.serializer_class(post, context={'request': request})
         return Response(serializer.data)
 
     
@@ -117,6 +125,17 @@ class FacebookApiViewSet(ViewSet):
             if mode == 'subscribe' and token == 'xyz':
                 return Response(int(challenge))
             return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
+
+
+        data = request.data
+        comment_id = data.get('value', {}).get('comment_id')
+        post_id = comment_id.split('_')[0]
+        try:
+            post = Post.objects.get(facebook_post_id=post_id, disabled=False)
+        except Post.DoesNotExist:
+            # TODO: ignoring for now
+            print('Ignoring comment for disabled or unknown post')
+            return Response(status.HTTP_200_OK)
         
         preprocess_comment_for_ml.apply_async((request.data, ))
         return Response(status.HTTP_200_OK)

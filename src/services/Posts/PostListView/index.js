@@ -2,7 +2,7 @@ import './index.css';
 
 import React, {useMemo, useState, useCallback, useEffect} from 'react';
 import {useFetch} from '../../../hooks';
-import {Avatar, Card, Typography, Button, Table, Space} from 'antd';
+import {Avatar, Card, Typography, Button, Table, Space, Tag} from 'antd';
 import {Link} from "react-router-dom";
 import {
     LinkOutlined,
@@ -15,9 +15,9 @@ const columns = [
     {
         title: 'Status',
         dataIndex: 'status',
-        width: '40%',
+        width: '30%',
         render: (text, record) => (
-            <Typography.Text>{truncateString(record.status, 240)}</Typography.Text>
+            <Typography.Text>{truncateString(record.status, 120)}</Typography.Text>
         )
     },
     {
@@ -40,13 +40,19 @@ const columns = [
         )
     },
     {
+        title: 'Collecting Response',
+        render: (text, record) => (
+          <Tag color={record.disabled? "warning":"processing"} key="tag2">{record.disabled? "No":"Yes"}</Tag>
+        ),
+    },
+    {
         title: 'Published Post',
         render: (text, record) => (
-            <Space size="middle">
-                <a target="_blank" rel="noopener noreferrer"
-                   href={`https://facebook.com/${record.facebook_page_id}/posts/${record.facebook_post_id}`}><LinkOutlined/> View
-                    on Facebook</a>
-            </Space>
+          <Space size="middle">
+              <a target="_blank" rel="noopener noreferrer"
+                 href={`https://facebook.com/${record.facebook_page_id}/posts/${record.facebook_post_id}`}><LinkOutlined/> View
+                  on Facebook</a>
+          </Space>
         ),
     },
     {
