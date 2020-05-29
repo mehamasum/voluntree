@@ -12,7 +12,8 @@ import {
   Col, 
   PageHeader, 
   Tag, 
-  Skeleton
+  Skeleton,
+  Popconfirm
 } from 'antd';
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
@@ -36,16 +37,16 @@ const columns = [
 
 const PostDetailsView = props => {
   const {id} = useParams();
-  const [post_response] = useFetch(`/api/voluntree/posts/${id}`);
+  const [postResponse, setPostResponse] = useFetch(`/api/voluntree/posts/${id}`);
   const [notification_response, setNotificationResponse] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
   const [showModal, setShowModal] = useState(false);
   const [modalValue, setModalValue] = useState('');
   const [newNotificationFetch, setNewNotificationFetch] = useState(false);
 
   const post = useMemo(() => {
-    if (!post_response) return {};
-    return post_response;
-  }, [post_response]);
+    if (!postResponse) return {};
+    return postResponse;
+  }, [postResponse]);
 
   const tableData = useMemo(() => {
     if (!notification_response) return [];
@@ -63,7 +64,7 @@ const PostDetailsView = props => {
       .then(response => {
         setNotificationResponse(response);
         return response;
-      })
+      });
       setNewNotificationFetch(false);
     }
   }, [newNotificationFetch, id, setNotificationResponse])
@@ -72,14 +73,24 @@ const PostDetailsView = props => {
     const postData = {
       'post': id,
       'message': modalValue
-    }
+    };
     const[, , error] = postFetch(`/api/voluntree/notifications/`, postData);
     if(!error) {
       setNewNotificationFetch(true);
       setModalValue('');
       setShowModal(false);
     } else console.log('error', error);
-  }
+  };
+
+
+  const onDisablePostClick = () => {
+    // TODO: postFetch doesnt work. response is always undefined here
+    // we are setting disabled regardless
+    postFetch(`/api/voluntree/posts/${id}/disable/`);
+    setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
+  };
+
+
 
   return (
     <React.Fragment>
@@ -88,9 +99,20 @@ const PostDetailsView = props => {
         title="Post Details"
         tags={[
           <Tag color="success" key="tag1">Published</Tag>,
-          <Tag color="success" key="tag2">Collecting Response</Tag>]}/>
+          <Tag color={post.disabled? "warning":"processing"} key="tag2">{post.disabled? "Stopped Collecting Response":"Collecting Response"}</Tag>]}/>
 
-      <Card title="Post Details" extra={<Button danger>Stop Collecting Response</Button>}>
+      <Card
+        title="Post Details"
+        extra={
+          post.disabled ? null:
+          <Popconfirm
+            title="Are you sure? This can not be undone"
+            onConfirm={onDisablePostClick}
+            okText="Yes"
+          >
+            <Button danger>Stop Collecting Response</Button>
+          </Popconfirm>
+        }>
         <Descriptions>
           <Descriptions.Item label="Facebook Link">
             <Typography.Paragraph copyable>
@@ -102,7 +124,7 @@ const PostDetailsView = props => {
         <div className="fb-post-embed-wrapper">
           <div className="fb-post-embed">
             <Card>
-              <Skeleton loading={!post_response} avatar active>
+              <Skeleton loading={!postResponse} avatar active>
                 <Card.Meta
                   avatar={<Avatar src={`https://graph.facebook.com/${post.facebook_page_id}/picture`}/>}
                   title={post.page_name}

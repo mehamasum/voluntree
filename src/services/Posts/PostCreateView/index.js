@@ -45,12 +45,8 @@ const PostCreateView = props => {
     <React.Fragment>
       <Layout.Content className="center-content">
         <Card title="Create New Post">
-          <Space size="middle">
-            <Spin size="large" spinning={loading}/>
-          </Space>
-          {errorMsg &&
-          <Alert message={errorMsg} type="error" banner closable/> }
-          <PostFrom onSubmit={onSubmit} pages={pages}/>
+          {errorMsg && <Alert message={errorMsg} type="error" banner closable/> }
+          <PostFrom onSubmit={onSubmit} pages={pages} loading={loading}/>
         </Card>
       </Layout.Content>
     </React.Fragment>

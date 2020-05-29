@@ -9,7 +9,7 @@ const {Option} = Select;
 
 
 const PostForm = props => {
-  const {onSubmit = () => {}, initialValues={}, pages=[]} = props;
+  const {onSubmit = () => {}, initialValues={}, pages=[], loading} = props;
 
   return (
     <React.Fragment>
@@ -58,7 +58,7 @@ const PostForm = props => {
 
 
             <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-post">
+              <Button type="primary" htmlType="submit" className="submit-post" loading={loading}>
                 Create Post
               </Button>
             </Form.Item>

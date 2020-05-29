@@ -40,6 +40,7 @@ class Post(models.Model):
     message_for_new_volunteer = models.TextField()
     message_for_returning_volunteer = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
+    disabled = models.BooleanField(default=False)
 
 
 class Volunteer(models.Model):
