@@ -23,25 +23,25 @@ const InterestedVolunteers = props => {
     if(initialcount_of_interested_volunteers) {
       setNumberOfVolunteer(initialcount_of_interested_volunteers.count);
     }
-  }, [initialcount_of_interested_volunteers])
+  }, [initialcount_of_interested_volunteers]);
 
   useEffect(() => {
     const endPoint = `${WEB_SOCKET_HOST}/ws/voluntree/posts/${id}/interests`;
     const ws = new WebSocket(endPoint);
-    ws.onerror = (e) => {
+    ws.onerror = () => {
       setIsSocketClose(true);
-    }
+    };
     ws.onmessage = (e) => {
       const json_parsed_data = JSON.parse(e.data);
-      const data = json_parsed_data.data
+      const data = json_parsed_data.data;
       if (data.status === 'created') {
         setInterestDetailsUrl(`/api/voluntree/interests/${data.id}/`);
       }
     };
-    ws.onopen = (e) => {
+    ws.onopen = () => {
       setIsSocketClose(false);
-    }
-    ws.onclose = (e) => {
+    };
+    ws.onclose = () => {
       setIsSocketClose(true);
     }
   }, [id, setInterestDetailsUrl, setIsSocketClose]);
@@ -50,30 +50,24 @@ const InterestedVolunteers = props => {
     if(!interests_response) return;
     setListData(prevList => [...prevList, ...interests_response.results]);
     setNextUrl(interests_response.next);
-  }, [interests_response])
+  }, [interests_response]);
 
   useEffect(() => {
     if(!interest_details_response) return;
-    setListData(prevList => [interest_details_response, ...prevList])
+    setListData(prevList => [interest_details_response, ...prevList]);
     setNumberOfVolunteer(prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
   }, [interest_details_response]);
 
   return (
     <Card
-      title="Confirmed Volunteers"
+      title={`Confirmed Volunteers (${numberOfVolunteer})`}
       extra={isSocketClose && <DisconnectOutlined style={{color: 'red'}}/>}>
-      <div>
-        <Typography.Text>
-          Total Interest Received: {numberOfVolunteer}
-        </Typography.Text>
-      </div>
-
       <div className="infinite-container">
         <InfiniteScroll
           initialLoad={false}
           pageStart={0}
           loadMore={() => nextUrl && setInterestsUrl(nextUrl)}
-          hasMore={!is_loading && (nextUrl ? true : false)}
+          hasMore={!is_loading && !!nextUrl}
           loader={<div className="loader" key={0}>Loading ...</div>}
           useWindow={false}>
           <List

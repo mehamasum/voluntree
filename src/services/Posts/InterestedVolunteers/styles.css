@@ -1,8 +1,7 @@
 .infinite-container {
-    border: 1px solid #e8e8e8;
     overflow: auto;
-    height: 300px;
-  }
+    max-height: 300px;
+}
 
 .demo-loading-container {
     position: absolute;

@@ -1,10 +1,10 @@
 import React, { useCallback, useMemo, useState } from 'react';
-import { Spin, Space, Card, Layout, Alert } from 'antd';
+import { Card, Layout, Alert } from 'antd';
 import { useHistory } from "react-router-dom";
 import { useFetch } from '../../../hooks';
 import PostFrom from '../Form';
 
-const PostCreateView = props => {
+const PostCreateView = () => {
   const history = useHistory();
   const [pages_response] = useFetch('/api/voluntree/pages/?limit=100');
   const [errorMsg, setErrorMsg] = useState(null);
