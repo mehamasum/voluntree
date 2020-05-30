@@ -14,13 +14,6 @@ from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
 
 
-class VoluntreeApiListView(APIView):
-    permission_classes = (AllowAny, )
-
-    def get(self, request):
-        return Response("Gis api root")
-
-
 class VolunteerViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = VolunteerSerializer

@@ -5,8 +5,8 @@ import PageListView from './PageListView';
 import FormLayoutDemo from "./Webhooks";
 
 
-const Settings = props => {
-    const [oauth_url] = useFetch('/api/voluntree/facebook/oauth_url/')
+const Settings = () => {
+    const [oauth_url] = useFetch('/api/facebook/oauth_url/');
 
     const onClickConnect = () => {
         window.open(oauth_url, "Popup", "width=800,height=800");

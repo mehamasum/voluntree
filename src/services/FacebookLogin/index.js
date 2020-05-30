@@ -7,7 +7,7 @@ function useQuery() {
   return new URLSearchParams(useLocation().search);
 }
 
-const FacebookLogin = props => {
+const FacebookLogin = () => {
   const code = useQuery().get('code');
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(null);
@@ -15,7 +15,7 @@ const FacebookLogin = props => {
 
   useEffect(() => {
     if(!code) return;
-    fetch('/api/voluntree/facebook/verify_oauth/', {
+    fetch('/api/facebook/verify_oauth/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -33,7 +33,7 @@ const FacebookLogin = props => {
     if(!status) return;
     let message = "";
     if(status !== 204) message = "failed";
-    else message = "Success"
+    else message = "Success";
     setMessage(message);
     setTimeout(() => {
       window.opener.location.reload();

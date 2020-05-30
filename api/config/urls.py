@@ -15,33 +15,36 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.conf import settings
-from django.urls import path
+from django.urls import path, re_path
 from django.conf.urls import include
 from rest_framework.routers import SimpleRouter
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
-from voluntree.views import VoluntreeApiListView
-from .router import DefaultRouterWithAPIViews
 from rest_framework.authtoken.views import obtain_auth_token
+from .views import react
+from .router import DefaultRouterWithAPIViews as DefaultRouter
 
-router = SimpleRouter()
+from voluntree.urls import register_urls as register_voluntree_urls
 
-schema_view = get_schema_view(title=settings.API_BROWSER_HEADER, public=True)
+schema_urls = get_schema_view(title=settings.API_BROWSER_HEADER, public=True)
 doc_urls = include_docs_urls(title=settings.API_BROWSER_HEADER)
-api_browser_urls = include('rest_framework.urls')
-voluntree_api_urls = include(('voluntree.urls', 'voluntree'), 'voluntree')
+drf_urls = include('rest_framework.urls')
 
 urlpatterns = [
-    path('api/', doc_urls),
-    path('api/auth/token/', obtain_auth_token, name='api_token_auth'),
-    path('api/schema/', schema_view),
-    path('api/browser/', api_browser_urls),
+    path('api/docs/', doc_urls),
+    path('api/schema/', schema_urls),
+    path('api/drf/', drf_urls),
     path('api/admin/', admin.site.urls),
-    path('api/voluntree/', voluntree_api_urls),
+    path('api/auth/token/', obtain_auth_token, name='api_token_auth'),
 ]
 
-urlpatterns += router.urls
+router = DefaultRouter()
+register_voluntree_urls(router)
+urlpatterns += [ path('api/', include(router.urls)),]
 
-root_router = DefaultRouterWithAPIViews()
-root_router.register('api/voluntree', VoluntreeApiListView, 'test')
-urlpatterns += root_router.urls
+urlpatterns += [
+    # match the root
+    re_path(r'^$', react),
+    # match all other pages
+    re_path(r'^(?:.*)/?$', react),
+]

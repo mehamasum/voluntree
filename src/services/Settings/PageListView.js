@@ -44,8 +44,8 @@ const columns = [
 ];
 
 
-const PageListView = props => {
-  const [pages_response,, setUrl] = useFetch('/api/voluntree/pages/?limit=25&offset=0');
+const PageListView = () => {
+  const [pages_response,, setUrl] = useFetch('/api/pages/?limit=25&offset=0');
   const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
 
@@ -57,7 +57,7 @@ const PageListView = props => {
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
     const offset = (pag.current -1) * 25;
-    setUrl(`/api/voluntree/pages/?limit=25&offset=${offset}`);
+    setUrl(`/api/pages/?limit=25&offset=${offset}`);
   }, [setPagination, setUrl]);
 
   useEffect(() => {
