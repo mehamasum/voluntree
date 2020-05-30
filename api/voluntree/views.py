@@ -5,14 +5,15 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .services import (FacebookService, PostService, VolunteerService,
-                       InterestService)
+                       InterestService, OrganizationService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer)
 from .models import Post, Interest, Volunteer, Notification, Organization
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
-
+from .decorators import date_range_params_check
+from datetime import datetime, timedelta
 
 class VoluntreeApiListView(APIView):
     permission_classes = (AllowAny, )
@@ -179,3 +180,20 @@ class OrganizationViewSet(ModelViewSet):
     queryset = Organization.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = OrganizationSerializer
+
+    @date_range_params_check
+    @action(detail=False)
+    def stats(self, request):
+        from_date = self.request.query_params.get('from_date', None)
+        to_date = self.request.query_params.get('to_date', None)
+        if not from_date:
+            start_from = datetime.now() - timedelta(days=29)
+            from_date = start_from.strftime("%Y-%m-%d")
+        
+        if not to_date:
+            today = datetime.now()
+            to_date = today.strftime('%Y-%m-%d')
+
+        organization = self.request.user.organization
+        response = OrganizationService.get_stats(organization, from_date, to_date)
+        return Response(response)
