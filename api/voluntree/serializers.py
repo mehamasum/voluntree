@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Page, Post, Volunteer, Interest, Notification
+from .models import Page, Post, Volunteer, Interest, Notification, Organization
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -60,3 +60,8 @@ class NotificationSerializer(serializers.ModelSerializer):
         user = self.context.get('request').user
         notification = Notification.objects.create(user=user, **validated_data)
         return notification
+
+class OrganizationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Organization
+        fields = ('id', 'name')

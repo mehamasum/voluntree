@@ -8,8 +8,8 @@ from .services import (FacebookService, PostService, VolunteerService,
                        InterestService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
-                          VolunteerSerializer, NotificationSerializer)
-from .models import Post, Interest, Volunteer, Notification
+                          VolunteerSerializer, NotificationSerializer, OrganizationSerializer)
+from .models import Post, Interest, Volunteer, Notification, Organization
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
 
@@ -173,3 +173,9 @@ class FacebookApiViewSet(ViewSet):
         if success:
             return Response(status.HTTP_200_OK)
         return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
+
+
+class OrganizationViewSet(ModelViewSet):
+    queryset = Organization.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = OrganizationSerializer

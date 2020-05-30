@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
 from .views import (FacebookApiViewSet, PageViewSet, PostViewSet,
-                    VolunteerViewSet, NotificationViewSet, InterestViewSet)
+                    VolunteerViewSet, NotificationViewSet, InterestViewSet, OrganizationViewSet)
 
 router = DefaultRouter()
 
@@ -10,5 +10,6 @@ router.register('interests', InterestViewSet, 'interest')
 router.register('volunteers', VolunteerViewSet, 'voluteer')
 router.register('notifications', NotificationViewSet, 'notification')
 router.register('facebook', FacebookApiViewSet, 'facebook')
+router.register('organizations', OrganizationViewSet, 'organization')
 
 urlpatterns = router.urls
