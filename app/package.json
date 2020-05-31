@@ -19,9 +19,7 @@
     "react-scripts": "3.4.1"
   },
   "scripts": {
-    "start": "npm-run-all --parallel start:app start:api",
-    "start:app": "react-scripts start",
-    "start:api": "python api/manage.py runserver 0.0.0.0:8000",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject",

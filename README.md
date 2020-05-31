@@ -11,8 +11,11 @@ virtualenv -p python3.6 .venv
 source .venv/bin/activate # for linux
 .venv/Scripts/activate  # for windowns
 
+# set environment variables
+cp env.example .env
+
 # install backend (api) dependencies
-pip install -r api/requirements.txt
+pip install -r requirements.txt
 
 # Run redis
 docker-compose build
@@ -25,19 +28,28 @@ python
 >>> exit()
 
 # upload model and gears to redis
-cd api/ml
+cd ml
 python init-model.py
 python init-gear.py
 
 # migrate database with the application models
-python api/manage.py migrate
+python manage.py migrate
 
 # run backend server
-python api/manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 
 # run celery
-cd api
 celery -A config worker -B -l info
 
-# run react dev server
-npm run start:app
+
+# go to frontend dir
+cd app
+
+# set environment variables
+cp env.example .env
+
+# install dependencies
+npm i
+
+# run cra dev server
+npm start
