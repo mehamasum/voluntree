@@ -45,6 +45,9 @@ const InterestedVolunteers = props => {
     };
     ws.onclose = () => {
       setIsSocketClose(true);
+    };
+    return () => {
+      ws && ws.close();
     }
   }, [id, setInterestDetailsUrl, setIsSocketClose]);
 
