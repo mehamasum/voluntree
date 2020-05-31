@@ -1,5 +1,25 @@
 # Voluntree
 
+## Live demo
+
+https://voluntree.herokuapp.com
+
+Credentials for customer  
+https://voluntree.herokuapp.com/api/admin/
+```
+nonprofilt.admin
+nonprofilt.admin@nonprofit.org
+M0ozv5%7ix*d
+```
+
+Credentials for voluntree admin  
+https://voluntree.herokuapp.com/api/admin/
+```
+admin
+admin@voluntree.com
+I5ZJW42Kjy0&
+```
+
 
 ## Local development
 ```
