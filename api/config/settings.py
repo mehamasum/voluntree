@@ -21,7 +21,6 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load OS environment variables and then prepare to use them
 env = environ.Env()
-DJANGO_ENV = env.str('DJANGO_ENV', default='development')
 
 # Loading .env file from root directory to set environment.
 # OS Environment variables have precedence over variables defined
@@ -30,24 +29,18 @@ DJANGO_ENV = env.str('DJANGO_ENV', default='development')
 env_file = ROOT_DIR('.env')
 env.read_env(env_file)
 
-if DJANGO_ENV == 'development':
-    # SECURITY WARNING: don't run with debug turned on in production!
-    # https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DEBUG
-
-    DEBUG = True
-
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'x%j(oz1=qzs+f_zrmtqz8%49$y@7pq6--fvko%4i_x_z@!js0e'
+SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', default=True)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS').split(',')
 USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 
 
@@ -96,6 +89,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -227,7 +221,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'build', 'static'),]
+
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 API_BROWSER_HEADER = 'Voluntree'
 
 
