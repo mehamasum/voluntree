@@ -1,5 +1,7 @@
 # Voluntree
 
+
+## Local development
 ```
 # goto project root
 cd YOUR_PROJECT_ROOT_DIRECTORY
@@ -47,3 +49,28 @@ npm i
 
 # run cra dev server
 npm start
+
+```
+
+## Deploy to Heroku
+
+```
+# create a new heroku app
+heroku create app-name
+
+heroku buildpacks:add heroku/nodejs
+heroku buildpacks:add heroku/python --index 2
+
+
+heroku addons:create heroku-postgresql
+
+
+# set env using cli or heroku app settings on their dashboard
+heroku config:set DJANGO_DEBUG=False
+... 
+# and otheres
+
+
+git push heroku master
+heroku run python manage.py createsuperuser
+```

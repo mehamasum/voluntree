@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import environ
 import os
+import dj_database_url
 
 # Project Base Paths
 # project_root/api/config/settings.py - 2 = project_root/
@@ -138,6 +139,14 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
+
+# We'll still be using SQLite during development
+# because the DATABASE_URL environment variable will not be set on our development computer.
+# The value conn_max_age=500 makes the connection persistent
+# which is far more efficient than recreating the connection on every request cycle.
+# However, this is optional and can be removed if needed.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
 
 # Caching Settings
 # https://docs.djangoproject.com/en/2.0/topics/cache/
