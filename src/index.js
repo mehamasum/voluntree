@@ -6,6 +6,8 @@ import { Route, Switch, BrowserRouter as Router } from 'react-router-dom';
 import Dashboard from './services/Dashboard';
 import {LoginView} from './services/Auth';
 import * as serviceWorker from './serviceWorker';
+import { Result } from 'antd';
+
 import PrivateRoute from './routes/PrivateRoute';
 import Settings from './services/Settings';
 import FacebookLogin from './services/FacebookLogin';
@@ -30,6 +32,7 @@ const App = (props) => {
           <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
           <PrivateRoute exact path="/posts/:id/" component={PostDetailsView} />
           <PrivateRoute exact path="/volunteers" component={VolunteerListView} />
+          <Route render={() => <Result status="404" title="404" subTitle="Sorry, the page you visited does not exist." />} />
         </Switch>
       </Router>
   );

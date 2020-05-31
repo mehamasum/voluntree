@@ -12,7 +12,9 @@ env = environ.Env()
 @app.task(name="schedule_task.webhook.fetch_comment")
 def fetch_comment():
     logging.debug(f"Running comment fetch task")
-    url = 'http://localhost:8000/api/voluntree/facebook/webhook:page/'
+    server = env.str('APP_URL', default='http://localhost:8000')
+    print('APP_URL', server)
+    url = server + '/api/facebook/webhook:page/'
     headers = {'content-type': "application/json"}
     new_comments = FacebookWebHookService.get_new_comments()
     print("new_comments", new_comments)
@@ -27,7 +29,8 @@ def ingest_interests():
     url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379'))
     conn = redis.Redis(host=url.hostname, port=url.port, decode_responses=True)
     if not conn.ping():
-        raise Exception('Redis unavailable')
+        # raise Exception('Redis unavailable')
+        return
 
     counts = 10
     blocks = 30 * 1000 # wait for 30 sec for data to be available

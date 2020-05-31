@@ -1,7 +1,8 @@
 {
-  "name": "src",
+  "name": "voluntree",
   "version": "0.1.0",
   "private": true,
+  "homepage": "https://voluntree.herokuapp.com",
   "dependencies": {
     "@testing-library/jest-dom": "^4.2.4",
     "@testing-library/react": "^9.5.0",
@@ -12,14 +13,14 @@
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
     "react-facebook": "^8.1.4",
+    "react-infinite-scroller": "^1.2.4",
     "react-router": "^5.2.0",
     "react-router-dom": "^5.2.0",
-    "react-scripts": "3.4.1"
+    "react-scripts": "3.4.1",
+    "reconnecting-websocket": "^4.4.0"
   },
   "scripts": {
-    "start": "npm-run-all --parallel start:app start:api",
-    "start:app": "react-scripts start",
-    "start:api": "python api/manage.py runserver 0.0.0.0:8000",
+    "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
@@ -39,8 +40,5 @@
       "last 1 safari version"
     ]
   },
-  "proxy": "http://localhost:8000",
-  "devDependencies": {
-    "react-infinite-scroller": "^1.2.4"
-  }
+  "proxy": "http://localhost:8000"
 }

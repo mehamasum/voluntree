@@ -65,8 +65,8 @@ const columns = [
     },
 ];
 
-const PostListView = props => {
-    const [posts_response, , setUrl] = useFetch('/api/voluntree/posts/?limit=25&offset=0');
+const PostListView = () => {
+    const [posts_response, , setUrl] = useFetch('/api/posts/?limit=25&offset=0');
     const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
     const [total, setTotal] = useState(0);
 
@@ -78,7 +78,7 @@ const PostListView = props => {
     const onChangeTable = useCallback((pag) => {
         setPagination(pag);
         const offset = (pag.current - 1) * 25;
-        setUrl(`/api/voluntree/posts/?limit=25&offset=${offset}`);
+        setUrl(`/api/posts/?limit=25&offset=${offset}`);
     }, [setPagination, setUrl]);
 
     useEffect(() => {

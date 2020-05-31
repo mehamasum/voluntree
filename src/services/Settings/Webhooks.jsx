@@ -19,7 +19,7 @@ const FormLayoutDemo = () => {
                 <Form.Item label="Callback URL">
                     <Input
                         placeholder="input placeholder"
-                        value="https://50be959a.ngrok.io/api/voluntree/facebook/webhook:messenger/"
+                        value="https://50be959a.ngrok.io/api/facebook/webhook:messenger/"
                         onChange={()=>{}}
                     />
                 </Form.Item>

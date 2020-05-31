@@ -6,14 +6,14 @@ import PostFrom from '../Form';
 
 const PostCreateView = () => {
   const history = useHistory();
-  const [pages_response] = useFetch('/api/voluntree/pages/?limit=100');
+  const [pages_response] = useFetch('/api/pages/?limit=100');
   const [errorMsg, setErrorMsg] = useState(null);
   const [loading, setLoading] = useState(false);
 
   const onSubmit = useCallback(values => {
     let status = null;
     setLoading(true);
-    fetch('/api/voluntree/posts/', {
+    fetch('/api/posts/', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -4,16 +4,17 @@ import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 import {MessengerIcon} from '../../../assets/icons';
 import {DisconnectOutlined} from '@ant-design/icons';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 import './styles.css';
 
-const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST;
-
+const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.host;
 
 const InterestedVolunteers = props => {
   const {id} = props;
-  const [interests_response, , setInterestsUrl, , , is_loading] = useFetch(`/api/voluntree/posts/${id}/interests/`);
+  const [interests_response, , setInterestsUrl, , , is_loading] = useFetch(`/api/posts/${id}/interests/`);
   const [interest_details_response, , setInterestDetailsUrl] = useFetch();
-  const [initialcount_of_interested_volunteers] = useFetch(`/api/voluntree/posts/${id}/volunteers/`);
+  const [initialcount_of_interested_volunteers] = useFetch(`/api/posts/${id}/volunteers/`);
   const [listData, setListData] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
   const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
@@ -26,8 +27,9 @@ const InterestedVolunteers = props => {
   }, [initialcount_of_interested_volunteers]);
 
   useEffect(() => {
-    const endPoint = `${WEB_SOCKET_HOST}/ws/voluntree/posts/${id}/interests`;
-    const ws = new WebSocket(endPoint);
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const endPoint = `${wsScheme}://${WEB_SOCKET_HOST}/ws/posts/${id}/interests`;
+    const ws = new ReconnectingWebSocket(endPoint);
     ws.onerror = () => {
       setIsSocketClose(true);
     };
@@ -35,7 +37,7 @@ const InterestedVolunteers = props => {
       const json_parsed_data = JSON.parse(e.data);
       const data = json_parsed_data.data;
       if (data.status === 'created') {
-        setInterestDetailsUrl(`/api/voluntree/interests/${data.id}/`);
+        setInterestDetailsUrl(`/api/interests/${data.id}/`);
       }
     };
     ws.onopen = () => {
@@ -43,6 +45,9 @@ const InterestedVolunteers = props => {
     };
     ws.onclose = () => {
       setIsSocketClose(true);
+    };
+    return () => {
+      ws && ws.close();
     }
   }, [id, setInterestDetailsUrl, setIsSocketClose]);
 

@@ -1,5 +1,18 @@
 # Voluntree
 
+## Live demo
+
+https://voluntree.herokuapp.com
+
+Credentials
+```
+admin
+admin@voluntree.com
+I5ZJW42Kjy0&
+```
+
+
+## Local development
 ```
 # goto project root
 cd YOUR_PROJECT_ROOT_DIRECTORY
@@ -11,8 +24,11 @@ virtualenv -p python3.6 .venv
 source .venv/bin/activate # for linux
 .venv/Scripts/activate  # for windowns
 
+# set environment variables
+cp env.example .env
+
 # install backend (api) dependencies
-pip install -r api/requirements.txt
+pip install -r requirements.txt
 
 # Run redis
 docker-compose build
@@ -25,19 +41,53 @@ python
 >>> exit()
 
 # upload model and gears to redis
-cd api/ml
+cd ml
 python init-model.py
 python init-gear.py
 
 # migrate database with the application models
-python api/manage.py migrate
+python manage.py migrate
 
 # run backend server
-python api/manage.py runserver
+python manage.py runserver 0.0.0.0:8000
 
 # run celery
-cd api
 celery -A config worker -B -l info
 
-# run react dev server
-npm run start:app
+
+# install frontend dependencies
+npm i
+
+# run cra dev server
+npm start
+
+```
+
+## Deploy to Heroku
+
+```
+# create a new heroku app
+heroku create app-name
+
+heroku buildpacks:add heroku/nodejs
+heroku buildpacks:add heroku/python --index 2
+
+
+heroku addons:create heroku-postgresql
+heroku addons:create heroku-redis
+
+# set env using cli or heroku app settings on their dashboard
+heroku config:set DJANGO_DEBUG=False
+... 
+# and otheres
+
+
+git push heroku master
+heroku run python manage.py createsuperuser
+
+
+# other useful commands
+heroku logs --tail
+heroku pg:info
+heroku pg:killall
+```

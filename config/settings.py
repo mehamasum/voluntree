@@ -12,16 +12,16 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import environ
 import os
+import dj_database_url
 
 # Project Base Paths
-# project_root/api/config/settings.py - 3 = project_root/
-ROOT_DIR = environ.Path(__file__) - 3
+# project_root/api/config/settings.py - 2 = project_root/
+ROOT_DIR = environ.Path(__file__) - 2
 API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load OS environment variables and then prepare to use them
 env = environ.Env()
-DJANGO_ENV = env.str('DJANGO_ENV', default='development')
 
 # Loading .env file from root directory to set environment.
 # OS Environment variables have precedence over variables defined
@@ -30,24 +30,18 @@ DJANGO_ENV = env.str('DJANGO_ENV', default='development')
 env_file = ROOT_DIR('.env')
 env.read_env(env_file)
 
-if DJANGO_ENV == 'development':
-    # SECURITY WARNING: don't run with debug turned on in production!
-    # https://docs.djangoproject.com/en/2.0/ref/settings/#std:setting-DEBUG
-
-    DEBUG = True
-
 
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'x%j(oz1=qzs+f_zrmtqz8%49$y@7pq6--fvko%4i_x_z@!js0e'
+SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = env.bool('DJANGO_DEBUG', default=True)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS').split(',')
 USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 
 
@@ -96,6 +90,7 @@ REST_FRAMEWORK = {
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -109,7 +104,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(ROOT_DIR, 'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -124,13 +119,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+REDIS_LOCATION = '{0}/{1}'.format(env.str('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+
 # Channels
 ASGI_APPLICATION = 'config.routing.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [REDIS_LOCATION],
         },
     },
 }
@@ -145,11 +142,17 @@ DATABASES = {
     }
 }
 
+# We'll still be using SQLite during development
+# because the DATABASE_URL environment variable will not be set on our development computer.
+# The value conn_max_age=500 makes the connection persistent
+# which is far more efficient than recreating the connection on every request cycle.
+# However, this is optional and can be removed if needed.
+db_from_env = dj_database_url.config(conn_max_age=500)
+DATABASES['default'].update(db_from_env)
+
 # Caching Settings
 # https://docs.djangoproject.com/en/2.0/topics/cache/
 
-REDIS_LOCATION = '{0}/{1}'.format(
-    env.str('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',
@@ -227,6 +230,15 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'build', 'static'), ]
+
+
+# Simplified static file serving.
+# https://warehouse.python.org/project/whitenoise/
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+
 API_BROWSER_HEADER = 'Voluntree'
 
 

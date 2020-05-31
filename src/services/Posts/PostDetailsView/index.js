@@ -35,10 +35,10 @@ const columns = [
     },
 ];
 
-const PostDetailsView = props => {
+const PostDetailsView = () => {
   const {id} = useParams();
-  const [postResponse, setPostResponse] = useFetch(`/api/voluntree/posts/${id}`);
-  const [notification_response, setNotificationResponse] = useFetch(`/api/voluntree/posts/${id}/notifications/`);
+  const [postResponse, setPostResponse] = useFetch(`/api/posts/${id}/`);
+  const [notification_response, setNotificationResponse] = useFetch(`/api/posts/${id}/notifications/`);
   const [showModal, setShowModal] = useState(false);
   const [modalValue, setModalValue] = useState('');
   const [newNotificationFetch, setNewNotificationFetch] = useState(false);
@@ -55,7 +55,7 @@ const PostDetailsView = props => {
 
   useEffect(() => {
     if(newNotificationFetch) {
-      fetch(`/api/voluntree/posts/${id}/notifications/`, {
+      fetch(`/api/posts/${id}/notifications/`, {
         headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
       })
       .then(results => {
@@ -67,14 +67,14 @@ const PostDetailsView = props => {
       });
       setNewNotificationFetch(false);
     }
-  }, [newNotificationFetch, id, setNotificationResponse])
+  }, [newNotificationFetch, id, setNotificationResponse]);
 
   const onModalOk = () => {
     const postData = {
       'post': id,
       'message': modalValue
     };
-    postFetch(`/api/voluntree/notifications/`, postData).then( response => {
+    postFetch(`/api/notifications/`, postData).then(() => {
       setNewNotificationFetch(true);
       setModalValue('');
       setShowModal(false);
@@ -85,7 +85,7 @@ const PostDetailsView = props => {
 
 
   const onDisablePostClick = () => {
-    postFetch(`/api/voluntree/posts/${id}/disable/`).then( response => {
+    postFetch(`/api/posts/${id}/disable/`).then(() => {
       setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
     })
   };
