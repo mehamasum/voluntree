@@ -24,8 +24,7 @@
     "test": "react-scripts test",
     "eject": "react-scripts eject",
     "predeploy": "npm run build && cp build/index.html build/200.html",
-    "deploy": "surge build --domain https://voluntree.surge.sh",
-    "postinstall": "npm run build"
+    "deploy": "surge build --domain https://voluntree.surge.sh"
   },
   "eslintConfig": {
     "extends": "react-app"
