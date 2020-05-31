@@ -296,4 +296,4 @@ api/media/
 api/static/
 
 # not tracking db-instance 
-api/db.sqlite3
+*.sqlite3

@@ -14,8 +14,8 @@ import environ
 import os
 
 # Project Base Paths
-# project_root/api/config/settings.py - 3 = project_root/
-ROOT_DIR = environ.Path(__file__) - 3
+# project_root/api/config/settings.py - 2 = project_root/
+ROOT_DIR = environ.Path(__file__) - 2
 API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -103,7 +103,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(ROOT_DIR, 'build')],
+        'DIRS': [os.path.join(ROOT_DIR, 'app', 'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -222,7 +222,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'build', 'static'),]
+STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'app', 'build', 'static'), ]
 
 
 # Simplified static file serving.
