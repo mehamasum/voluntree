@@ -93,4 +93,10 @@ heroku config:set DJANGO_DEBUG=False
 
 git push heroku master
 heroku run python manage.py createsuperuser
+
+
+# other useful commands
+heroku logs --tail
+heroku pg:info
+heroku pg:killall
 ```
