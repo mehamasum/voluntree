@@ -103,7 +103,7 @@ ROOT_URLCONF = 'config.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(ROOT_DIR, 'app', 'build')],
+        'DIRS': [os.path.join(ROOT_DIR, 'build')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -222,7 +222,7 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
-STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'app', 'build', 'static'), ]
+STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'build', 'static'), ]
 
 
 # Simplified static file serving.

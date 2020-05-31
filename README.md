@@ -42,13 +42,7 @@ python manage.py runserver 0.0.0.0:8000
 celery -A config worker -B -l info
 
 
-# go to frontend dir
-cd app
-
-# set environment variables
-cp env.example .env
-
-# install dependencies
+# install frontend dependencies
 npm i
 
 # run cra dev server
