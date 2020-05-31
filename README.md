@@ -83,7 +83,7 @@ heroku buildpacks:add heroku/python --index 2
 
 
 heroku addons:create heroku-postgresql
-
+heroku addons:create heroku-redis
 
 # set env using cli or heroku app settings on their dashboard
 heroku config:set DJANGO_DEBUG=False

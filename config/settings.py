@@ -119,13 +119,15 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'config.wsgi.application'
 
+REDIS_LOCATION = '{0}/{1}'.format(env.str('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
+
 # Channels
 ASGI_APPLICATION = 'config.routing.application'
 CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('127.0.0.1', 6379)],
+            "hosts": [REDIS_LOCATION],
         },
     },
 }
@@ -151,8 +153,6 @@ DATABASES['default'].update(db_from_env)
 # Caching Settings
 # https://docs.djangoproject.com/en/2.0/topics/cache/
 
-REDIS_LOCATION = '{0}/{1}'.format(
-    env.str('REDIS_URL', default='redis://127.0.0.1:6379'), 0)
 CACHES = {
     'default': {
         'BACKEND': 'django_redis.cache.RedisCache',

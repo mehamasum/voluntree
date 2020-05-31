@@ -4,10 +4,11 @@ import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 import {MessengerIcon} from '../../../assets/icons';
 import {DisconnectOutlined} from '@ant-design/icons';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 import './styles.css';
 
-const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST;
-
+const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.host;
 
 const InterestedVolunteers = props => {
   const {id} = props;
@@ -26,8 +27,9 @@ const InterestedVolunteers = props => {
   }, [initialcount_of_interested_volunteers]);
 
   useEffect(() => {
-    const endPoint = `${WEB_SOCKET_HOST}/ws/voluntree/posts/${id}/interests`;
-    const ws = new WebSocket(endPoint);
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const endPoint = `${wsScheme}://${WEB_SOCKET_HOST}/ws/posts/${id}/interests`;
+    const ws = new ReconnectingWebSocket(endPoint);
     ws.onerror = () => {
       setIsSocketClose(true);
     };
