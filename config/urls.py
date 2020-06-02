@@ -17,10 +17,8 @@ from django.contrib import admin
 from django.conf import settings
 from django.urls import path, re_path
 from django.conf.urls import include
-from rest_framework.routers import SimpleRouter
 from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
-from rest_framework.authtoken.views import obtain_auth_token
 from .views import react
 from .router import DefaultRouterWithAPIViews as DefaultRouter
 
@@ -35,7 +33,8 @@ urlpatterns = [
     path('api/schema/', schema_urls),
     path('api/drf/', drf_urls),
     path('api/admin/', admin.site.urls),
-    path('api/auth/token/', obtain_auth_token, name='api_token_auth'),
+    path('api/auth/', include('djoser.urls')),
+    path('api/auth/', include('djoser.urls.authtoken')),
 ]
 
 router = DefaultRouter()

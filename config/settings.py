@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'django_celery_results',
     'rest_framework',
     'rest_framework.authtoken',
+    'djoser',
     'django_filters',
     'voluntree',
     'schedule_task'
