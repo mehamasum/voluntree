@@ -1,3 +1,5 @@
+import './index.css';
+
 import React from 'react';
 import {Card, Button} from 'antd';
 import {useFetch} from '../../hooks';
@@ -14,7 +16,7 @@ const Settings = () => {
 
     return (
         <div>
-            <div className="create-new-post">
+            <div className="create-new-page">
               <Button
                 type="primary"
                 disabled={!oauth_url}

@@ -88,11 +88,9 @@ const PostListView = () => {
 
     return (
         <div>
-            <div className="create-new-post">
+            <Card title="Created Posts" extra={
                 <Button type="primary"><Link to={`/posts/create`}>Create New Post</Link></Button>
-            </div>
-
-            <Card title="Created Posts">
+            }>
                 <Table columns={columns} dataSource={tableData} pagination={{...pagination, total}}
                        onChange={onChangeTable}/>
             </Card>

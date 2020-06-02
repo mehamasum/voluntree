@@ -2,6 +2,25 @@
   width: 200px
 }
 
+.nav-right-menu {
+  display: flex;
+  flex-direction: row;
+}
+
+.nav-right-menu-item {
+  margin-left: 16px;
+}
+
+.nav-right-profile-menu {
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+}
+
+.nav-right-profile-username {
+  margin: 0 5px;
+}
+
 .site-header {
   background: #ffffff;
   display: flex;

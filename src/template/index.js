@@ -3,78 +3,97 @@ import './template.css';
 import logo from '../logo-w-fixed.svg';
 
 
-import {Layout, Menu, Dropdown} from "antd";
+import {Avatar, Button, Dropdown, Layout, Menu, Tooltip, Typography} from "antd";
 import {
   AppstoreOutlined,
-  SettingOutlined,
-  UserOutlined,
   ClockCircleOutlined,
-  TeamOutlined
+  PlusOutlined,
+  SettingOutlined,
+  TeamOutlined,
+  UserOutlined,
+  DownOutlined
 } from '@ant-design/icons';
-import { Avatar } from 'antd';
-import { Link } from 'react-router-dom';
+import {Link} from 'react-router-dom';
 
 
-const { Header, Sider, Content, Footer } = Layout;
+const {Header, Sider, Content, Footer} = Layout;
 
 
 const Template = (props) => {
   const onLoggedOutClick = () => {
     const hasToken = localStorage.getItem('token');
-    if( hasToken ) {
+    if (hasToken) {
       localStorage.removeItem('token');
       window.location.reload(false);
     }
   };
 
   const menu = (
-      <Menu onClick={e => {onLoggedOutClick();}}>
-        <Menu.Item>
-            Log Out
-        </Menu.Item>
-      </Menu>
+    <Menu onClick={e => {
+      onLoggedOutClick();
+    }}>
+      <Menu.Item>
+        Log Out
+      </Menu.Item>
+    </Menu>
   );
 
   return (
-      <Layout style={{ minHeight: '100vh' }}>
-        <Header className="site-header">
-          <div className="app-logo">
-            <img src={logo} className="App-logo" alt="logo" />
+    <Layout style={{minHeight: '100vh'}}>
+      <Header className="site-header">
+        <div className="app-logo">
+          <img src={logo} className="App-logo" alt="logo"/>
+        </div>
+
+        <div className="nav-right-menu">
+          <div className="nav-right-menu-item">
+            <Tooltip title="Create new post">
+            <Link to={`/posts/create`}>
+              <Button shape="circle-outline" icon={<PlusOutlined/>}/>
+            </Link>
+          </Tooltip>
           </div>
-          <div className="flex"></div>
-          <Dropdown overlay={menu}>
-            <a className="ant-dropdown-link" href={window.location.href}>
-              <Avatar icon={<UserOutlined />} />
-            </a>
-          </Dropdown>
-        </Header>
-        <Layout>
-          <Sider trigger={null} className="sider-background">
-            <Menu mode="inline" defaultSelectedKeys={['1']} selectedKeys={[props.path]}>
-              <Menu.Item key="/" icon={<AppstoreOutlined />}>
-                <Link to="/">Dashboard</Link>
-              </Menu.Item>
-              <Menu.Item key="/posts" icon={<ClockCircleOutlined />}>
-                <Link to="/posts">Posts</Link>
-              </Menu.Item>
-              <Menu.Item key="/volunteers" icon={<TeamOutlined />}>
-                <Link to="/volunteers">Volunteers</Link>
-              </Menu.Item>
-              <Menu.Item key="/settings" icon={<SettingOutlined />}>
-                <Link to="/settings">Pages</Link>
-              </Menu.Item>
-            </Menu>
-          </Sider>
-          <Layout>
-            <Content className="common-content-wrapper">
-              <div className="common-content">
-                {props.children}
+          <div className="nav-right-menu-item">
+            <Dropdown overlay={menu} trigger={['click']}>
+              <div className="nav-right-profile-menu">
+                <Avatar icon={<UserOutlined/>}/>
+                <Typography className="nav-right-profile-username">Admin</Typography>
+                <DownOutlined />
               </div>
-            </Content>
-            <Footer style={{ textAlign: 'center' }}> Voluntree ©2020</Footer>
-          </Layout>
+            </Dropdown>
+          </div>
+
+        </div>
+
+
+      </Header>
+      <Layout>
+        <Sider collapsible theme="light">
+          <Menu mode="inline" defaultSelectedKeys={['1']} selectedKeys={[props.path]}>
+            <Menu.Item key="/" icon={<AppstoreOutlined/>}>
+              <Link to="/">Dashboard</Link>
+            </Menu.Item>
+            <Menu.Item key="/posts" icon={<ClockCircleOutlined/>}>
+              <Link to="/posts">Posts</Link>
+            </Menu.Item>
+            <Menu.Item key="/volunteers" icon={<TeamOutlined/>}>
+              <Link to="/volunteers">Volunteers</Link>
+            </Menu.Item>
+            <Menu.Item key="/settings" icon={<SettingOutlined/>}>
+              <Link to="/settings">Pages</Link>
+            </Menu.Item>
+          </Menu>
+        </Sider>
+        <Layout>
+          <Content className="common-content-wrapper">
+            <div className="common-content">
+              {props.children}
+            </div>
+          </Content>
+          <Footer style={{textAlign: 'center'}}> Voluntree ©2020</Footer>
         </Layout>
       </Layout>
+    </Layout>
   );
 };
 

@@ -1,9 +1,3 @@
 .page-name {
     margin-left: 8px;
 }
-
-.create-new-post {
-    display: flex;
-    justify-content: flex-end;
-    margin: 16px;
-}
