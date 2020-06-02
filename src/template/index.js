@@ -3,40 +3,56 @@ import './template.css';
 import logo from '../logo-w-fixed.svg';
 
 
-import {Avatar, Button, Dropdown, Layout, Menu, Tooltip, Typography} from "antd";
+import {Avatar, Button, Dropdown, Layout, Menu, Spin, Tooltip, Typography} from "antd";
 import {
   AppstoreOutlined,
   ClockCircleOutlined,
+  DownOutlined,
   PlusOutlined,
   SettingOutlined,
   TeamOutlined,
-  UserOutlined,
-  DownOutlined
+  UserOutlined
 } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
+import {useFetch} from "../hooks";
+import {postFetch} from "../actions";
 
 
 const {Header, Sider, Content, Footer} = Layout;
 
 
 const Template = (props) => {
+  const [meResponse, , , err] = useFetch('/api/auth/users/me/');
+
   const onLoggedOutClick = () => {
     const hasToken = localStorage.getItem('token');
     if (hasToken) {
-      localStorage.removeItem('token');
-      window.location.reload(false);
+      postFetch('/api/auth/token/login/').then(() => {
+        localStorage.removeItem('token');
+        window.location.reload(false);
+      })
     }
   };
 
   const menu = (
-    <Menu onClick={e => {
-      onLoggedOutClick();
-    }}>
-      <Menu.Item>
+    <Menu>
+      <Menu.Item onClick={e => {
+        onLoggedOutClick();
+      }}>
         Log Out
       </Menu.Item>
     </Menu>
   );
+
+  if (err) {
+    onLoggedOutClick();
+  }
+
+  if (!meResponse) {
+    return (
+      <div className="full-page-loader"><Spin size="large"/></div>
+    );
+  }
 
   return (
     <Layout style={{minHeight: '100vh'}}>
@@ -48,17 +64,17 @@ const Template = (props) => {
         <div className="nav-right-menu">
           <div className="nav-right-menu-item">
             <Tooltip title="Create new post">
-            <Link to={`/posts/create`}>
-              <Button shape="circle-outline" icon={<PlusOutlined/>}/>
-            </Link>
-          </Tooltip>
+              <Link to={`/posts/create`}>
+                <Button shape="circle-outline" icon={<PlusOutlined/>}/>
+              </Link>
+            </Tooltip>
           </div>
           <div className="nav-right-menu-item">
             <Dropdown overlay={menu} trigger={['click']}>
               <div className="nav-right-profile-menu">
                 <Avatar icon={<UserOutlined/>}/>
-                <Typography className="nav-right-profile-username">Admin</Typography>
-                <DownOutlined />
+                <Typography className="nav-right-profile-username">{meResponse.username}</Typography>
+                <DownOutlined/>
               </div>
             </Dropdown>
           </div>
