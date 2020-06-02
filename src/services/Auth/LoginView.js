@@ -8,15 +8,15 @@ const LoginView = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
   const onFinish = values => {
-    fetch('/api/auth/token/', {
+    fetch('/api/auth/token/login/', {
       method: 'POST',
       headers: {'Content-Type': 'application/json' },
       body: JSON.stringify(values)
     })
     .then(response => response.json())
     .then(result => {
-      if(result.token) {
-        localStorage.setItem('token', result.token);
+      if(result.auth_token) {
+        localStorage.setItem('token', result.auth_token);
         setIsLoggedIn(true);
       }
     })
