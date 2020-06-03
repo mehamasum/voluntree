@@ -3,3 +3,21 @@
     justify-content: flex-end;
     margin: 16px;
 }
+
+.vms-card {
+    width: 300px;
+}
+
+.vms-card-body {
+    display: flex;
+    align-items: center;
+}
+
+.vms-connect {
+    margin: auto;
+}
+
+.vms-nb {
+    padding: 30px;
+    background: #eee;
+}
