@@ -136,6 +136,10 @@ class FacebookService:
         if not access_token or not user_id or not pages_token:
             return False
 
+        # TODO: throw error if more than one is connected
+        # TODO: match if set page and reconnected page are same
+        # TODO: check user has necessary role permissions
+
         organization = user.organization
         for page in pages_token:
             name = page.get('name', '')

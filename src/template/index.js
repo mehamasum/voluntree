@@ -27,7 +27,7 @@ const Template = (props) => {
   const onLoggedOutClick = () => {
     const hasToken = localStorage.getItem('token');
     if (hasToken) {
-      postFetch('/api/auth/token/login/').then(() => {
+      postFetch('/api/auth/token/logout/').then(() => {
         localStorage.removeItem('token');
         window.location.reload(false);
       })
@@ -96,7 +96,7 @@ const Template = (props) => {
               <Link to="/volunteers">Volunteers</Link>
             </Menu.Item>
             <Menu.Item key="/settings" icon={<SettingOutlined/>}>
-              <Link to="/settings">Pages</Link>
+              <Link to="/settings">Settings</Link>
             </Menu.Item>
           </Menu>
         </Sider>

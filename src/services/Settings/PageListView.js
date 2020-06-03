@@ -45,14 +45,14 @@ const columns = [
 
 
 const PageListView = () => {
-  const [pages_response,, setUrl] = useFetch('/api/pages/?limit=25&offset=0');
+  const [pages,, setUrl] = useFetch('/api/pages/?limit=25&offset=0');
   const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
 
   const tableData = useMemo(() => {
-    if(!pages_response) return [];
-    return pages_response.results.map(r => ({...r, key: r.id}));
-  }, [pages_response]);
+    if(!pages) return [];
+    return pages.results.map(r => ({...r, key: r.id}));
+  }, [pages]);
 
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
@@ -61,9 +61,9 @@ const PageListView = () => {
   }, [setPagination, setUrl]);
 
   useEffect(() => {
-    if(!pages_response) return;
-    setTotal(pages_response.count);
-  }, [pages_response]);
+    if(!pages) return;
+    setTotal(pages.count);
+  }, [pages]);
 
   return (
     <React.Fragment>
