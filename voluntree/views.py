@@ -14,6 +14,8 @@ from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
+from django.conf import settings
+
 
 class VolunteerViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -106,12 +108,13 @@ class FacebookApiViewSet(ViewSet):
     @action(detail=False, methods=['post'])
     def verify_oauth(self, request):
         code = request.data.get('code')
-        if FacebookService.save_pages_access_token(code, request.user):
+        if FacebookService.verify_oauth(code, request.user):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False)
     def oauth_url(self, request):
+        # TODO generate a STATE dynamically
         url = FacebookService.get_oauth_url()
         return Response(url)
 
@@ -190,3 +193,61 @@ class OrganizationViewSet(ModelViewSet):
         response = OrganizationService.get_stats(organization, from_date, to_date)
         return Response(response)
         
+
+class WebhookCallbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
+
+        mode = request.query_params.get('hub.mode')
+        token = request.query_params.get('hub.verify_token')
+        challenge = request.query_params.get('hub.challenge')
+        if mode == 'subscribe' and token == WEBHOOK_VERIFY_TOKEN:
+            return Response(int(challenge))
+        return Response({'ok': False}, status.HTTP_400_BAD_REQUEST)
+
+    def post(self, request):
+        body = request.data
+        if body['object'] != 'page':
+            return Response({'ok': False}, status.HTTP_400_BAD_REQUEST)
+
+        entries = body['entry']
+        for entry in entries:
+            if 'changes' in entry:
+                # this is a page event
+                changes = entry['changes']
+                for change in changes:
+                    if change['field'] != 'feed':
+                        continue
+                    value = change['value']
+
+                    if value['item'] == 'post':
+                        # TODO: handle page post
+                        pass
+                    elif value['item'] == 'comment':
+                        # TODO: handle comment
+                        pass
+            elif 'messaging' in entry:
+                # this is a messenger event
+                messages = entry['messaging']
+                for message in messages:
+                    psid = message['sender']['id']
+                    page_id = message['recipient']['id']
+                    # TODO: handle message
+                    print(psid, 'on', page_id, 'says', message)
+
+        return Response({'ok': True}, status.HTTP_200_OK)
+
+
+
+class SetupWebhookCallbackView(APIView):
+    permission_classes = [AllowAny]
+
+    def get(self, request):
+        WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
+        token = request.query_params.get('verify_token')
+        if token == WEBHOOK_VERIFY_TOKEN:
+            res = FacebookService.setup_webhook()
+            return Response(res)
+        return Response({'ok': False}, status.HTTP_400_BAD_REQUEST)

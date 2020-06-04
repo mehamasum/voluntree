@@ -1,7 +1,9 @@
 import json
-import requests
 from datetime import datetime, timedelta
+
+import requests
 from django.conf import settings
+
 from .models import Page, Volunteer, Post, Interest
 
 
@@ -11,7 +13,7 @@ class VolunteerService:
         facebook_user_id = data.get('entry', [{}])[0] \
             .get('messaging', [{}])[0].get('sender', {}).get('id')
         facebook_page_id = data.get('entry', [{}])[0] \
-                    .get('messaging', [{}])[0].get('recipient', {}).get('id')
+            .get('messaging', [{}])[0].get('recipient', {}).get('id')
         volunteer, created = Volunteer.objects.get_or_create(
             facebook_user_id=facebook_user_id,
             facebook_page_id=facebook_page_id
@@ -24,7 +26,7 @@ class VolunteerService:
             volunteer.last_name = meta_data['last_name']
             volunteer.profile_pic = meta_data['profile_pic']
             volunteer.save()
-        
+
         return [volunteer, created]
 
 
@@ -80,14 +82,24 @@ class PostService:
 
 
 class FacebookService:
+    FACEBOOK_GRAPH_BASE_URL = 'https://graph.facebook.com/'
+    FACEBOOK_GRAPH_API_VERSION = getattr(settings, 'FACEBOOK_GRAPH_API_VERSION')
+    FACEBOOK_GRAPH_API_URL = FACEBOOK_GRAPH_BASE_URL + FACEBOOK_GRAPH_API_VERSION
+
     FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
     FACEBOOK_APP_SECRET = getattr(settings, 'FACEBOOK_APP_SECRET', '')
     REDIRECT_URI = getattr(settings, 'FACEBOOK_OAUTH_REDIRECT_URI', '')
     STATE = getattr(settings, 'FACEBOOK_OAUTH_STATE', '')
     SCOPE = getattr(settings, 'FACEBOOK_OAUTH_SCOPE', '')
+
+    # TODO: remove hard coded version
     OAUTH_BASE_URL = 'https://www.facebook.com/v7.0/dialog/oauth'
     ACCESS_TOKEN_BASE_URL = 'https://graph.facebook.com/v7.0/oauth/access_token'
     DEBUG_TOKEN_BASE_URL = 'https://graph.facebook.com/debug_token'
+
+    WEBHOOK_SUBSCRIPTION_FIELDS = 'messages,messaging_postbacks,feed'
+    WEBHOOK_URL = getattr(settings, 'APP_PUBLIC_URL', '') + '/facebook/webhook/'
+    WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
 
     @staticmethod
     def get_oauth_url():
@@ -123,12 +135,13 @@ class FacebookService:
         params = {
             'access_token': access_token
         }
+        # TODO: use graph api version
         url = 'https://graph.facebook.com/%s/accounts' % user_id
         pages_token = requests.get(url, params).json()
         return pages_token
 
     @staticmethod
-    def save_pages_access_token(code, user):
+    def verify_oauth(code, user):
         access_token = FacebookService.get_access_token(code)
         user_id = FacebookService.get_user_id(access_token)
         pages_token = FacebookService.get_pages_access_token(
@@ -142,9 +155,27 @@ class FacebookService:
 
         organization = user.organization
         for page in pages_token:
+            # register our webhook to listen to pages feed events and messages
+            facebook_page_id = page['id']
+            page_access_token = page['access_token']
+
+            headers = {'content-type': "application/json"}
+            url = '%s/%s/subscribed_apps' % (
+                FacebookService.FACEBOOK_GRAPH_API_URL,
+                facebook_page_id
+            )
+
+            params = json.dumps({
+                "access_token": page_access_token,
+                "subscribed_fields": FacebookService.WEBHOOK_SUBSCRIPTION_FIELDS
+            })
+
+            webhook = requests.post(url, headers=headers, data=params)
+            res = webhook.json()
+            print(res)
+
+            # save page in model
             name = page.get('name', '')
-            facebook_page_id = page.get('id', '')
-            page_access_token = page.get('access_token', '')
             page_expiry_token_date = datetime.now() + timedelta(days=59)
             Page.objects.update_or_create(
                 facebook_page_id=facebook_page_id,
@@ -153,13 +184,14 @@ class FacebookService:
                           'page_expiry_token_date': page_expiry_token_date})
         return True
 
-    #SEND message on comment
+    # SEND message on comment
     # send_private_message(page, {"comment_id": "commentId"}, {"text": "msg"})
-    #SEND message on conversation
+    # SEND message on conversation
     # send_private_message(page, {"id": "psid"}, {"text": "msg"})
 
     def send_private_message(page, recipient, message):
         headers = {'content-type': "application/json"}
+        # TODO: use graph api version
         url = 'https://graph.facebook.com/%s/messages' % page.facebook_page_id
         params = json.dumps({
             "access_token": page.page_access_token,
@@ -170,11 +202,33 @@ class FacebookService:
         return requests.post(url, headers=headers, data=params)
 
     def get_user_metadata(page, recipient_id):
+        # TODO: use graph api version
         url = 'https://graph.facebook.com/%s' % recipient_id
         params = {
             "access_token": page.page_access_token,
         }
         return requests.get(url, params).json()
+
+    @staticmethod
+    def setup_webhook():
+        headers = {'content-type': "application/json"}
+        url = '%s/%s/subscriptions' % (
+            FacebookService.FACEBOOK_GRAPH_API_URL,
+            FacebookService.FACEBOOK_APP_ID
+        )
+
+        params = json.dumps({
+            "access_token": FacebookService.FACEBOOK_APP_ID + "|" + FacebookService.FACEBOOK_APP_SECRET,
+            "object": "page",
+            "callback_url": FacebookService.WEBHOOK_URL,
+            "verify_token": FacebookService.WEBHOOK_VERIFY_TOKEN,
+            "fields": FacebookService.WEBHOOK_SUBSCRIPTION_FIELDS,
+            "include_values": "true"
+        })
+
+        webhook = requests.post(url, headers=headers, data=params)
+        res = webhook.json()
+        return res
 
 
 class OrganizationService:
@@ -250,4 +304,3 @@ class OrganizationService:
                 organization_id, start_date, to_date)
         }
         return results 
-        

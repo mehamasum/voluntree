@@ -4,7 +4,6 @@ import React from 'react';
 import {Button, Card} from 'antd';
 import {useFetch} from '../../hooks';
 import PageListView from './PageListView';
-import FormLayoutDemo from "./Webhooks";
 import WitSettingsForm from "./WitSettings";
 
 import nationbuilder from '../../assets/icons/nationbuilder.svg';
@@ -36,11 +35,6 @@ const Settings = () => {
 
       <Card title="Connected Pages">
         <PageListView/>
-      </Card>
-      <br/>
-
-      <Card title="Messenger Webhooks">
-        <FormLayoutDemo/>
       </Card>
       <br/>
 
