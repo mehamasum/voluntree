@@ -175,3 +175,79 @@ class FacebookService:
             "access_token": page.page_access_token,
         }
         return requests.get(url, params).json()
+
+
+class OrganizationService:
+    def number_of_posts(organization_id, from_date, to_date):
+        post_count = Post.objects.filter(
+            user__organization=organization_id,
+            created_at__date__range=(from_date, to_date),
+        ).count()
+        return post_count
+
+    def get_post_ids(organization_id, from_date, to_date):
+        post_ids = Post.objects.filter(
+            user__organization=organization_id,
+            created_at__date__range=(from_date, to_date),
+        ).values('id')
+        return post_ids
+
+
+    def number_of_interests(organization_id, from_date, to_date):
+        post_ids = OrganizationService.get_post_ids(organization_id, from_date, to_date)
+        total_interest = Interest.objects.filter(post__in=post_ids, interested=True).count()
+        return total_interest
+
+    def total_number_of_volunteers(organization_id, from_date, to_date):
+        post_ids = OrganizationService.get_post_ids(organization_id, from_date, to_date)
+        total_volunteers = Interest.objects.filter(
+                                post__in=post_ids,
+                                interested=True
+                            ).values('volunteer').distinct().count()
+
+        return total_volunteers
+
+
+    def total_number_of_new_volunteers(organization_id, from_date, to_date):
+        all_previous_post_ids = Post.objects.filter(
+            user__organization=organization_id,
+            created_at__lt=from_date,
+        ).values('id')
+
+        all_previous_volunteers = Interest.objects.filter(
+                                post__in=all_previous_post_ids,
+                                interested=True
+                            ).values('volunteer').distinct()
+
+        current_range_post_ids = OrganizationService.get_post_ids(
+            organization_id, from_date, to_date)
+
+        current_range_volunteers = Interest.objects.filter(
+                                post__in=current_range_post_ids,
+                                interested=True
+                            ).values('volunteer').distinct()
+
+        current_range_total_volunteers = len(current_range_volunteers)
+        previous_volunteers = all_previous_volunteers.intersection(current_range_volunteers)
+
+        new_volunteers = current_range_total_volunteers - len(previous_volunteers)
+        return new_volunteers
+
+
+
+    def get_stats(organization_id, from_date, to_date):
+        start_date = datetime.strptime(from_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(to_date, "%Y-%m-%d").date()
+
+        results = {
+            'posts': OrganizationService.number_of_posts(
+                organization_id, start_date, end_date),
+            'interests': OrganizationService.number_of_interests(
+                organization_id, start_date, end_date),
+            'volunteers': OrganizationService.total_number_of_volunteers(
+                organization_id, start_date, end_date),
+            'new_volunteers': OrganizationService.total_number_of_new_volunteers(
+                organization_id, start_date, to_date)
+        }
+        return results 
+        
