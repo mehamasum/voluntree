@@ -23,12 +23,42 @@ class VolunteerService:
             volunteer.save()
 
         return [volunteer, created]
+    
+    @staticmethod
+    def verify_volunteer():
+        pass
+    
+    @staticmethod
+    def send_verification_email():
+        pass
 
 
 class InterestService:
     @staticmethod
     def create_interest_after_consent(volunteer, post):
         return Interest.objects.create(post=post, volunteer=volunteer)
+        
+    def get_interested_status_from_postback_data(postback_data):
+        payload = postback_data['payload'].split("_")
+
+        status = payload[0]
+        return status
+
+    @staticmethod
+    def create_or_update_intereset_from_postback_data(volunteer, post, status):
+        if post is None:
+            return False
+
+        intereset, _ = Interest.objects.get_or_create(
+            post=post, volunteer=volunteer)
+
+        interested = False
+        if status == 'YES':
+            interested = True
+        intereset.interested = interested
+        intereset.save()
+        return True
+    
 
 
 class PostService:
