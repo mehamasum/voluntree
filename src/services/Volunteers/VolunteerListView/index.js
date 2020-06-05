@@ -36,7 +36,7 @@ const columns = [
 
 const VolunteerListView = props => {
   const [volunteers_response,, setUrl] = useFetch(
-  'api/voluntree/volunteers/?limit=25&offset=0');
+  'api/volunteers/?limit=25&offset=0');
   const [pagination, setPagination] = useState({
     current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
@@ -49,7 +49,7 @@ const VolunteerListView = props => {
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
     const offset = (pag.current -1) * 25;
-    setUrl(`api/voluntree/volunteers/?limit=25&offset=${offset}`);
+    setUrl(`api/volunteers/?limit=25&offset=${offset}`);
   }, [setPagination, setUrl]);
 
   useEffect(() => {
