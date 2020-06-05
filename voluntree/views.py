@@ -219,17 +219,28 @@ class InteractionHandler:
 
     @staticmethod
     def handle_new_postback(psid, page_id, postback):
-        volunteer, created = VolunteerService \
-            .get_or_create_volunteer_from_postback_data(psid, page_id, postback)
-        post = PostService.get_post_from_postback_data(postback)
-        postback_status = InterestService \
-            .get_interested_status_from_postback_data(postback)
-        success = InterestService \
-            .create_or_update_intereset_from_postback_data(volunteer, post, postback_status)
+        # BOOL_PAGE_POST
+        payload = postback['payload'].split("_")
+        consent = payload[0]
+        page_id = payload[1]
+        post_id = payload[2]
 
-        if success and postback_status == 'YES':
-            send_message_on_yes_confirmation.apply_async((
-                volunteer.id, created, post.id))
-        if success:
+        if consent == 'NO':
+            # TODO: ignore for now
             return Response(status.HTTP_200_OK)
-        return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
+
+        volunteer, created = VolunteerService \
+            .get_or_create_volunteer(psid, page_id)
+
+        if created:
+            # TODO: onboarding experience
+            print('ON BOARD ME HUMAN', psid)
+            pass
+
+        post = Post.objects.get(facebook_post_id=post_id)
+
+        InterestService.create_interest_after_consent(volunteer, post)
+
+        send_message_on_yes_confirmation.apply_async((volunteer.id, created, post.id))
+
+        return Response(status.HTTP_200_OK)

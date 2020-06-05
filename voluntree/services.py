@@ -9,15 +9,13 @@ from .models import Page, Volunteer, Post, Interest
 
 class VolunteerService:
     @staticmethod
-    def get_or_create_volunteer_from_postback_data(facebook_user_id, facebook_page_id, postback_data):
+    def get_or_create_volunteer(psid, page_id):
         volunteer, created = Volunteer.objects.get_or_create(
-            facebook_user_id=facebook_user_id,
-            facebook_page_id=facebook_page_id
+            facebook_user_id=psid,
+            facebook_page_id=page_id
         )
         if created:
-            post = PostService.get_post_from_postback_data(postback_data)
-            meta_data = FacebookService.get_user_metadata(
-                post.page, facebook_user_id)
+            meta_data = FacebookService.get_user_metadata(page_id, psid)
             # TODO: this might fail for some users
             volunteer.first_name = meta_data['first_name']
             volunteer.last_name = meta_data['last_name']
@@ -29,40 +27,11 @@ class VolunteerService:
 
 class InterestService:
     @staticmethod
-    def get_interested_status_from_postback_data(postback_data):
-        payload = postback_data['payload'].split("_")
-
-        status = payload[0]
-        return status
-
-    @staticmethod
-    def create_or_update_intereset_from_postback_data(volunteer, post, status):
-        if post is None:
-            return False
-
-        intereset, _ = Interest.objects.get_or_create(
-            post=post, volunteer=volunteer)
-
-        interested = False
-        if status == 'YES':
-            interested = True
-        intereset.interested = interested
-        intereset.save()
-        return True
+    def create_interest_after_consent(volunteer, post):
+        return Interest.objects.create(post=post, volunteer=volunteer)
 
 
 class PostService:
-    @staticmethod
-    def get_post_from_postback_data(postback_data):
-        payload = postback_data['payload'].split("_")
-        post_id = payload[2]
-
-        try:
-            post = Post.objects.get(facebook_post_id=post_id)
-        except Post.DoesNotExist:
-            post = None
-        return post
-
     @staticmethod
     def create_post_on_facebook_page(page, status):
         post_create_url = ('https://graph.facebook.com/%s/feed'
@@ -194,7 +163,8 @@ class FacebookService:
 
         return requests.post(url, headers=headers, data=params)
 
-    def get_user_metadata(page, recipient_id):
+    def get_user_metadata(page_id, recipient_id):
+        page = Page.objects.get(facebook_page_id=page_id)
         # TODO: use graph api version
         url = 'https://graph.facebook.com/%s' % recipient_id
         params = {
