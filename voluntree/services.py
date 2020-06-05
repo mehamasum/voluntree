@@ -4,7 +4,35 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest
+from .models import Page, Volunteer, Post, Interest, Verification
+from random import randint
+
+class VerificationService:
+    @staticmethod
+    def verify_volunteer(volunteer_id, send_pin):
+        try:
+            verification_object = Verification.objects.get(volunteer_id=volunteer_id)
+
+        except Verification.DoesNotExist:
+            return False
+        
+        if verification_object.attempts == 3:
+            return False
+        
+        if send_pin == verification_object.pin:
+            verification_object.is_verifed = True
+            verification_object.save()
+            return True
+        
+        verification_object.attempts = verification_object.attempts + 1
+        verification_object.save()
+        return False
+    
+    @staticmethod
+    def generate_verfication_pin(volunteer_id):
+        pin = randint(100000, 999999) # generate 6 digit random pin
+        verification_object = Verification.objects.create(volunteer_id=volunteer_id, pin=pin)
+        return verification_object
 
 
 class VolunteerService:
@@ -25,12 +53,39 @@ class VolunteerService:
         return [volunteer, created]
     
     @staticmethod
-    def verify_volunteer():
-        pass
+    def get_volunteer_from_interaction(facebook_user_id, facebook_page_id):
+        try:
+            volunteer = Volunteer.objects.get(
+                facebook_user_id=facebook_user_id,
+                facebook_page_id=facebook_page_id
+            )
+        except Volunteer.DoesNotExist:
+            # TODO: action need to be taken for not existing volunteer
+            pass
+        
+        return volunteer
     
     @staticmethod
-    def send_verification_email():
-        pass
+    def send_email(facebook_user_id, facebook_page_id, email):
+        volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
+        verification_object = VerificationService.generate_verfication_pin(volunteer.id)
+        # TODO: email integration
+
+    @staticmethod
+    def verify_volunteer(facebook_user_id, facebook_page_id, send_pin):
+        volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
+
+    
+
+    
+    @staticmethod
+    def send_verification_email(facebook_user_id, facebook_page_id, email):
+        volunteer = VolunteerService.get_volunteer_from_interaction(
+            facebook_user_id, facebook_page_id)
+        volunteer.email = email
+        volunteer.save()
+
+
 
 
 class InterestService:

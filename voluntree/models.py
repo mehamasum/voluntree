@@ -82,7 +82,8 @@ class Integration(models.Model):
 
 
 class Verification(models.Model):
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE)
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='verifications')
     pin = models.IntegerField()
-    attempts = models.IntegerField()
+    attempts = models.IntegerField(default=0)
     is_verified = models.BooleanField(default=False)
+    referred_post = models.ForeignKey(Post, related_name='verifications', null=True, blank=True, on_delete=models.SET_NULL)
