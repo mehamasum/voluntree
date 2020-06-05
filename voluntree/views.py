@@ -2,7 +2,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ViewSet, ReadOnlyModelViewSet, ModelViewSet
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from .services import (FacebookService, PostService, VolunteerService,
                        InterestService, OrganizationService)
@@ -118,58 +118,6 @@ class FacebookApiViewSet(ViewSet):
         url = FacebookService.get_oauth_url()
         return Response(url)
 
-    @action(detail=False, methods=['get', 'post'], url_path='webhook:page',
-            permission_classes=[AllowAny])
-    def page_webhook(self, request):
-        if request.method == 'GET':
-            mode = request.query_params.get('hub.mode')
-            token = request.query_params.get('hub.verify_token')
-            challenge = request.query_params.get('hub.challenge')
-            if mode == 'subscribe' and token == 'xyz':
-                return Response(int(challenge))
-            return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
-
-
-        data = request.data
-        comment_id = data.get('value', {}).get('comment_id')
-        post_id = comment_id.split('_')[0]
-        try:
-            post = Post.objects.get(facebook_post_id=post_id, disabled=False)
-        except Post.DoesNotExist:
-            # TODO: ignoring for now
-            print('Ignoring comment for disabled or unknown post')
-            return Response(status.HTTP_200_OK)
-        
-        preprocess_comment_for_ml.apply_async((request.data, ))
-        return Response(status.HTTP_200_OK)
-
-
-    @action(detail=False, methods=['get', 'post'],
-            url_path='webhook:messenger', permission_classes=[AllowAny])
-    def messenger_webhook(self, request):
-        if request.method == 'GET':
-            mode = request.query_params.get('hub.mode')
-            token = request.query_params.get('hub.verify_token')
-            challenge = request.query_params.get('hub.challenge')
-            if mode == 'subscribe' and token == 'xyz':
-                return Response(int(challenge))
-            return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
-        
-        volunteer, created = VolunteerService \
-            .get_or_create_volunteer_from_postback_data(request.data)
-        post = PostService.get_post_from_postback_data(request.data)
-        postback_status = InterestService \
-            .get_interested_status_from_postback_data(request.data)
-        success = InterestService \
-            .create_or_update_intereset_from_postback_data(
-                volunteer, post, postback_status)
-
-        if success and postback_status == 'YES':
-            send_message_on_yes_confirmation.apply_async((
-                volunteer.id, created, post.id))
-        if success:
-            return Response(status.HTTP_200_OK)
-        return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)
 
 class OrganizationViewSet(ModelViewSet):
     queryset = Organization.objects.all()
@@ -226,28 +174,62 @@ class WebhookCallbackView(APIView):
                         # TODO: handle page post
                         pass
                     elif value['item'] == 'comment':
-                        # TODO: handle comment
-                        pass
+                        InteractionHandler.handle_new_comment(change)
+
             elif 'messaging' in entry:
                 # this is a messenger event
                 messages = entry['messaging']
                 for message in messages:
                     psid = message['sender']['id']
                     page_id = message['recipient']['id']
-                    # TODO: handle message
+
                     print(psid, 'on', page_id, 'says', message)
+
+                    if 'postback' in message:
+                        InteractionHandler.handle_new_postback(psid, page_id, message['postback'])
+                    if 'message' in message:
+                        # TODO: handle message
+                        pass
 
         return Response({'ok': True}, status.HTTP_200_OK)
 
 
-
 class SetupWebhookCallbackView(APIView):
-    permission_classes = [AllowAny]
+    permission_classes = [IsAdminUser]
 
     def get(self, request):
-        WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
-        token = request.query_params.get('verify_token')
-        if token == WEBHOOK_VERIFY_TOKEN:
-            res = FacebookService.setup_webhook()
-            return Response(res)
-        return Response({'ok': False}, status.HTTP_400_BAD_REQUEST)
+        res = FacebookService.setup_webhook()
+        return Response(res)
+
+
+class InteractionHandler:
+    @staticmethod
+    def handle_new_comment(data):
+        comment_id = data.get('value', {}).get('comment_id')
+        post_id = comment_id.split('_')[0]
+        try:
+            post = Post.objects.get(facebook_post_id=post_id, disabled=False)
+        except Post.DoesNotExist:
+            # TODO: ignoring for now
+            print('Ignoring comment for disabled or unknown post')
+            return Response(status.HTTP_200_OK)
+
+        preprocess_comment_for_ml.apply_async((data,))
+        return Response(status.HTTP_200_OK)
+
+    @staticmethod
+    def handle_new_postback(psid, page_id, postback):
+        volunteer, created = VolunteerService \
+            .get_or_create_volunteer_from_postback_data(psid, page_id, postback)
+        post = PostService.get_post_from_postback_data(postback)
+        postback_status = InterestService \
+            .get_interested_status_from_postback_data(postback)
+        success = InterestService \
+            .create_or_update_intereset_from_postback_data(volunteer, post, postback_status)
+
+        if success and postback_status == 'YES':
+            send_message_on_yes_confirmation.apply_async((
+                volunteer.id, created, post.id))
+        if success:
+            return Response(status.HTTP_200_OK)
+        return Response('BAD REQUEST', status.HTTP_400_BAD_REQUEST)

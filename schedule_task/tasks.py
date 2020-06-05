@@ -1,26 +1,39 @@
 import json
-import requests
 import logging
-from config.celery import app
-from .services import FacebookWebHookService
-import redis
 from urllib.parse import urlparse
 
 import environ
+import redis
+import requests
+
+from config.celery import app
+from .services import FacebookWebHookService
+
 env = environ.Env()
+
 
 @app.task(name="schedule_task.webhook.fetch_comment")
 def fetch_comment():
-    logging.debug(f"Running comment fetch task")
+    print(f"Running comment fetch task")
     server = env.str('APP_URL', default='http://localhost:8000')
-    print('APP_URL', server)
-    url = server + '/api/facebook/webhook:page/'
+    url = server + '/facebook/webhook/'
     headers = {'content-type': "application/json"}
     new_comments = FacebookWebHookService.get_new_comments()
     print("new_comments", new_comments)
     for comment in new_comments:
-        requests.post(url, headers=headers, data=json.dumps(comment))
+        payload = {
+            "object": "page",
+            "entry": [
+                {
+                    "id": "0",
+                    "time": 1591303387,
+                    "changes": [comment]
+                }
+            ]
+        }
+        requests.post(url, headers=headers, data=json.dumps(payload))
     return new_comments
+
 
 @app.task(name="schedule_task.internal.ingest_interests")
 def ingest_interests():
@@ -33,7 +46,7 @@ def ingest_interests():
         return
 
     counts = 10
-    blocks = 30 * 1000 # wait for 30 sec for data to be available
+    blocks = 30 * 1000  # wait for 30 sec for data to be available
 
     last_read = conn.get("last-read-comment") or b"0-0"
     res = conn.xread({'interests:fb': last_read}, counts, blocks)
@@ -42,7 +55,6 @@ def ingest_interests():
 
     if len(res) == 0:
         return res
-
 
     # [['logs2', [('1590697214180-0', {'foo': 'bar'}), ('1590697598107-0', {'me': 'meha'})]]]
     interests = res[0][1]
@@ -59,4 +71,3 @@ def ingest_interests():
         app.send_task('voluntree.tasks.send_message_on_comment', (data,))
 
     return res
-
