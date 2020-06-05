@@ -134,7 +134,7 @@ class OrganizationViewSet(ModelViewSet):
         from_date = self.request.query_params.get('from_date', None)
         to_date = self.request.query_params.get('to_date', None)
         if not from_date:
-            start_from = datetime.now() - timedelta(days=29)
+            start_from = datetime.now() - timedelta(days=28)
             from_date = start_from.strftime("%Y-%m-%d")
 
         if not to_date:

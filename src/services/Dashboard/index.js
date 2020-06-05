@@ -1,14 +1,9 @@
 import './index.css';
 
 import React from 'react';
-import {Button, Card, PageHeader, Result, Row, Col, Statistic} from 'antd';
+import {Button, Card, Col, PageHeader, Result, Row, Select, Statistic, Typography} from 'antd';
 
-import {
-  FireOutlined,
-  FormOutlined,
-  RiseOutlined,
-  RedoOutlined
-} from '@ant-design/icons';
+import {CommentOutlined, FireOutlined, FormOutlined, RiseOutlined} from '@ant-design/icons';
 
 import PostList from '../Posts/PostListView';
 import {Link} from "react-router-dom";
@@ -47,20 +42,34 @@ const Dashboard = ({...props}) => {
       }
 
 
-      
-     <Card>
+      <Card title={
+        <>
+          Org Stats
+          <Select defaultValue="last_28d" size="small" className="stat-range">
+            <Select.Option value="last_28d">Last 28 days</Select.Option>
+          </Select>
+        </>
+      }>
         <Row gutter={16}>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="Show Interests" value={ stats ? stats.interests : '...'} prefix={<FireOutlined/>} className="stat-column"/>
+            <Statistic
+              title={<span>Active Posts</span>}
+              value={stats ? stats.active_posts : 0}
+              prefix={<FireOutlined/>}
+              className="stat-column"
+            />
           </Col>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>} className="stat-column"/>
+            <Statistic title="Total Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>}
+                       className="stat-column"/>
           </Col>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="New Volunteers" value={ stats ? stats.new_volunteers : '...'} prefix={<RiseOutlined/>} className="stat-column"/>
+            <Statistic title="Interests" value={stats ? stats.interests : '...'} prefix={<CommentOutlined/>}
+                       className="stat-column"/>
           </Col>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="Returning Volunteers" value={stats ? (stats.volunteers - stats.new_volunteers) : '...' } prefix={<RedoOutlined/>} className="stat-column"/>
+            <Statistic title="New Volunteers" value={stats ? stats.new_volunteers : '...'} prefix={<RiseOutlined/>}
+                       className="stat-column"/>
           </Col>
         </Row>
       </Card>
