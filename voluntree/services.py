@@ -205,6 +205,14 @@ class OrganizationService:
         ).count()
         return post_count
 
+    def number_of_active_posts(organization_id, from_date, to_date):
+        post_count = Post.objects.filter(
+            user__organization=organization_id,
+            created_at__date__range=(from_date, to_date),
+            disabled=False
+        ).count()
+        return post_count
+
     def get_post_ids(organization_id, from_date, to_date):
         post_ids = Post.objects.filter(
             user__organization=organization_id,
@@ -260,6 +268,8 @@ class OrganizationService:
         end_date = datetime.strptime(to_date, "%Y-%m-%d").date()
 
         results = {
+            'active_posts': OrganizationService.number_of_active_posts(
+                organization_id, start_date, end_date),
             'posts': OrganizationService.number_of_posts(
                 organization_id, start_date, end_date),
             'interests': OrganizationService.number_of_interests(
