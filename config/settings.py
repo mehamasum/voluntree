@@ -243,7 +243,7 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 API_BROWSER_HEADER = 'Voluntree'
 
 
-APP_PUBLIC_URL = env.str('APP_PUBLIC_URL', default='')
+APP_URL = env.str('APP_URL', default='')
 FACEBOOK_GRAPH_API_VERSION = env.str('FACEBOOK_GRAPH_API_VERSION', default='v7.0')
 FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
 FACEBOOK_APP_SECRET = env.str('FACEBOOK_APP_SECRET', default='')

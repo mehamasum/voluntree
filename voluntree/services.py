@@ -9,19 +9,16 @@ from .models import Page, Volunteer, Post, Interest
 
 class VolunteerService:
     @staticmethod
-    def get_or_create_volunteer_from_postback_data(data):
-        facebook_user_id = data.get('entry', [{}])[0] \
-            .get('messaging', [{}])[0].get('sender', {}).get('id')
-        facebook_page_id = data.get('entry', [{}])[0] \
-            .get('messaging', [{}])[0].get('recipient', {}).get('id')
+    def get_or_create_volunteer_from_postback_data(facebook_user_id, facebook_page_id, postback_data):
         volunteer, created = Volunteer.objects.get_or_create(
             facebook_user_id=facebook_user_id,
             facebook_page_id=facebook_page_id
         )
         if created:
-            post = PostService.get_post_from_postback_data(data)
+            post = PostService.get_post_from_postback_data(postback_data)
             meta_data = FacebookService.get_user_metadata(
                 post.page, facebook_user_id)
+            # TODO: this might fail for some users
             volunteer.first_name = meta_data['first_name']
             volunteer.last_name = meta_data['last_name']
             volunteer.profile_pic = meta_data['profile_pic']
@@ -32,10 +29,8 @@ class VolunteerService:
 
 class InterestService:
     @staticmethod
-    def get_interested_status_from_postback_data(data):
-        payload = data.get('entry', [{}])[0] \
-            .get('messaging', [{}])[0].get('postback', {}) \
-            .get('payload', 'NO_x_y').split("_")
+    def get_interested_status_from_postback_data(postback_data):
+        payload = postback_data['payload'].split("_")
 
         status = payload[0]
         return status
@@ -58,10 +53,8 @@ class InterestService:
 
 class PostService:
     @staticmethod
-    def get_post_from_postback_data(data):
-        payload = data.get('entry', [{}])[0] \
-            .get('messaging', [{}])[0].get('postback', {}) \
-            .get('payload', 'NO_x_y').split("_")
+    def get_post_from_postback_data(postback_data):
+        payload = postback_data['payload'].split("_")
         post_id = payload[2]
 
         try:
@@ -98,7 +91,7 @@ class FacebookService:
     DEBUG_TOKEN_BASE_URL = 'https://graph.facebook.com/debug_token'
 
     WEBHOOK_SUBSCRIPTION_FIELDS = 'messages,messaging_postbacks,feed'
-    WEBHOOK_URL = getattr(settings, 'APP_PUBLIC_URL', '') + '/facebook/webhook/'
+    WEBHOOK_URL = getattr(settings, 'APP_URL', '') + '/facebook/webhook/'
     WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
 
     @staticmethod
