@@ -53,7 +53,7 @@ const Dashboard = ({...props}) => {
         <Row gutter={16}>
           <Col xs={12} sm={8} lg={6}>
             <Statistic
-              title={<span>Active Posts</span>}
+              title="Active Posts"
               value={stats ? stats.active_posts : 0}
               prefix={<FireOutlined/>}
               className="stat-column"
