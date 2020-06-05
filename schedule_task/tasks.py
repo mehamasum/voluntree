@@ -11,6 +11,7 @@ from .services import FacebookWebHookService
 
 env = environ.Env()
 
+in_memory_db = {}
 
 @app.task(name="schedule_task.webhook.fetch_comment")
 def fetch_comment():
@@ -21,6 +22,9 @@ def fetch_comment():
     new_comments = FacebookWebHookService.get_new_comments()
     print("new_comments", new_comments)
     for comment in new_comments:
+        if comment['value']['comment_id'] in in_memory_db:
+            print('skipping already sent callback', comment)
+            continue
         payload = {
             "object": "page",
             "entry": [
@@ -31,7 +35,10 @@ def fetch_comment():
                 }
             ]
         }
-        requests.post(url, headers=headers, data=json.dumps(payload))
+        res = requests.post(url, headers=headers, data=json.dumps(payload))
+        if res.status_code == 200:
+            comment_id = comment['value']['comment_id']
+            in_memory_db[comment_id] = True
     return new_comments
 
 

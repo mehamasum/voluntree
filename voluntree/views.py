@@ -11,11 +11,15 @@ from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer)
 from .models import Post, Interest, Volunteer, Notification, Organization
 from .paginations import CreationTimeBasedPagination
-from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml
+from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml, ask_for_email, ask_for_pin
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
 from django.conf import settings
-
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
+import re
+from django.core.cache import cache
+import json
 
 class VolunteerViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -174,6 +178,7 @@ class WebhookCallbackView(APIView):
                         # TODO: handle page post
                         pass
                     elif value['item'] == 'comment':
+                        print('comment', value)
                         InteractionHandler.handle_new_comment(change)
 
             elif 'messaging' in entry:
@@ -188,8 +193,7 @@ class WebhookCallbackView(APIView):
                     if 'postback' in message:
                         InteractionHandler.handle_new_postback(psid, page_id, message['postback'])
                     if 'message' in message:
-                        # TODO: handle message
-                        pass
+                        InteractionHandler.handle_text_message(psid, page_id, message['message'])
 
         return Response({'ok': True}, status.HTTP_200_OK)
 
@@ -203,6 +207,9 @@ class SetupWebhookCallbackView(APIView):
 
 
 class InteractionHandler:
+    ASKED_FOR_EMAIL = 'asked_for_email'
+    ASKED_FOR_PIN = 'asked_for_pin'
+
     @staticmethod
     def handle_new_comment(data):
         comment_id = data.get('value', {}).get('comment_id')
@@ -213,7 +220,7 @@ class InteractionHandler:
             # TODO: ignoring for now
             print('Ignoring comment for disabled or unknown post')
             return Response(status.HTTP_200_OK)
-
+        print('Webhook callback handle comment', data)
         preprocess_comment_for_ml.apply_async((data,))
         return Response(status.HTTP_200_OK)
 
@@ -232,15 +239,82 @@ class InteractionHandler:
         volunteer, created = VolunteerService \
             .get_or_create_volunteer(psid, page_id)
 
-        if created:
-            # TODO: onboarding experience
-            print('ON BOARD ME HUMAN', psid)
-            pass
-
         post = Post.objects.get(facebook_post_id=post_id)
 
         InterestService.create_interest_after_consent(volunteer, post)
 
-        send_message_on_yes_confirmation.apply_async((volunteer.id, created, post.id))
+        if created:
+            cache_key = 'conversation_%s_%s' % (psid, page_id)
+            cache_value = json.dumps({
+                'post_id': post_id,
+                'state': InteractionHandler.ASKED_FOR_EMAIL
+            })
+            cache.set(cache_key, cache_value, timeout=10*60)
+            ask_for_email.apply_async((volunteer.id,))
+        else:
+            send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
 
         return Response(status.HTTP_200_OK)
+
+    @staticmethod
+    def handle_text_message(psid, page_id, message):
+        text = message['text']
+
+        def validate_email2(email_input):
+            try:
+                validate_email(email_input)
+                return True
+            except ValidationError:
+                return False
+
+        def validate_pin(pin_input):
+            if re.fullmatch('\d{6}', pin_input):
+                return True
+            else:
+                return False
+
+        if validate_email2(text):
+            print('IS AN EMAIL', text)
+            email = text
+
+            cache_key = 'conversation_%s_%s' % (psid, page_id)
+            cache_value = cache.get(cache_key)
+
+            if not cache_value:
+                # TODO: handle late reply
+                return Response(status.HTTP_200_OK)
+
+            cache_value = json.loads(cache_value)
+            updated_cache_value = json.dumps({
+                'post_id': cache_value['post_id'],
+                'state': InteractionHandler.ASKED_FOR_PIN,
+                'email': email
+            })
+            cache.set(cache_key, updated_cache_value, timeout=10 * 60)
+
+            volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
+            ask_for_pin.apply_async((volunteer.id,))
+
+        elif validate_pin(text):
+            # is a pin
+            print('IS A PIN', text)
+            pin = text
+
+            cache_key = 'conversation_%s_%s' % (psid, page_id)
+            cache_value = cache.get(cache_key)
+
+            if not cache_value:
+                # TODO: handle late reply
+                return Response(status.HTTP_200_OK)
+
+            cache_value = json.loads(cache_value)
+            post_id = cache_value['post_id']
+            volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
+            post = Post.objects.get(facebook_post_id=post_id)
+
+            # TODO: get or create 3rd party account
+            send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
+            cache.expire(cache_value, timeout=0)
+
+        return Response(status.HTTP_200_OK)
+

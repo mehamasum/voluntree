@@ -3,10 +3,8 @@ def build_notification_message(notification):
         'text': notification.message
     }
 
-def build_confirmation_message(post, created):
+def build_confirmation_message(post):
     msg = post.message_for_returning_volunteer
-    if created:
-        msg = post.message_for_new_volunteer
     return {
         'text': msg
     }

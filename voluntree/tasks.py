@@ -1,6 +1,6 @@
 import logging
 from config.celery import app
-from .models import Post, Volunteer, Notification
+from .models import Post, Volunteer, Notification, Page
 from .services import FacebookService
 from .utils import (build_comment_chip_message, build_confirmation_message,
                     build_notification_message)
@@ -8,13 +8,14 @@ import redis
 import json
 from urllib.parse import urlparse
 from .preprocess import sentence_to_embeding
-from celery import shared_task
+
 
 import environ
 env = environ.Env()
 
 @app.task
 def preprocess_comment_for_ml(hook_payload):
+    print('preprocess_comment_for_ml', hook_payload)
     url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379'))
     conn = redis.Redis(host=url.hostname, port=url.port, decode_responses=True)
     if not conn.ping():
@@ -54,15 +55,39 @@ def send_message_on_comment(data):
     return wellcome_msg.json()
 
 @app.task
-def send_message_on_yes_confirmation(volunteer_id, created, post_id):
+def send_message_on_yes_confirmation(volunteer_id, post_id):
     volunteer = Volunteer.objects.get(id=volunteer_id)
     post = Post.objects.get(id=post_id)
     page = post.page
     recipient = {'id': volunteer.facebook_user_id}
-    message = build_confirmation_message(post, created)
+    message = build_confirmation_message(post)
     wellcome_msg = FacebookService.send_private_message(
         page, recipient, message)
     return wellcome_msg.json()
+
+@app.task
+def ask_for_email(volunteer_id):
+    volunteer = Volunteer.objects.get(id=volunteer_id)
+    page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
+    recipient = {'id': volunteer.facebook_user_id}
+    message = {
+        'text': 'Send us your email'
+    }
+    res = FacebookService.send_private_message(
+        page, recipient, message)
+    return res.json()
+
+@app.task
+def ask_for_pin(volunteer_id):
+    volunteer = Volunteer.objects.get(id=volunteer_id)
+    page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
+    recipient = {'id': volunteer.facebook_user_id}
+    message = {
+        'text': 'Send us the PIN we sent to your email'
+    }
+    res = FacebookService.send_private_message(
+        page, recipient, message)
+    return res.json()
 
 @app.task
 def send_notification_on_interested_person(notification_id):

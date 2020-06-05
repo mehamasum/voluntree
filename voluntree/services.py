@@ -146,12 +146,14 @@ class FacebookService:
                           'page_expiry_token_date': page_expiry_token_date})
         return True
 
-    # SEND message on comment
-    # send_private_message(page, {"comment_id": "commentId"}, {"text": "msg"})
-    # SEND message on conversation
-    # send_private_message(page, {"id": "psid"}, {"text": "msg"})
 
+    @staticmethod
     def send_private_message(page, recipient, message):
+        # message on comment
+        # send_private_message(page, {"comment_id": "commentId"}, {"text": "msg"})
+        # message on conversation
+        # send_private_message(page, {"id": "psid"}, {"text": "msg"})
+
         headers = {'content-type': "application/json"}
         # TODO: use graph api version
         url = 'https://graph.facebook.com/%s/messages' % page.facebook_page_id
@@ -163,6 +165,7 @@ class FacebookService:
 
         return requests.post(url, headers=headers, data=params)
 
+    @staticmethod
     def get_user_metadata(page_id, recipient_id):
         page = Page.objects.get(facebook_page_id=page_id)
         # TODO: use graph api version
