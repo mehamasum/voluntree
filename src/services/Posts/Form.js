@@ -44,13 +44,9 @@ const PostForm = props => {
             <Typography.Text type="secondary">Instruction/Info sharing when a person confirms interest on messenger</Typography.Text>
             <br/>
             <br/>
-
-            <Form.Item label="Message for New Volunteer" name="message_for_new_volunteer" rules={[{required: true}]}>
-              <Input.TextArea rows={4} placeholder="What info/instructions do you want to share with a new volunteer?"/>
-            </Form.Item>
-
-            <Form.Item label="Message For Returning Volunteer" name="message_for_returning_volunteer" rules={[{required: true}]}>
-              <Input.TextArea rows={4} placeholder="What do you want to say to a known volunteer?"/>
+            {/* TODO: checkbox for private or personal */}
+            <Form.Item label="Message For Volunteer" name="message_for_returning_volunteer" rules={[{required: true}]}>
+              <Input.TextArea rows={4} placeholder="What do you want to share with a volunteer?"/>
             </Form.Item>
 
             <br/>
