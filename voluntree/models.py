@@ -24,23 +24,6 @@ class Page(models.Model):
     page_expiry_token_date = models.DateField(blank=True, null=True)
 
 
-class PostMetaData(models.Model):
-    message_for_new_volunteer = models.TextField()
-    message_for_returning_volunteer = models.TextField()
-
-
-class Post(models.Model):
-    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
-    status = models.TextField()
-    facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
-    message_for_new_volunteer = models.TextField()
-    message_for_returning_volunteer = models.TextField()
-    created_at = models.DateTimeField(auto_now_add=True)
-    disabled = models.BooleanField(default=False)
-
-
 class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     facebook_user_id = models.CharField(max_length=200) #PSID
@@ -53,18 +36,6 @@ class Volunteer(models.Model):
     def __str__(self):
         return "PSID " + self.facebook_user_id + " for " + self.facebook_page_id
 
-
-class Interest(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests')
-    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
-    interested = models.BooleanField(default=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-
-
-class Notification(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
-    message = models.TextField()
 
 
 class Integration(models.Model):
@@ -80,6 +51,49 @@ class Integration(models.Model):
     integration_access_token = models.CharField(max_length=200)
     integration_expiry_date = models.DateField(null=True, blank=True)
 
+
+class SignUp(models.Model):
+    title = models.CharField(max_length=200)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
+
+
+class DateTime(models.Model):
+    date = models.DateField()
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    signup = models.ForeignKey(SignUp, related_name='date_times', on_delete=models.CASCADE)
+
+
+class Slot(models.Model):
+    date_times = models.ManyToManyField(DateTime, related_name='slots')
+    required_volunteers = models.IntegerField()
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+
+
+class Post(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    page = models.ForeignKey(Page, on_delete=models.CASCADE, related_name='posts')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
+    status = models.TextField()
+    facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
+    message_for_new_volunteer = models.TextField()
+    message_for_returning_volunteer = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    disabled = models.BooleanField(default=False)
+    signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
+
+class Interest(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests')
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
+    interested = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class Notification(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
+    message = models.TextField()
 
 class Verification(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='verifications')
