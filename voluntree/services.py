@@ -31,9 +31,13 @@ class VerificationService:
     
     @staticmethod
     def generate_verfication_pin(volunteer_id, email, referred_post_id):
-        pin = randint(100000, 999999) # generate 6 digit random pin
-        verification_object = Verification.objects.create(
-            volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
+        try:
+            verification_object = Verification.objects.get(
+                volunteer_id=volunteer_id, email=email, referred_post_id=referred_post_id)
+        except Verification.DoesNotExist as e:
+            pin = randint(100000, 999999) # generate 6 digit random pin
+            verification_object = Verification.objects.create(
+                volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
 
         return verification_object
 
@@ -83,11 +87,9 @@ class VolunteerService:
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )
     @staticmethod
     def send_verification_email(facebook_user_id, facebook_page_id, facebook_post_id, email):
-        print('send_email')
         volunteer = VolunteerService.get_volunteer_from_interaction(
             facebook_user_id, facebook_page_id)
-        verification_object = VerificationService.generate_verfication_pin(volunteer.id, email, facebook_post_id)
-        send_mail('email/confirmation.tpl', {'code': verification_object.pin}, "welcome@voluntree.com", [email])
+        VerificationService.generate_verfication_pin(volunteer.id, email, facebook_post_id)
 
 
 class InterestService:
@@ -221,7 +223,6 @@ class FacebookService:
 
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
-            print(res)
 
             # save page in model
             name = page.get('name', '')

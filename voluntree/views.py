@@ -295,9 +295,7 @@ class InteractionHandler:
 
             volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
             post_instance = Post.objects.get(facebook_post_id=post_id)
-            print('will send verification email')
             VolunteerService.send_verification_email(psid, page_id, post_instance.id, email)
-            print('after sending verification email')
             ask_for_pin.apply_async((volunteer.id,))
 
         elif validate_pin(text):
