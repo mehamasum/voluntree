@@ -6,6 +6,7 @@ from django.conf import settings
 
 from .models import Page, Volunteer, Post, Interest, Verification
 from random import randint
+from mail_templated import send_mail
 
 class VerificationService:
     @staticmethod
@@ -29,9 +30,10 @@ class VerificationService:
         return False
     
     @staticmethod
-    def generate_verfication_pin(volunteer_id):
+    def generate_verfication_pin(volunteer_id, referred_post_id):
         pin = randint(100000, 999999) # generate 6 digit random pin
-        verification_object = Verification.objects.create(volunteer_id=volunteer_id, pin=pin)
+        verification_object = Verification.objects.create(
+            volunteer_id=volunteer_id, pin=pin, referred_post_id=referred_post_id)
         return verification_object
 
 
@@ -65,27 +67,23 @@ class VolunteerService:
         
         return volunteer
     
-    @staticmethod
-    def send_email(facebook_user_id, facebook_page_id, email):
-        volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
-        verification_object = VerificationService.generate_verfication_pin(volunteer.id)
-        # TODO: email integration
 
     @staticmethod
     def verify_volunteer(facebook_user_id, facebook_page_id, send_pin):
         volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
-
+        return VerificationService.verify_volunteer(volunteer.id, send_pin)
     
 
     
     @staticmethod
-    def send_verification_email(facebook_user_id, facebook_page_id, email):
+    def send_verification_email(facebook_user_id, facebook_page_id, facebook_post_id, email):
         volunteer = VolunteerService.get_volunteer_from_interaction(
             facebook_user_id, facebook_page_id)
         volunteer.email = email
         volunteer.save()
-
-
+        verification_object = VerificationService.generate_verfication_pin(volunteer.id, facebook_post_id)
+        send_mail('email/confirmation.tpl', {'code': verification_object.pin}, "welcome@voluntree.com", [email])
+        print('check koro mail')
 
 
 class InterestService:
