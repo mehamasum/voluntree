@@ -56,8 +56,12 @@ class PostViewSet(ModelViewSet):
             data=request.data, context={'request': request})
         if serializer.is_valid():
             page = request.user.organization.pages.get(id=request.data.get('page'))
+            signup_object = request.user.organization.signups.get(id=request.data.get('signup'))
+            print('before formating status')
+            fb_status = "{}\n{}".format(request.data.get('status'), signup_object)
+            print('status', fb_status)
             fb_post = PostService.create_post_on_facebook_page(
-                page, request.data.get('status'))
+                page, fb_status)
             if fb_post.status_code != 200:
                 return Response(
                     fb_post.json(), status=status.HTTP_400_BAD_REQUEST)
