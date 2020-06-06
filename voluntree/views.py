@@ -295,7 +295,9 @@ class InteractionHandler:
 
             volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
             post_instance = Post.objects.get(facebook_post_id=post_id)
+            print('will send verification email')
             VolunteerService.send_verification_email(psid, page_id, post_instance.id, email)
+            print('after sending verification email')
             ask_for_pin.apply_async((volunteer.id,))
 
         elif validate_pin(text):
@@ -315,8 +317,8 @@ class InteractionHandler:
             post_id = cache_value['post_id']
             email = cache_value['email']
 
-            res = VolunteerService.verify_volunteer(psid, page_id, email, pin)
-            
+            res = VolunteerService.verify_volunteer(psid, page_id, email, int(pin))
+            print('got res', res)
             if not res:
                 # TODO: handle wrong attempt
                 pass

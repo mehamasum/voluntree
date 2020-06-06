@@ -12,7 +12,7 @@ class VerificationService:
     @staticmethod
     def verify_volunteer(volunteer_id, email, send_pin):
         try:
-            verification_object = Verification.objects.get(volunteer_id=volunteer_id, email=email)
+            verification_object = Verification.objects.filter(volunteer_id=volunteer_id, email=email).last()
 
         except Verification.DoesNotExist:
             return False
@@ -34,6 +34,7 @@ class VerificationService:
         pin = randint(100000, 999999) # generate 6 digit random pin
         verification_object = Verification.objects.create(
             volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
+
         return verification_object
 
 
@@ -71,9 +72,12 @@ class VolunteerService:
 # VolunteerService.verify_volunteer( '3106639519402532', '105347197864298',  )
     @staticmethod
     def verify_volunteer(facebook_user_id, facebook_page_id, email, send_pin):
-        print('verify-volunteer')
         volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
-        return VerificationService.verify_volunteer(volunteer.id, email, send_pin)
+        res = VerificationService.verify_volunteer(volunteer.id, email, send_pin)
+        if res is True:
+            volunteer.email = email
+            volunteer.save()
+        return res
     
 
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )
@@ -82,11 +86,8 @@ class VolunteerService:
         print('send_email')
         volunteer = VolunteerService.get_volunteer_from_interaction(
             facebook_user_id, facebook_page_id)
-        volunteer.email = email  # TODO: after pin verification
-        volunteer.save()
         verification_object = VerificationService.generate_verfication_pin(volunteer.id, email, facebook_post_id)
         send_mail('email/confirmation.tpl', {'code': verification_object.pin}, "welcome@voluntree.com", [email])
-        print('check koro mail')
 
 
 class InterestService:
