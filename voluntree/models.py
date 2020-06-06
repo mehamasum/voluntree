@@ -3,8 +3,6 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
-
-
 class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
@@ -50,6 +48,7 @@ class Volunteer(models.Model):
     first_name = models.CharField(max_length=100, null=True, blank=True)
     last_name = models.CharField(max_length=100, null=True, blank=True)
     profile_pic = models.CharField(max_length=500, null=True, blank=True)
+    email = models.CharField(max_length=200, null=True, blank=True)
 
     def __str__(self):
         return "PSID " + self.facebook_user_id + " for " + self.facebook_page_id
@@ -66,3 +65,26 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
+
+
+class Integration(models.Model):
+    NATION_BUILDER = 'NATION_BUILDER'
+    TYPE_CHOICES = (
+        (NATION_BUILDER, 'Nation Builder'),
+    )
+
+    integration_type = models.CharField(
+        choices=TYPE_CHOICES, max_length=15)
+    organization = models.ForeignKey(Organization, on_delete=models.CASCADE)
+    integration_data = models.TextField()
+    integration_access_token = models.CharField(max_length=200)
+    integration_expiry_date = models.DateField(null=True, blank=True)
+
+
+class Verification(models.Model):
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='verifications')
+    pin = models.IntegerField()
+    attempts = models.IntegerField(default=0)
+    is_verified = models.BooleanField(default=False)
+    referred_post = models.ForeignKey(Post, related_name='verifications', null=True, blank=True, on_delete=models.SET_NULL)
+    email = models.CharField(max_length=200, null=True, blank=True)

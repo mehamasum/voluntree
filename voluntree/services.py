@@ -4,7 +4,43 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest
+from .models import Page, Volunteer, Post, Interest, Verification
+from random import randint
+from mail_templated import send_mail
+
+class VerificationService:
+    @staticmethod
+    def verify_volunteer(volunteer_id, email, send_pin):
+        try:
+            verification_object = Verification.objects.filter(volunteer_id=volunteer_id, email=email).last()
+
+        except Verification.DoesNotExist:
+            return False
+        
+        if verification_object.attempts == 3:
+            return False
+        
+        if send_pin == verification_object.pin:
+            verification_object.is_verifed = True
+            verification_object.save()
+            return True
+        
+        verification_object.attempts = verification_object.attempts + 1
+        verification_object.save()
+        return False
+    
+    @staticmethod
+    def generate_verfication_pin(volunteer_id, email, referred_post_id):
+        try:
+            verification_object = Verification.objects.get(
+                volunteer_id=volunteer_id, email=email, referred_post_id=referred_post_id)
+        except Verification.DoesNotExist as e:
+            pin = randint(100000, 999999) # generate 6 digit random pin
+            verification_object = Verification.objects.create(
+                volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
+
+        return verification_object
+
 
 
 class VolunteerService:
@@ -23,12 +59,65 @@ class VolunteerService:
             volunteer.save()
 
         return [volunteer, created]
+    
+    @staticmethod
+    def get_volunteer_from_interaction(facebook_user_id, facebook_page_id):
+        try:
+            volunteer = Volunteer.objects.get(
+                facebook_user_id=facebook_user_id,
+                facebook_page_id=facebook_page_id
+            )
+        except Volunteer.DoesNotExist:
+            # TODO: action need to be taken for not existing volunteer
+            pass
+        
+        return volunteer
+    
+# VolunteerService.verify_volunteer( '3106639519402532', '105347197864298',  )
+    @staticmethod
+    def verify_volunteer(facebook_user_id, facebook_page_id, email, send_pin):
+        volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
+        res = VerificationService.verify_volunteer(volunteer.id, email, send_pin)
+        if res is True:
+            volunteer.email = email
+            volunteer.save()
+        return res
+    
+
+# VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )
+    @staticmethod
+    def send_verification_email(facebook_user_id, facebook_page_id, facebook_post_id, email):
+        volunteer = VolunteerService.get_volunteer_from_interaction(
+            facebook_user_id, facebook_page_id)
+        VerificationService.generate_verfication_pin(volunteer.id, email, facebook_post_id)
 
 
 class InterestService:
     @staticmethod
     def create_interest_after_consent(volunteer, post):
         return Interest.objects.create(post=post, volunteer=volunteer)
+        
+    def get_interested_status_from_postback_data(postback_data):
+        payload = postback_data['payload'].split("_")
+
+        status = payload[0]
+        return status
+
+    @staticmethod
+    def create_or_update_intereset_from_postback_data(volunteer, post, status):
+        if post is None:
+            return False
+
+        intereset, _ = Interest.objects.get_or_create(
+            post=post, volunteer=volunteer)
+
+        interested = False
+        if status == 'YES':
+            interested = True
+        intereset.interested = interested
+        intereset.save()
+        return True
+    
 
 
 class PostService:
@@ -134,7 +223,6 @@ class FacebookService:
 
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
-            print(res)
 
             # save page in model
             name = page.get('name', '')
@@ -280,3 +368,6 @@ class OrganizationService:
                 organization_id, start_date, to_date)
         }
         return results 
+
+
+# VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

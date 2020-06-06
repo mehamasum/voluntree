@@ -8,8 +8,7 @@ import redis
 import json
 from urllib.parse import urlparse
 from .preprocess import sentence_to_embeding
-
-
+from mail_templated import send_mail
 import environ
 env = environ.Env()
 
@@ -100,3 +99,8 @@ def send_notification_on_interested_person(notification_id):
         message = build_notification_message(notification)
         FacebookService.send_private_message(page, recipient, message)
 
+
+
+@app.task
+def send_email(to_email, send_pin):
+    send_mail('email/confirmation.tpl', {'code': send_pin}, "welcome@voluntree.com", [to_email])

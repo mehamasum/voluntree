@@ -1,7 +1,7 @@
 from channels import layers
 from asgiref.sync import async_to_sync
 
-from .tasks import send_notification_on_interested_person
+from .tasks import send_notification_on_interested_person, send_email
 
 
 def update_interests_volunteer_list(sender, instance, created, **kwargs):
@@ -24,3 +24,8 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
 def send_notification_on_create(sender, instance, created, **kwargs):
     if created:
         send_notification_on_interested_person.apply_async((instance.id, ))
+
+
+def send_verficiation_mail_on_create(sender, instance, created, **kwargs):
+    if created:
+        send_email.apply_async((instance.email, instance.pin))

@@ -3,6 +3,7 @@ amqp==2.5.2
 appdirs==1.4.3
 appnope==0.1.0
 asgiref==3.2.7
+astroid==2.4.1
 async-timeout==3.0.1
 attrs==19.3.0
 autobahn==20.4.3
@@ -33,6 +34,7 @@ django-celery-results==1.2.1
 django-environ==0.4.5
 django-filter==2.2.0
 django-filters==0.2.1
+django-mail-templated==2.6.5
 django-redis==4.11.0
 django-templated-mail==1.1.1
 djangorestframework==3.11.0
@@ -51,13 +53,16 @@ ipaddr==2.2.0
 ipdb==0.11
 ipython==7.3.0
 ipython-genutils==0.2.0
+isort==4.3.21
 itypes==1.2.0
 jedi==0.17.0
 Jinja2==2.11.2
 joblib==0.15.1
 kombu==4.6.8
+lazy-object-proxy==1.4.3
 lockfile==0.12.2
 MarkupSafe==1.1.1
+mccabe==0.6.1
 msgpack==0.6.2
 nltk==3.5
 numpy==1.18.4
@@ -75,6 +80,7 @@ pyasn1-modules==0.2.8
 pycparser==2.20
 Pygments==2.6.1
 PyHamcrest==2.0.2
+pylint==2.5.2
 pynvim==0.4.1
 pyOpenSSL==19.1.0
 pyparsing==2.4.6
@@ -100,5 +106,6 @@ vine==1.3.0
 wcwidth==0.1.9
 webencodings==0.5.1
 whitenoise==5.1.0
+wrapt==1.12.1
 zipp==3.1.0
 zope.interface==5.1.0

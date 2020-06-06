@@ -17,7 +17,6 @@ import dj_database_url
 # Project Base Paths
 # project_root/api/config/settings.py - 2 = project_root/
 ROOT_DIR = environ.Path(__file__) - 2
-API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load OS environment variables and then prepare to use them
@@ -48,6 +47,7 @@ USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 # Application definition
 
 INSTALLED_APPS = [
+    'mail_templated',
     'channels',
     'django.contrib.admin',
     'django.contrib.auth',
@@ -262,3 +262,15 @@ CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = TIME_ZONE
+
+# Email Settings
+# https://docs.djangoproject.com/en/2.0/topics/email/
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = env.str('EMAIL_SMTP_HOST', default='localhost')
+EMAIL_HOST_USER = env.str('EMAIL_SMTP_USER', default='')
+EMAIL_HOST_PASSWORD = env.str('EMAIL_SMTP_PASSWORD', default='')
+EMAIL_PORT = env.int('EMAIL_SMTP_PORT', default=1025)
+
+# Default from emails
+DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL')
