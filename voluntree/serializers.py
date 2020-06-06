@@ -1,6 +1,6 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import Page, Post, Volunteer, Interest, Notification, Organization
+from .models import (Page, Post, Volunteer, Interest, Notification, Organization, Slot, SignUp, DateTime)
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -64,3 +64,20 @@ class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
         fields = ('id', 'name')
+
+
+class SlotSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Slot
+        fields = ('id', 'need_volunteer', 'date_times')
+
+
+class SignUpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = SignUp
+        fields = ('id', 'title')
+
+class DateTimeSetializer(serializers.ModelSerializer):
+    class Meta:
+        model = DateTime
+        fields = ('id', 'date', 'start_time', 'end_time', 'signup')
