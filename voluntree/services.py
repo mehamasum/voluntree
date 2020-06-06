@@ -10,9 +10,9 @@ from mail_templated import send_mail
 
 class VerificationService:
     @staticmethod
-    def verify_volunteer(volunteer_id, send_pin):
+    def verify_volunteer(volunteer_id, email, send_pin):
         try:
-            verification_object = Verification.objects.get(volunteer_id=volunteer_id)
+            verification_object = Verification.objects.get(volunteer_id=volunteer_id, email=email)
 
         except Verification.DoesNotExist:
             return False
@@ -30,11 +30,12 @@ class VerificationService:
         return False
     
     @staticmethod
-    def generate_verfication_pin(volunteer_id, referred_post_id):
+    def generate_verfication_pin(volunteer_id, email, referred_post_id):
         pin = randint(100000, 999999) # generate 6 digit random pin
         verification_object = Verification.objects.create(
-            volunteer_id=volunteer_id, pin=pin, referred_post_id=referred_post_id)
+            volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
         return verification_object
+
 
 
 class VolunteerService:
@@ -67,21 +68,23 @@ class VolunteerService:
         
         return volunteer
     
-
+# VolunteerService.verify_volunteer( '3106639519402532', '105347197864298',  )
     @staticmethod
-    def verify_volunteer(facebook_user_id, facebook_page_id, send_pin):
+    def verify_volunteer(facebook_user_id, facebook_page_id, email, send_pin):
+        print('verify-volunteer')
         volunteer = VolunteerService.get_volunteer_from_interaction(facebook_user_id, facebook_page_id)
-        return VerificationService.verify_volunteer(volunteer.id, send_pin)
+        return VerificationService.verify_volunteer(volunteer.id, email, send_pin)
     
 
-    
+# VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )
     @staticmethod
     def send_verification_email(facebook_user_id, facebook_page_id, facebook_post_id, email):
+        print('send_email')
         volunteer = VolunteerService.get_volunteer_from_interaction(
             facebook_user_id, facebook_page_id)
-        volunteer.email = email
+        volunteer.email = email  # TODO: after pin verification
         volunteer.save()
-        verification_object = VerificationService.generate_verfication_pin(volunteer.id, facebook_post_id)
+        verification_object = VerificationService.generate_verfication_pin(volunteer.id, email, facebook_post_id)
         send_mail('email/confirmation.tpl', {'code': verification_object.pin}, "welcome@voluntree.com", [email])
         print('check koro mail')
 
@@ -363,3 +366,6 @@ class OrganizationService:
                 organization_id, start_date, to_date)
         }
         return results 
+
+
+# VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

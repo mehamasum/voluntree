@@ -17,7 +17,6 @@ import dj_database_url
 # Project Base Paths
 # project_root/api/config/settings.py - 2 = project_root/
 ROOT_DIR = environ.Path(__file__) - 2
-API_DIR = ROOT_DIR.path('api')
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Load OS environment variables and then prepare to use them

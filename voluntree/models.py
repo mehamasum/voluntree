@@ -87,3 +87,4 @@ class Verification(models.Model):
     attempts = models.IntegerField(default=0)
     is_verified = models.BooleanField(default=False)
     referred_post = models.ForeignKey(Post, related_name='verifications', null=True, blank=True, on_delete=models.SET_NULL)
+    email = models.CharField(max_length=200, null=True, blank=True)

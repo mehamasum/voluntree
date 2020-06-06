@@ -285,6 +285,7 @@ class InteractionHandler:
                 return Response(status.HTTP_200_OK)
 
             cache_value = json.loads(cache_value)
+            post_id = cache_value['post_id']
             updated_cache_value = json.dumps({
                 'post_id': cache_value['post_id'],
                 'state': InteractionHandler.ASKED_FOR_PIN,
@@ -293,6 +294,8 @@ class InteractionHandler:
             cache.set(cache_key, updated_cache_value, timeout=10 * 60)
 
             volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
+            post_instance = Post.objects.get(facebook_post_id=post_id)
+            VolunteerService.send_verification_email(psid, page_id, post_instance.id, email)
             ask_for_pin.apply_async((volunteer.id,))
 
         elif validate_pin(text):
@@ -302,6 +305,7 @@ class InteractionHandler:
 
             cache_key = 'conversation_%s_%s' % (psid, page_id)
             cache_value = cache.get(cache_key)
+            
 
             if not cache_value:
                 # TODO: handle late reply
@@ -309,6 +313,14 @@ class InteractionHandler:
 
             cache_value = json.loads(cache_value)
             post_id = cache_value['post_id']
+            email = cache_value['email']
+
+            res = VolunteerService.verify_volunteer(psid, page_id, email, pin)
+            
+            if not res:
+                # TODO: handle wrong attempt
+                pass
+
             volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
             post = Post.objects.get(facebook_post_id=post_id)
 
