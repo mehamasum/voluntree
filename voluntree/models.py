@@ -56,6 +56,9 @@ class SignUp(models.Model):
     title = models.CharField(max_length=200)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
+    def __str__(self):
+        datetimes = "\n".join(str(seg) for seg in self.date_times.all())
+        return "{}".format(datetimes)
 
 
 class DateTime(models.Model):
@@ -63,6 +66,10 @@ class DateTime(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     signup = models.ForeignKey(SignUp, related_name='date_times', on_delete=models.CASCADE)
+    def __str__(self):
+        slots_info = "\n".join(str(seg) for seg in self.slots.all())
+        boundary = "-----------------------------------------------"
+        return "{}\nDate: {}\n\nstart time: {}\nend time: {}\n\n{}\n{}".format(boundary,self.date, self.start_time, self.end_time, slots_info, boundary)
 
 
 class Slot(models.Model):
@@ -70,6 +77,8 @@ class Slot(models.Model):
     required_volunteers = models.IntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
+    def __str__(self):
+        return "title: {}\nVolunteer Needs: {}\n{}\n".format(self.title, self.required_volunteers, self.description)
 
 
 class Post(models.Model):
