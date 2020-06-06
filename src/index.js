@@ -17,6 +17,10 @@ import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
 import VolunteerListView from './services/Volunteers/VolunteerListView';
 
+import SignUpList from "./services/SignUps/List";
+import SignUpView from "./services/SignUps/View";
+import SignUpEdit from "./services/SignUps/Edit";
+
 const App = (props) => {
   return (
       <Router>
@@ -27,10 +31,18 @@ const App = (props) => {
           <PrivateRoute exact path="/" component={Dashboard} />
           <PrivateRoute exact path="/settings/" component={Settings} />
           <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
+
+
           <PrivateRoute exact path="/posts/" component={PostListView} />
           <PrivateRoute exact path="/posts/create/" component={PostCreateView} />
-          <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
           <PrivateRoute exact path="/posts/:id/" component={PostDetailsView} />
+          <PrivateRoute exact path="/posts/:id/edit/" component={PostEditView} />
+
+          <PrivateRoute exact path="/signups/" component={SignUpList} />
+          <PrivateRoute exact path="/signups/:id/" component={SignUpView} />
+          <PrivateRoute exact path="/signups/:id/edit/" component={SignUpEdit} />
+
+
           <PrivateRoute exact path="/volunteers" component={VolunteerListView} />
           <Route render={() => <Result status="404" title="404" subTitle="Sorry, the page you visited does not exist." />} />
         </Switch>

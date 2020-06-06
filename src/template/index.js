@@ -11,7 +11,8 @@ import {
   PlusOutlined,
   SettingOutlined,
   TeamOutlined,
-  UserOutlined
+  UserOutlined,
+  FormOutlined
 } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
 import {useFetch} from "../hooks";
@@ -91,6 +92,9 @@ const Template = (props) => {
             </Menu.Item>
             <Menu.Item key="/posts" icon={<ClockCircleOutlined/>}>
               <Link to="/posts">Posts</Link>
+            </Menu.Item>
+            <Menu.Item key="/signups" icon={<FormOutlined />}>
+              <Link to="/signups">Sign Ups</Link>
             </Menu.Item>
             <Menu.Item key="/volunteers" icon={<TeamOutlined/>}>
               <Link to="/volunteers">Volunteers</Link>
