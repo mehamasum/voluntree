@@ -8,8 +8,9 @@ from .services import (FacebookService, PostService, VolunteerService,
                        InterestService, OrganizationService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
-                          VolunteerSerializer, NotificationSerializer, OrganizationSerializer)
-from .models import Post, Interest, Volunteer, Notification, Organization
+                          VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
+                          SlotSerializer, SignUpSerializer, DateTimeSetializer)
+from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp)
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, preprocess_comment_for_ml, ask_for_email, ask_for_pin
 from .decorators import date_range_params_check
@@ -330,3 +331,22 @@ class InteractionHandler:
 
         return Response(status.HTTP_200_OK)
 
+
+
+class SignUpViewSet(ModelViewSet):
+    permission_classes = (IsAuthenticated, )
+    serializer_class = SignUpSerializer
+    def get_queryset(self):
+        return self.request.user.organization.signups.all()
+
+
+class SlotViewSet(ModelViewSet):
+    queryset = Slot.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = SlotSerializer
+
+
+class DateTimeViewSet(ModelViewSet):
+    queryset = DateTime.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = DateTimeSetializer
