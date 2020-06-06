@@ -9,7 +9,7 @@ const {Option} = Select;
 
 
 const PostForm = props => {
-  const {onSubmit = () => {}, initialValues={}, pages=[], loading} = props;
+  const {onSubmit = () => {}, initialValues={}, pages=[], signups=[], loading} = props;
 
   return (
     <React.Fragment>
@@ -22,6 +22,14 @@ const PostForm = props => {
               <Select placeholder="Which page do you want to post to?" allowClear >
                 {pages.map(page => {
                   return <Option value={page.id} key={page.id}>{page.name}</Option>;
+                })}
+              </Select>
+            </Form.Item>
+
+            <Form.Item name="signup" label="Select Signup" rules={[{ required: true }]}>
+              <Select placeholder="Which page do you want to post to?" allowClear >
+                {signups.map(signup => {
+                  return <Option value={signup.id} key={signup.id}>{signup.title}</Option>;
                 })}
               </Select>
             </Form.Item>
