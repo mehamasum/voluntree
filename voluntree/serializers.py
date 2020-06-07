@@ -77,7 +77,15 @@ class SignUpSerializer(serializers.ModelSerializer):
         model = SignUp
         fields = ('id', 'title')
 
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        organization = user.organization
+        return SignUp.objects.create(
+            user=user, organization=organization, **validated_data)
+
+
 class DateTimeSetializer(serializers.ModelSerializer):
+    slots = SlotSerializer(many=True, read_only=True)
     class Meta:
         model = DateTime
-        fields = ('id', 'date', 'start_time', 'end_time', 'signup')
+        fields = ('id', 'date', 'start_time', 'end_time', 'signup', 'slots')

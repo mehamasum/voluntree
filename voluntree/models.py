@@ -58,7 +58,7 @@ class SignUp(models.Model):
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
     def __str__(self):
         datetimes = "\n".join(str(seg) for seg in self.date_times.all())
-        return "{}".format(datetimes)
+        return "{0}".format(datetimes)
 
 
 class DateTime(models.Model):

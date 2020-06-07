@@ -343,8 +343,15 @@ class InteractionHandler:
 class SignUpViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = SignUpSerializer
+
     def get_queryset(self):
         return self.request.user.organization.signups.all()
+
+    @action(detail=True)
+    def date_times(self, request, pk):
+        queryset = self.get_object().date_times.all()
+        serializer = DateTimeSetializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class SlotViewSet(ModelViewSet):
