@@ -1,12 +1,18 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import {Button, Card, DatePicker, Form, Input, Modal, Table, TimePicker, Typography} from "antd";
 import _ from 'lodash';
+import {useParams} from "react-router-dom";
+import { useFetch } from '../../../hooks';
 
 
 export default function SignUpEdit(props) {
+  const {id} = useParams();
+  const [signUpResponse] = useFetch(`/api/signups/${id}/`);
+  const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
   const [date, setDate] = useState(null);
   const [time, setTime] = useState(null);
   const [datetimes, setDatetimes] = useState([]);
+  const [dateTimeForm] = Form.useForm();
   const [errors, setErrors] = useState({
     date: false,
     time: false
@@ -19,12 +25,18 @@ export default function SignUpEdit(props) {
 
   const [selectedDatetime, setSelectedDatetime] = useState(null);
 
+  useEffect(() => {
+    if(!dateTimesResponse) return;
+    setDatetimes(dateTimesResponse);
+  }, [dateTimesResponse]);
 
+
+  console.log("signups", signUpResponse);
   const columns = [
     {
       title: 'Date & Time',
       render: (text, record) => (
-        <Typography.Text>{record.date + " (" + record.time_start + " - " + record.time_end + ")"}</Typography.Text>
+        <Typography.Text>{record.date + " (" + record.start_time + " - " + record.end_time + ")"}</Typography.Text>
       )
     },
     {
@@ -67,7 +79,8 @@ export default function SignUpEdit(props) {
     setTime(dates);
   }
 
-  const handleTimeModalOk = () => {
+  const handleTimeModalOk = values => {
+    const {date, time} = values;
     if (!date || !time) {
       setErrors(errors => ({
         date: !date,
@@ -78,6 +91,40 @@ export default function SignUpEdit(props) {
         date: false,
         time: false
       }));
+      const data = {
+        signup: id,
+        date: date.format("YYYY-MM-DD"),
+        start_time: time[0].format("HH:MM A"),
+        end_time: time[0].format("HH:MM A"),
+      };
+      console.log("submit data", data);
+      let status = null;
+      fetch(`/api/datetimes/`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Token ${localStorage.getItem('token')}`},
+        body: JSON.stringify(data)
+      })
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        console.log("status", status);
+        if(status===201) {
+          console.log("Enter here", result);
+          setDatetimes([
+            ...datetimes,
+            result
+          ]);
+          setVisibleTimeModal(false);
+        }
+      })
+      .catch(err => {
+        console.log("err", err);
+      });
+      /*
       setDatetimes([
         ...datetimes,
         {
@@ -87,7 +134,7 @@ export default function SignUpEdit(props) {
           time_end: time[1],
           slots: []
         }
-      ])
+      ])*/
     }
   }
 
@@ -118,8 +165,9 @@ export default function SignUpEdit(props) {
   return (
     <div>
       <Card title="Edit Sign Up">
-        <Form name="signup" initialValues={{}} onFinish={() => {
-        }} layout="vertical">
+
+        {signUpResponse &&
+        <Form name="signup" initialValues={signUpResponse} onFinish={() => {}} layout="vertical">
           <Form.Item label="Title" name="title" rules={[{required: true}]}>
             <Input.TextArea rows={2} placeholder="What is the title for your form?"/>
           </Form.Item>
@@ -133,34 +181,26 @@ export default function SignUpEdit(props) {
               Save
             </Button>
           </Form.Item>
-        </Form>
+        </Form>}
       </Card>
+
       <Modal
         visible={visibleTimeModal}
         title="Pick Date and Time"
-        onOk={handleTimeModalOk}
+        onOk={dateTimeForm.submit}
         onCancel={handleTimeModalCancel}
-        footer={[
-          <Button key="back" onClick={handleTimeModalCancel}>
-            Return
-          </Button>,
-          <Button key="submit" type="primary" loading={savingDatetime} onClick={handleTimeModalOk}>
-            Save and Add Another
-          </Button>,
-        ]}
       >
-        <Form name="datetime">
-          <Form.Item label="Date" validateStatus={errors.date && "error"}
-                     help={errors.date && "Please select the correct date"}>
-            <DatePicker onChange={onDateChange}/>
+        <Form name="" form={dateTimeForm} onFinish={handleTimeModalOk}>
+          <Form.Item label="Date" name="date" validateStatus={errors.date && "error"} help={errors.date && "Please select the correct date"}>
+            <DatePicker/> 
           </Form.Item>
 
-          <Form.Item label="Time" validateStatus={errors.time && "error"}
-                     help={errors.time && "Please select the time"}>
-            <TimePicker.RangePicker onChange={onTimeRangeChange} format={'HH:mm'} minuteStep={15}/>
+          <Form.Item label="Time" name="time" validateStatus={errors.time && "error"} help={errors.time && "Please select the time"}>
+            <TimePicker.RangePicker use12Hours={true} format={'HH:mm'} minuteStep={15}/>
           </Form.Item>
         </Form>
       </Modal>
+
       <Modal
         visible={visibleSlotModal}
         title="Create a new slot"
