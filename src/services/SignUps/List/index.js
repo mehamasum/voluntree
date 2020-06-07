@@ -1,13 +1,46 @@
-import React, {useState} from "react";
-import {Button, Card, Modal, Table, Input, Form} from "antd";
+import React, {useState, useMemo, useCallback, useEffect} from "react";
+import {Button, Card, Modal, Table, Input, Form, Space} from "antd";
 import {useHistory} from "react-router-dom";
+import {Link} from "react-router-dom";
+import { useFetch } from '../../../hooks';
+
+const columns = [
+  {title: 'Title', dataIndex: 'title'},
+  {
+      title: 'Actions',
+      render: (text, record) => (
+          <Space size="middle">
+            <Link to={`/signups/${record.id}/edit`}>Edit</Link>
+          </Space>
+      ),
+  },
+];
 
 export default function SignUpListView() {
+  const [signUpsResponse,, setUrl] = useFetch(`/api/signups/?limit=25`);
+  const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
+  const [total, setTotal] = useState(0);
   const [visible, setVisible] = useState(false);
   const [creating, setCreating] = useState(false);
   const [modalValue, setModalValue] = useState('');
   const history = useHistory();
   const [form] = Form.useForm();
+
+  const tableData = useMemo(() => {
+      if (!signUpsResponse) return [];
+      return signUpsResponse.results.map(r => ({...r, key: r.id}));
+  }, [signUpsResponse]);
+
+  useEffect(() => {
+      if (!signUpsResponse) return;
+      setTotal(signUpsResponse.count);
+  }, [signUpsResponse]);
+
+  const onChangeTable = useCallback((pag) => {
+      setPagination(pag);
+      const offset = (pag.current - 1) * 25;
+      setUrl(`/api/signups/?limit=25&offset=${offset}`);
+  }, [setPagination, setUrl]);
 
 
   const handleOk = (values) => {
@@ -50,7 +83,8 @@ export default function SignUpListView() {
       <Card title="Created Sign Ups" extra={
         <Button type="primary" onClick={() => setVisible(true)}>Create New Sign Up</Button>
       }>
-        <Table/>
+        <Table columns={columns} dataSource={tableData} pagination={{...pagination, total}}
+                       onChange={onChangeTable}/>
       </Card>
       <Modal
         visible={visible}

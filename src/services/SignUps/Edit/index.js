@@ -3,10 +3,12 @@ import {Button, Card, DatePicker, Form, Input, Modal, Table, TimePicker, Typogra
 import _ from 'lodash';
 import {useParams} from "react-router-dom";
 import { useFetch } from '../../../hooks';
+import {useHistory} from "react-router-dom";
 
 
 export default function SignUpEdit(props) {
   const {id} = useParams();
+  const history = useHistory();
   const [signUpResponse] = useFetch(`/api/signups/${id}/`);
   const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
   const [date, setDate] = useState(null);
@@ -31,7 +33,6 @@ export default function SignUpEdit(props) {
   }, [dateTimesResponse]);
 
 
-  console.log("signups", signUpResponse);
   const columns = [
     {
       title: 'Date & Time',
@@ -79,6 +80,9 @@ export default function SignUpEdit(props) {
     setTime(dates);
   }
 
+  const onSubmitSignUp = values => {
+  };
+
   const handleTimeModalOk = values => {
     const {date, time} = values;
     if (!date || !time) {
@@ -113,7 +117,6 @@ export default function SignUpEdit(props) {
       .then(result => {
         console.log("status", status);
         if(status===201) {
-          console.log("Enter here", result);
           setDatetimes([
             ...datetimes,
             result
@@ -124,17 +127,6 @@ export default function SignUpEdit(props) {
       .catch(err => {
         console.log("err", err);
       });
-      /*
-      setDatetimes([
-        ...datetimes,
-        {
-          id: Math.random() * 100,
-          date: date,
-          time_start: time[0],
-          time_end: time[1],
-          slots: []
-        }
-      ])*/
     }
   }
 
@@ -161,13 +153,34 @@ export default function SignUpEdit(props) {
     setDatetimes(clonedDateTimes);
   }
 
+  const handleUpdateSignUp = values => {
+    console.log("values", values);
+    let status = null;
+    fetch(`/api/signups/${id}/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem('token')}`},
+      body: JSON.stringify(values)
+    })
+    .then(response => {
+      status = response.status;
+      return response.json();
+    })
+    .then(result => {
+      if(status===200) history.push(`/signups`);
+    })
+    .catch(err => {
+      console.log("err", err);
+    });
+  };
 
   return (
     <div>
       <Card title="Edit Sign Up">
 
         {signUpResponse &&
-        <Form name="signup" initialValues={signUpResponse} onFinish={() => {}} layout="vertical">
+        <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} layout="vertical">
           <Form.Item label="Title" name="title" rules={[{required: true}]}>
             <Input.TextArea rows={2} placeholder="What is the title for your form?"/>
           </Form.Item>
