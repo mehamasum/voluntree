@@ -58,8 +58,6 @@ def ingest_interests():
     last_read = conn.get("last-read-comment") or b"0-0"
     res = conn.xread({'interests:fb': last_read}, counts, blocks)
 
-    logging.debug('xread', res)
-
     if len(res) == 0:
         return res
 
@@ -70,7 +68,6 @@ def ingest_interests():
         key = interest[0]
 
         res = conn.set("last-read-comment", key)
-        logging.debug('set last-read-comment from interests:fb stream', res)
 
         data = interest[1]['comment']
         print('new interest', data)

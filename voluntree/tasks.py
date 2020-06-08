@@ -12,7 +12,7 @@ from mail_templated import send_mail
 import environ
 env = environ.Env()
 
-@app.task
+@app.task(queue='preprocess')
 def preprocess_comment_for_ml(hook_payload):
     print('preprocess_comment_for_ml', hook_payload)
     url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379'))
@@ -33,7 +33,7 @@ def preprocess_comment_for_ml(hook_payload):
     conn.xadd('comments:fb', { 'comment': json.dumps(res) })
     return res
     
-@app.task
+@app.task(queue='conversation')
 def send_message_on_comment(data):
     comment_id = data.get('value', {}).get('comment_id')
     post_id = comment_id.split('_')[0]
@@ -53,7 +53,7 @@ def send_message_on_comment(data):
         page, recipient, message)
     return wellcome_msg.json()
 
-@app.task
+@app.task(queue='conversation')
 def send_message_on_yes_confirmation(volunteer_id, post_id):
     volunteer = Volunteer.objects.get(id=volunteer_id)
     post = Post.objects.get(id=post_id)
@@ -64,7 +64,7 @@ def send_message_on_yes_confirmation(volunteer_id, post_id):
         page, recipient, message)
     return wellcome_msg.json()
 
-@app.task
+@app.task(queue='conversation')
 def ask_for_email(volunteer_id):
     volunteer = Volunteer.objects.get(id=volunteer_id)
     page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
@@ -76,7 +76,7 @@ def ask_for_email(volunteer_id):
         page, recipient, message)
     return res.json()
 
-@app.task
+@app.task(queue='conversation')
 def ask_for_pin(volunteer_id):
     volunteer = Volunteer.objects.get(id=volunteer_id)
     page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
@@ -88,7 +88,7 @@ def ask_for_pin(volunteer_id):
         page, recipient, message)
     return res.json()
 
-@app.task
+@app.task(queue='notification')
 def send_notification_on_interested_person(notification_id):
     notification = Notification.objects.get(id=notification_id)
     page = notification.post.page
@@ -99,8 +99,6 @@ def send_notification_on_interested_person(notification_id):
         message = build_notification_message(notification)
         FacebookService.send_private_message(page, recipient, message)
 
-
-
-@app.task
+@app.task(queue='email')
 def send_email(to_email, send_pin):
     send_mail('email/confirmation.tpl', {'code': send_pin}, "welcome@voluntree.com", [to_email])

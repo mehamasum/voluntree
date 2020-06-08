@@ -68,7 +68,7 @@ python manage.py createsuperuser
 http://localhost:8000/facebook/setup/
 
 # run celery
-celery -A config worker -B -l info
+celery -A config worker -B -l debug -Q celery,preprocess,conversation,notification,email 
 
 
 # install frontend dependencies
