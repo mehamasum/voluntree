@@ -152,6 +152,8 @@ class FacebookService:
     WEBHOOK_URL = getattr(settings, 'APP_URL', '') + '/facebook/webhook/'
     WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
 
+    WIT_AI_TOKEN = getattr(settings, 'WIT_AI_TOKEN')
+
     @staticmethod
     def get_oauth_url():
         return "%s?client_id=%s&redirect_uri=%s&state=%s&scope=%s" % (
@@ -211,18 +213,33 @@ class FacebookService:
             page_access_token = page['access_token']
 
             headers = {'content-type': "application/json"}
+
+            # setup web hooks
             url = '%s/%s/subscribed_apps' % (
                 FacebookService.FACEBOOK_GRAPH_API_URL,
                 facebook_page_id
             )
-
             params = json.dumps({
                 "access_token": page_access_token,
                 "subscribed_fields": FacebookService.WEBHOOK_SUBSCRIPTION_FIELDS
             })
-
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
+            print('Subscribed to page', facebook_page_id, res)
+
+            # setup nlp
+            url = '%s/me/nlp_configs' % (
+                FacebookService.FACEBOOK_GRAPH_API_URL,
+            )
+            params = json.dumps({
+                "access_token": page_access_token,
+                "custom_token": FacebookService.WIT_AI_TOKEN,
+                "model": "CUSTOM",
+                "nlp_enabled": "true"
+            })
+            nlp = requests.post(url, headers=headers, data=params)
+            res = nlp.json()
+            print('Added NLP to page', facebook_page_id, res)
 
             # save page in model
             name = page.get('name', '')
