@@ -4,7 +4,6 @@ import React from 'react';
 import {Button, Card} from 'antd';
 import {useFetch} from '../../hooks';
 import PageListView from './PageListView';
-import WitSettingsForm from "./WitSettings";
 
 import nationbuilder from '../../assets/icons/nationbuilder.svg';
 
@@ -27,11 +26,6 @@ const Settings = () => {
           Connect Facebook Pages
         </Button>
       </div>
-
-      <Card title="Page Settings">
-        <WitSettingsForm readOnly={false}/>
-      </Card>
-      <br/>
 
       <Card title="Connected Pages">
         <PageListView/>
