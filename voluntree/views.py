@@ -21,16 +21,6 @@ import re
 from django.core.cache import cache
 import json
 
-class VolunteerViewSet(ReadOnlyModelViewSet):
-    permission_classes = (IsAuthenticated, )
-    serializer_class = VolunteerSerializer
-
-    def get_queryset(self):
-        # TODO Need to change model design in future
-        volunteer_ids = self.request.user.organization.pages.values_list(
-            'posts__interests__volunteer__id', flat=True).distinct()
-        return Volunteer.objects.filter(id__in=volunteer_ids)
-
 
 class PageViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -38,6 +28,19 @@ class PageViewSet(ReadOnlyModelViewSet):
 
     def get_queryset(self):
         return self.request.user.organization.pages.all()
+
+    @action(detail=True)
+    def volunteers(self, request, pk):
+        fb_page_ids = self.request.user.organization.pages.filter(id=pk).values_list('facebook_page_id', flat=True)
+        queryset = Volunteer.objects.filter(facebook_page_id__in=fb_page_ids)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = VolunteerSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = VolunteerSerializer(queryset, many=True)
+        return Response(serializer.data)
 
 
 class PostViewSet(ModelViewSet):
