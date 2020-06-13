@@ -36,6 +36,9 @@ class VerificationService:
                 volunteer_id=volunteer_id, email=email, referred_post_id=referred_post_id)
         except Verification.DoesNotExist as e:
             pin = randint(100000, 999999) # generate 6 digit random pin
+            print('-'*50)
+            print('OTP', pin)
+            print('-'*50)
             verification_object = Verification.objects.create(
                 volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
 
