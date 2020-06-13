@@ -7,6 +7,8 @@ from django.conf import settings
 from .models import Page, Volunteer, Post, Interest, Verification
 from random import randint
 from mail_templated import send_mail
+from wit import Wit
+
 
 class VerificationService:
     @staticmethod
@@ -304,6 +306,10 @@ class FacebookService:
         res = webhook.json()
         return res
 
+    @staticmethod
+    def run_wit(text):
+        client = Wit(FacebookService.WIT_AI_TOKEN)
+        return client.message(text)
 
 class OrganizationService:
     def number_of_posts(organization_id, from_date, to_date):
