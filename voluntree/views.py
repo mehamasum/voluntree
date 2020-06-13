@@ -242,7 +242,8 @@ class InteractionHandler:
 
     @staticmethod
     def handle_new_comment(data):
-        comment_id = data.get('value', {}).get('comment_id')
+        comment_id = data['value']['comment_id']
+        comment_text = data['value']['message']
         post_id = comment_id.split('_')[0]
         try:
             post = Post.objects.get(facebook_post_id=post_id, disabled=False)
@@ -253,7 +254,17 @@ class InteractionHandler:
         print('Webhook callback handle comment', data)
 
         # TODO: contact wit.ai
-        send_private_reply_on_comment.apply_async((data,))
+        nlp = FacebookService.run_wit(comment_text)
+        print('wit', nlp)
+
+        intent = InteractionHandler.first_intent(nlp)
+        print('intent', intent)
+
+        if intent and intent['name'] == 'SIGN_UP_AS_VOLUNTEER' and intent['confidence'] > 0.8:
+            send_private_reply_on_comment.apply_async((data,))
+        else:
+            # TODO: skip for now
+            pass
         return Response(status.HTTP_200_OK)
 
     @staticmethod
@@ -293,6 +304,10 @@ class InteractionHandler:
     @staticmethod
     def first_entity(nlp, name):
         return nlp and 'entities' in nlp and name in nlp['entities'] and nlp['entities'][name][0]
+
+    @staticmethod
+    def first_intent(nlp):
+        return nlp and 'intents' in nlp and nlp['intents'][0]
 
     @staticmethod
     def validate_email(email_input):
