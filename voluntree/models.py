@@ -57,8 +57,7 @@ class SignUp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
     def __str__(self):
-        datetimes = "\n".join(str(seg) for seg in self.date_times.all())
-        return "{0}".format(datetimes)
+        return self.title
 
 
 class DateTime(models.Model):
@@ -67,18 +66,21 @@ class DateTime(models.Model):
     end_time = models.TimeField()
     signup = models.ForeignKey(SignUp, related_name='date_times', on_delete=models.CASCADE)
     def __str__(self):
-        slots_info = "\n".join(str(seg) for seg in self.slots.all())
-        boundary = "-----------------------------------------------"
-        return "{}\nDate: {}\n\nstart time: {}\nend time: {}\n\n{}\n{}".format(boundary,self.date, self.start_time, self.end_time, slots_info, boundary)
+        slots_info = "TODO: slot info\n"
+        return "Date: {}\n\nstart time: {}\nend time: {}\n\n{}\n".format(self.date, self.start_time, self.end_time, slots_info)
 
 
 class Slot(models.Model):
-    date_times = models.ManyToManyField(DateTime, related_name='slots')
     required_volunteers = models.IntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
     def __str__(self):
-        return "title: {}\nVolunteer Needs: {}\n{}\n".format(self.title, self.required_volunteers, self.description)
+        return "title: {}\nVolunteer Needs: {}\nDesc: {}\n".format(self.title, self.required_volunteers, self.description)
+
+
+class DateTimeSlot(models.Model):
+    date_time = models.ForeignKey(DateTime, on_delete=models.CASCADE, related_name='datetimeslots')
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='datetimeslots')
 
 
 class Post(models.Model):
@@ -94,10 +96,10 @@ class Post(models.Model):
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
 
 class Interest(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests')
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
     interested = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    datetimeslot = models.ForeignKey(DateTimeSlot, on_delete=models.CASCADE, related_name='interests', null=True)
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')

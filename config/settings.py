@@ -105,7 +105,7 @@ X_FRAME_OPTIONS = 'ALLOW-FROM https://facebook.com/'
 CSP_FRAME_ANCESTORS = ("'self'", 'https://www.messenger.com', 'https://www.facebook.com')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
 CSP_FONT_SRC = ("'self'", "data:")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com')
 
 ROOT_URLCONF = 'config.urls'
 
