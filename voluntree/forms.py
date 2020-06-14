@@ -18,19 +18,22 @@ class InterestForm(forms.Form):
 
         for d in self.dts:
             field_name = 'dts_' + str(d.id)
-            self.fields[field_name] = forms.BooleanField(label=field_name, required=False)
+            self.fields[field_name] = forms.BooleanField(label=str(d), required=False)
             self.initial[field_name] = True if d.id in dts_ids else False
 
     def save(self):
         print('clean', self.cleaned_data)
+        count = 0
         for d in self.dts:
             field_name = 'dts_' + str(d.id)
+            print('>', field_name, self.cleaned_data[field_name])
             if self.cleaned_data[field_name] == True:
                 interest = Interest.objects.get_or_create(
                     datetimeslot=d,
                     volunteer=self.volunteer
                 )
                 print('added', interest)
+                count += 1
             else:
                 try:
                     interest = Interest.objects.get(
@@ -40,3 +43,4 @@ class InterestForm(forms.Form):
                     print('deleted', interest)
                 except Interest.DoesNotExist:
                     print('nothing to delete')
+        return count

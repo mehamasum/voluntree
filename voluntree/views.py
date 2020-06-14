@@ -22,7 +22,9 @@ import re
 from django.core.cache import cache
 import json
 from django.views.decorators.csrf import csrf_exempt
-
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
+from django.shortcuts import render
+from .forms import InterestForm
 
 class PageViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -286,8 +288,6 @@ class InteractionHandler:
 
         post = Post.objects.get(facebook_post_id=post_id)
 
-        InterestService.create_interest_after_consent(volunteer, post)
-
         if created:
             InteractionHandler.set_context(psid, page_id, {
                 'post_id': post_id,
@@ -487,10 +487,6 @@ class DateTimeViewSet(ModelViewSet):
     serializer_class = DateTimeSetializer
 
 
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
-from django.shortcuts import render
-from .forms import InterestForm
-
 @csrf_exempt
 def get_name(request, **kargs):
     psid = kargs['ps_id']
@@ -517,7 +513,10 @@ def get_name(request, **kargs):
         # check whether it's valid:
         if form.is_valid():
             # form.cleaned_data
-            form.save()
+            count = form.save()
+            InteractionHandler.send_reply(psid, page_id, {
+                'text': "Cool, you signed up for %s slots" % count
+            })
             return HttpResponseRedirect('/messenger/signup/done/')
         else:
             return HttpResponseBadRequest('Error')

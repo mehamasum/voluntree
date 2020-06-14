@@ -98,10 +98,6 @@ class VolunteerService:
 
 
 class InterestService:
-    @staticmethod
-    def create_interest_after_consent(volunteer, post):
-        return Interest.objects.create(post=post, volunteer=volunteer)
-        
     def get_interested_status_from_postback_data(postback_data):
         payload = postback_data['payload'].split("_")
 
