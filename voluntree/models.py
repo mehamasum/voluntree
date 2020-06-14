@@ -88,7 +88,7 @@ class DateTimeSlot(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='datetimeslots')
 
     def __str__(self):
-        return str(self.date_time) + ' ' + str(self.slot)
+        return str(self.slot) + ' ' + str(self.date_time)
 
 
 class Post(models.Model):

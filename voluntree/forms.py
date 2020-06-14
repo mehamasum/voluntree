@@ -8,6 +8,7 @@ class InterestForm(forms.Form):
         self.volunteer = kwargs.pop('volunteer', '')
 
         super().__init__(*args, **kwargs)
+        self.label_suffix = ""
 
         dts_ids = Interest.objects.filter(
             datetimeslot__in=self.dts,
@@ -18,7 +19,11 @@ class InterestForm(forms.Form):
 
         for d in self.dts:
             field_name = 'dts_' + str(d.id)
-            self.fields[field_name] = forms.BooleanField(label=str(d), required=False)
+            self.fields[field_name] = forms.BooleanField(
+                label=str(d),
+                required=False,
+                widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+            )
             self.initial[field_name] = True if d.id in dts_ids else False
 
     def save(self):
