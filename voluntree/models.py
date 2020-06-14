@@ -23,6 +23,9 @@ class Page(models.Model):
     page_access_token = models.CharField(max_length=200)
     page_expiry_token_date = models.DateField(blank=True, null=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
@@ -65,22 +68,27 @@ class DateTime(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     signup = models.ForeignKey(SignUp, related_name='date_times', on_delete=models.CASCADE)
+
     def __str__(self):
-        slots_info = "TODO: slot info\n"
-        return "Date: {}\n\nstart time: {}\nend time: {}\n\n{}\n".format(self.date, self.start_time, self.end_time, slots_info)
+        time = str(self.start_time) + "-" + str(self.end_time)
+        return "Date: {} Time: {}".format(self.date, time)
 
 
 class Slot(models.Model):
     required_volunteers = models.IntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
+
     def __str__(self):
-        return "title: {}\nVolunteer Needs: {}\nDesc: {}\n".format(self.title, self.required_volunteers, self.description)
+        return self.title + " (" + str(self.required_volunteers) + ")"
 
 
 class DateTimeSlot(models.Model):
     date_time = models.ForeignKey(DateTime, on_delete=models.CASCADE, related_name='datetimeslots')
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='datetimeslots')
+
+    def __str__(self):
+        return str(self.date_time) + ' ' + str(self.slot)
 
 
 class Post(models.Model):
@@ -95,11 +103,18 @@ class Post(models.Model):
     disabled = models.BooleanField(default=False)
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
 
+    def __str__(self):
+        return self.status
+
 class Interest(models.Model):
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests', null=True)
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
     interested = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     datetimeslot = models.ForeignKey(DateTimeSlot, on_delete=models.CASCADE, related_name='interests', null=True)
+
+    def __str__(self):
+        return str(self.datetimeslot)
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
