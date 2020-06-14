@@ -4,9 +4,9 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
-
 from .interaction import InteractionHandler
-from .services import (FacebookService, PostService, OrganizationService, SignUpService)
+from .services import (FacebookService, PostService, OrganizationService, SignUpService,
+                       NationBuilderService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
@@ -148,6 +148,22 @@ class FacebookApiViewSet(ViewSet):
     def oauth_url(self, request):
         # TODO generate a STATE dynamically
         url = FacebookService.get_oauth_url()
+        return Response(url)
+
+
+class NationBuilderApiViewSet(ViewSet):
+    permission_classes = (IsAuthenticated, )
+
+    @action(detail=False, methods=['post'])
+    def verify_oauth(self, request):
+        code = request.data.get('code')
+        if FacebookService.verify_oauth(code, request.user):
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False)
+    def oauth_url(self, request):
+        url = NationBuilderService.get_oauth_url()
         return Response(url)
 
 

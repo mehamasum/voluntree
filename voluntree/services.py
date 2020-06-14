@@ -463,4 +463,18 @@ class OrganizationService:
         return results 
 
 
+class NationBuilderService:
+    NATIONBUILDER_BASE_URL = 'https://voluntree.nationbuilder.com/'
+    NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
+    REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+
+
+    @staticmethod
+    def get_oauth_url():
+        url = "%soauth/authorize" % NationBuilderService.NATIONBUILDER_BASE_URL
+        return "%s?response_type=code&client_id=%s&redirect_uri=%s" % (
+            url, NationBuilderService.NATIONBUILDER_APP_ID,
+            NationBuilderService.REDIRECT_URI)
+
+
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

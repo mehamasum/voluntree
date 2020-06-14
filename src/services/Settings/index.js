@@ -11,10 +11,15 @@ import PaymentSettings from "./PaymentSettings";
 
 
 const Settings = () => {
-  const [oauth_url] = useFetch('/api/facebook/oauth_url/');
+  const [facebook_oauth_url] = useFetch('/api/facebook/oauth_url/');
+  const [nationbuilder_oauth_url] = useFetch('/api/nationbuilder/oauth_url/');
 
   const onClickConnect = () => {
-    window.open(oauth_url, "Popup", "width=800,height=800");
+    window.open(facebook_oauth_url, "Popup", "width=800,height=800");
+  };
+
+  const onClickConnectNationBuilder = () => {
+    window.open(nationbuilder_oauth_url, "Popup", "width=800,height=800");
   };
 
   return (
@@ -22,7 +27,7 @@ const Settings = () => {
       <div className="create-new-page">
         <Button
           type="primary"
-          disabled={!oauth_url}
+          disabled={!facebook_oauth_url}
           onClick={onClickConnect}
         >
           Connect Facebook Pages
@@ -57,6 +62,8 @@ const Settings = () => {
             <Button
               type="primary"
               className="vms-connect"
+              disabled={!nationbuilder_oauth_url}
+              onClick={onClickConnectNationBuilder}
             >
               Connect Nation Builder
             </Button>
