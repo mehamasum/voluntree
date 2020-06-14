@@ -23,7 +23,7 @@ from .views import react
 from .router import DefaultRouterWithAPIViews as DefaultRouter
 
 from voluntree.urls import register_urls as register_voluntree_urls
-from voluntree.views import WebhookCallbackView, SetupWebhookCallbackView
+from voluntree.views import WebhookCallbackView, SetupWebhookCallbackView, get_name
 
 schema_urls = get_schema_view(title=settings.API_BROWSER_HEADER, public=True)
 doc_urls = include_docs_urls(title=settings.API_BROWSER_HEADER)
@@ -38,6 +38,7 @@ urlpatterns = [
     path('api/auth/', include('djoser.urls.authtoken')),
     path('facebook/webhook/', WebhookCallbackView.as_view()),
     path('facebook/setup/', SetupWebhookCallbackView.as_view()),
+    path('messenger/<page_id>/signup/<int:signup_id>/<ps_id>/', get_name),
 ]
 
 router = DefaultRouter()
