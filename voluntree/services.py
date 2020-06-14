@@ -159,6 +159,8 @@ class FacebookService:
 
     WIT_AI_TOKEN = getattr(settings, 'WIT_AI_TOKEN')
 
+    APP_URL = getattr(settings, 'APP_URL')
+
     @staticmethod
     def get_oauth_url():
         return "%s?client_id=%s&redirect_uri=%s&state=%s&scope=%s" % (
@@ -245,6 +247,22 @@ class FacebookService:
             nlp = requests.post(url, headers=headers, data=params)
             res = nlp.json()
             print('Added NLP to page', facebook_page_id, res)
+
+
+            # setup whitelisted domains
+            url = '%s/me/messenger_profile' % (
+                FacebookService.FACEBOOK_GRAPH_API_URL,
+            )
+            params = json.dumps({
+                "access_token": page_access_token,
+                "whitelisted_domains": [
+                    FacebookService.APP_URL,
+                ]
+            })
+            whitelist = requests.post(url, headers=headers, data=params)
+            res = whitelist.json()
+            print('Whitelisted', facebook_page_id, res)
+
 
             # save page in model
             name = page.get('name', '')

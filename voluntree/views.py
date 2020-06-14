@@ -297,7 +297,8 @@ class InteractionHandler:
             })
         else:
             InteractionHandler.reset_context(psid, page_id)
-            send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
+            # send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
 
         return Response(status.HTTP_200_OK)
 
@@ -425,10 +426,37 @@ class InteractionHandler:
                         'We have created an account for you in our volunteer management software.'
             })
 
-            send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
+            # send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
             InteractionHandler.reset_context(psid, page_id)
 
         return Response(status.HTTP_200_OK)
+
+    @staticmethod
+    def reply_with_slot_picker(psid, page_id, post):
+        InteractionHandler.send_reply(psid, page_id, {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": "Pick slots to sign up",
+                    "buttons": [
+                        {
+                            "type": "web_url",
+                            "url": "%s/messenger/%s/signup/%s/%s/" % (
+                                getattr(settings, 'APP_URL'),
+                                page_id,
+                                str(post.signup.id),
+                                psid
+                            ),
+                            "title": "Select Slots",
+                            "webview_height_ratio": "tall",
+                            "messenger_extensions": "true"
+                        }
+                    ]
+                }
+            }
+        })
 
 
 
@@ -456,3 +484,44 @@ class DateTimeViewSet(ModelViewSet):
     queryset = DateTime.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = DateTimeSetializer
+
+
+from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
+from django.shortcuts import render
+from .forms import NameForm
+
+def get_name(request, **kargs):
+    psid = kargs['ps_id']
+    page_id = kargs['page_id']
+    signup_id = kargs['signup_id']
+
+    try:
+        signup = SignUp.objects.get(id=signup_id)
+    except SignUp.DoesNotExist:
+        return HttpResponseNotFound('No Signup')
+
+    try:
+        volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
+    except Volunteer.DoesNotExist:
+        return HttpResponseNotFound('No volunteer')
+
+    # if this is a POST request we need to process the form data
+    if request.method == 'POST':
+        # create a form instance and populate it with data from the request:
+        form = NameForm(request.POST)
+        # check whether it's valid:
+        if form.is_valid():
+            # process the data in form.cleaned_data as required
+            # ...
+            # redirect to a new URL:
+            return HttpResponseRedirect('/thanks/')
+        else:
+            return HttpResponseBadRequest('Error')
+
+    # if a GET (or any other method) we'll create a blank form
+    form = NameForm()
+
+    return render(request, 'messenger/signup.html', {
+        'form': form,
+        'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
+    })
