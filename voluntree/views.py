@@ -10,7 +10,7 @@ from .services import (FacebookService, PostService, VolunteerService,
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer)
-from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp)
+from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, DateTimeSlot)
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, send_private_reply_on_comment, reply
 from .decorators import date_range_params_check
@@ -21,6 +21,7 @@ from django.core.validators import validate_email
 import re
 from django.core.cache import cache
 import json
+from django.views.decorators.csrf import csrf_exempt
 
 
 class PageViewSet(ReadOnlyModelViewSet):
@@ -488,8 +489,9 @@ class DateTimeViewSet(ModelViewSet):
 
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
 from django.shortcuts import render
-from .forms import NameForm
+from .forms import InterestForm
 
+@csrf_exempt
 def get_name(request, **kargs):
     psid = kargs['ps_id']
     page_id = kargs['page_id']
@@ -497,6 +499,8 @@ def get_name(request, **kargs):
 
     try:
         signup = SignUp.objects.get(id=signup_id)
+        date_times = signup.date_times.values('id')
+        dts = DateTimeSlot.objects.filter(date_time_id__in=date_times)
     except SignUp.DoesNotExist:
         return HttpResponseNotFound('No Signup')
 
@@ -508,20 +512,27 @@ def get_name(request, **kargs):
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
-        form = NameForm(request.POST)
+        print('DATA', request.POST)
+        form = InterestForm(request.POST, date_time_slots=dts, volunteer=volunteer)
         # check whether it's valid:
         if form.is_valid():
-            # process the data in form.cleaned_data as required
-            # ...
-            # redirect to a new URL:
-            return HttpResponseRedirect('/thanks/')
+            # form.cleaned_data
+            form.save()
+            return HttpResponseRedirect('/messenger/signup/done/')
         else:
             return HttpResponseBadRequest('Error')
 
     # if a GET (or any other method) we'll create a blank form
-    form = NameForm()
+    form = InterestForm(date_time_slots=dts, volunteer=volunteer)
 
     return render(request, 'messenger/signup.html', {
+        'title': signup.title,
         'form': form,
+        'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
+    })
+
+@csrf_exempt
+def get_done(request, **kargs):
+    return render(request, 'messenger/done.html', {
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })

@@ -6,7 +6,10 @@ from .tasks import send_notification_on_interested_person, send_email
 
 def update_interests_volunteer_list(sender, instance, created, **kwargs):
     if created and instance.interested:
-        group_name = 'interested_%s' % str(instance.post.id)
+        # TODO interest is not tied to posts anymore
+        # group_name = 'interested_%s' % str(instance.post.id)
+        group_name = 'todo'
+
         channel_layer = layers.get_channel_layer()
 
         async_to_sync(channel_layer.group_send)(
