@@ -518,11 +518,8 @@ def get_name(request, **kargs):
                 'text': "Cool, you signed up for %s slots" % count
             })
             return HttpResponseRedirect('/messenger/signup/done/')
-        else:
-            return HttpResponseBadRequest('Error')
-
-    # if a GET (or any other method) we'll create a blank form
-    form = InterestForm(date_time_slots=dts, volunteer=volunteer)
+    else:
+        form = InterestForm(date_time_slots=dts, volunteer=volunteer)
 
     return render(request, 'messenger/signup.html', {
         'title': signup.title,
