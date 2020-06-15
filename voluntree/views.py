@@ -487,7 +487,7 @@ class DateTimeViewSet(ModelViewSet):
 
 
 @csrf_exempt
-def get_name(request, **kargs):
+def volunteer_signup_view(request, **kargs):
     psid = kargs['ps_id']
     page_id = kargs['page_id']
     signup_id = kargs['signup_id']
@@ -495,7 +495,7 @@ def get_name(request, **kargs):
     try:
         signup = SignUp.objects.get(id=signup_id)
         date_times = signup.date_times.values('id')
-        dts = DateTimeSlot.objects.filter(date_time_id__in=date_times)
+        datetimeslots = DateTimeSlot.objects.filter(date_time_id__in=date_times)
     except SignUp.DoesNotExist:
         return HttpResponseNotFound('No Signup')
 
@@ -506,59 +506,51 @@ def get_name(request, **kargs):
 
     page = Page.objects.get(facebook_page_id=page_id)
 
-    # if this is a POST request we need to process the form data
     if request.method == 'POST':
-        # create a form instance and populate it with data from the request:
-        print('DATA', request.POST)
         cleaned_data = request.POST
         count = 0
-        for d in dts:
-            field_name = 'dts_' + str(d.id)
-            print('>', field_name)
+        for datetimeslot in datetimeslots:
+            field_name = 'dts_' + str(datetimeslot.id)
 
             if field_name in cleaned_data:
-                interest = Interest.objects.get_or_create(
-                    datetimeslot=d,
+                Interest.objects.get_or_create(
+                    datetimeslot=datetimeslot,
                     volunteer=volunteer
                 )
-                print('added', interest)
                 count += 1
             else:
                 try:
-                    interest = Interest.objects.get(
-                        datetimeslot=d,
+                    Interest.objects.get(
+                        datetimeslot=datetimeslot,
                         volunteer=volunteer
                     ).delete()
-                    print('deleted', interest)
                 except Interest.DoesNotExist:
-                    print('nothing to delete')
+                    pass
 
         InteractionHandler.send_reply(psid, page_id, {
             'text': "Cool, you signed up for %s slots" % count
         })
         return HttpResponseRedirect('/messenger/signup/done/')
     else:
-        form = {
-            'fields': []
-        }
+        form = {'fields': []}
 
         dts_ids = Interest.objects.filter(
-            datetimeslot__in=dts,
+            datetimeslot__in=datetimeslots,
             volunteer=volunteer
         ).values_list('datetimeslot', flat=True)
 
-        print('interets ids', dts_ids)
-
-        for d in dts:
-            field_name = 'dts_' + str(d.id)
+        for datetimeslot in datetimeslots:
+            interested = Interest.objects.filter(datetimeslot=datetimeslot).count()
+            field_name = 'dts_' + str(datetimeslot.id)
             field = {
                 'id': 'id_' + field_name,
                 'name': field_name,
-                'date': d.date_time.date,
-                'start_time': d.date_time.start_time,
-                'end_time': d.date_time.end_time,
-                'slot': d.slot,
-                'initial': True if d.id in dts_ids else False
+                'date': datetimeslot.date_time.date,
+                'start_time': datetimeslot.date_time.start_time,
+                'end_time': datetimeslot.date_time.end_time,
+                'slot': datetimeslot.slot,
+                'available': datetimeslot.slot.required_volunteers - interested,
+                'initial': True if datetimeslot.id in dts_ids else False
             }
             form['fields'].append(field)
 
@@ -570,7 +562,7 @@ def get_name(request, **kargs):
     })
 
 @csrf_exempt
-def get_done(request, **kargs):
+def signup_confirmation_view(request, **kargs):
     return render(request, 'messenger/done.html', {
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })
