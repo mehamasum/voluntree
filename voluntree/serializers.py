@@ -69,7 +69,7 @@ class OrganizationSerializer(serializers.ModelSerializer):
 class SlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slot
-        fields = ('id', 'need_volunteer', 'date_times')
+        fields = ('id', 'required_volunteers', 'title', 'description', 'date_times')
 
 
 class SignUpSerializer(serializers.ModelSerializer):

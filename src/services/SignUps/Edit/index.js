@@ -1,6 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, DatePicker, Form, Input, Modal, Space, Table, TimePicker, Typography} from "antd";
-import _ from 'lodash';
+import {Button, Card, DatePicker, Form, Input, Modal, Select, Space, Table, TimePicker, Typography} from "antd";
 import {useHistory, useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {formatDate, formatTime} from "../../../utils";
@@ -69,12 +68,6 @@ export default function SignUpEdit(props) {
     }
   ];
 
-  function onSlotAdd(row) {
-    console.log('row', row);
-    setSelectedDatetime(row);
-    setVisibleSlotModal(true);
-  }
-
 
   function onDateChange(date, dateString) {
     console.log(date, dateString);
@@ -107,8 +100,7 @@ export default function SignUpEdit(props) {
         start_time: time[0].format("HH:mm:ss"),
         end_time: time[1].format("HH:mm:ss"),
       };
-      console.log("submit data", data);
-      let status = null;
+      setSavingDatetime(true);
       fetch(`/api/datetimes/`, {
         method: 'POST',
         headers: {
@@ -118,21 +110,20 @@ export default function SignUpEdit(props) {
         body: JSON.stringify(data)
       })
         .then(response => {
-          status = response.status;
           return response.json();
         })
         .then(result => {
-          console.log("status", status);
-          if (status === 201) {
-            setDatetimes([
-              ...datetimes,
-              result
-            ]);
-            setVisibleTimeModal(false);
-          }
+          setDatetimes([
+            ...datetimes,
+            result
+          ]);
+          setVisibleTimeModal(false);
+          setSavingDatetime(false);
+
         })
         .catch(err => {
           console.log("err", err);
+          setSavingDatetime(false);
         });
     }
   }
@@ -150,19 +141,32 @@ export default function SignUpEdit(props) {
   }
 
   const onSlotCreateSubmit = fieldsValue => {
-    console.log('Received values of form: ', fieldsValue, datetimes, selectedDatetime);
-    const clonedDateTimes = _.clone(datetimes);
-    const idx = _.findIndex(datetimes, 'id', selectedDatetime);
-    clonedDateTimes[idx].slots = [
-      ...clonedDateTimes[idx].slots,
-      fieldsValue
-    ]
-    setDatetimes(clonedDateTimes);
+    setSavingSlot(true);
+    fetch(`/api/slots/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Token ${localStorage.getItem('token')}`
+      },
+      body: JSON.stringify(fieldsValue)
+    })
+      .then(response => {
+        return response.json();
+      })
+      .then(result => {
+        setVisibleSlotModal(false);
+        setSavingSlot(false);
+
+      })
+      .catch(err => {
+        console.log("err", err);
+        setSavingSlot(false);
+
+      });
   }
 
   const handleUpdateSignUp = values => {
-    console.log("values", values);
-    let status = null;
+    setSavingSignup(true);
     fetch(`/api/signups/${id}/`, {
       method: 'PUT',
       headers: {
@@ -172,14 +176,14 @@ export default function SignUpEdit(props) {
       body: JSON.stringify(values)
     })
       .then(response => {
-        status = response.status;
         return response.json();
       })
       .then(result => {
-        if (status === 200) history.push(`/signups`);
+        setSavingSignup(false);
       })
       .catch(err => {
         console.log("err", err);
+        setSavingSignup(false);
       });
   };
 
@@ -209,7 +213,7 @@ export default function SignUpEdit(props) {
 
       <Card title="Date-Time and Slots" extra={<Space>
         <Button onClick={() => setVisibleTimeModal(true)}>Add New Date & Time</Button>
-        <Button onClick={() => setVisibleTimeModal(true)}>Add New Slot</Button>
+        <Button onClick={() => setVisibleSlotModal(true)} disabled={!datetimes}>Add New Slot</Button>
       </Space>}>
         <Table columns={columns} dataSource={datetimes.map((d, i) => ({key: i, ...d}))}/>
       </Card>
@@ -219,8 +223,17 @@ export default function SignUpEdit(props) {
         title="Pick Date and Time"
         onOk={dateTimeForm.submit}
         onCancel={handleTimeModalCancel}
+        footer={[
+          <Button key="back" onClick={handleTimeModalCancel}>
+            Return
+          </Button>,
+          <Button key="submit" type="primary" loading={savingDatetime} onClick={dateTimeForm.submit} htmlType="submit"
+                  form="datetime">
+            Add Date & Time
+          </Button>,
+        ]}
       >
-        <Form name="" form={dateTimeForm} onFinish={handleTimeModalOk}>
+        <Form name="datetime" form={dateTimeForm} onFinish={handleTimeModalOk}>
           <Form.Item label="Date" name="date" validateStatus={errors.date && "error"}
                      help={errors.date && "Please select the correct date"}>
             <DatePicker/>
@@ -244,7 +257,7 @@ export default function SignUpEdit(props) {
           </Button>,
           <Button key="submit" type="primary" loading={savingSlot} onClick={handleSlotModalOk} htmlType="submit"
                   form="slot">
-            Save and Add Another
+            Add Slot
           </Button>,
         ]}
       >
@@ -274,6 +287,21 @@ export default function SignUpEdit(props) {
             rules={[{required: true, message: 'Please add a description'}]}
           >
             <Input.TextArea rows={2}/>
+          </Form.Item>
+
+          <Form.Item
+            label="Date & times"
+            name="date_times"
+            rules={[{required: true, message: 'Please select at least one Date & Time'}]}
+          >
+            <Select
+              mode="multiple"
+              placeholder="Please select date & time"
+            >
+              {datetimes.map(dt => <Select.Option key={dt.id} value={dt.id}>
+                {formatDate(dt.date)} ({formatTime(dt.start_time) + " to " + formatTime(dt.end_time)})
+              </Select.Option>)}
+            </Select>
           </Form.Item>
 
           <Form.Item
