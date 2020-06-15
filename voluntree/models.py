@@ -78,20 +78,13 @@ class DateTime(models.Model):
 
 
 class Slot(models.Model):
+    date_times = models.ManyToManyField(DateTime, related_name='slots')
     required_volunteers = models.IntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
 
     def __str__(self):
         return self.title + " (" + str(self.required_volunteers) + ")"
-
-
-class DateTimeSlot(models.Model):
-    date_time = models.ForeignKey(DateTime, on_delete=models.CASCADE, related_name='datetimeslots')
-    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='datetimeslots')
-
-    def __str__(self):
-        return str(self.slot) + ' ' + str(self.date_time)
 
 
 class Post(models.Model):
@@ -114,7 +107,8 @@ class Interest(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
     interested = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    datetimeslot = models.ForeignKey(DateTimeSlot, on_delete=models.CASCADE, related_name='interests', null=True)
+    datetime = models.ForeignKey(DateTime, on_delete=models.CASCADE, related_name='interests', null=True)
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='interests', null=True)
 
     def __str__(self):
         return str(self.datetimeslot)

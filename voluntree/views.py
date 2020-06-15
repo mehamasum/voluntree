@@ -10,7 +10,7 @@ from .services import (FacebookService, PostService, VolunteerService,
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer)
-from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, DateTimeSlot, Page)
+from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, Page)
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, send_private_reply_on_comment, reply
 from .decorators import date_range_params_check
@@ -495,7 +495,8 @@ def volunteer_signup_view(request, **kargs):
     try:
         signup = SignUp.objects.get(id=signup_id)
         date_times = signup.date_times.values('id')
-        datetimeslots = DateTimeSlot.objects.filter(date_time_id__in=date_times)
+        # datetimeslots = DateTimeSlot.objects.filter(date_time_id__in=date_times)
+        datetimeslots = None
     except SignUp.DoesNotExist:
         return HttpResponseNotFound('No Signup')
 
