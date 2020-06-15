@@ -7,7 +7,7 @@ import {Link} from "react-router-dom";
 import {
     LinkOutlined,
 } from '@ant-design/icons';
-import {truncateString, formatTime} from '../../../utils';
+import {truncateString, formatRelativeTime} from '../../../utils';
 
 
 
@@ -36,7 +36,7 @@ const columns = [
         title: 'Publish Time',
         dataIndex: 'created_at',
         render: (text, record) => (
-            <Typography.Text>{formatTime(record.created_at)}</Typography.Text>
+            <Typography.Text>{formatRelativeTime(record.created_at)}</Typography.Text>
         )
     },
     {

@@ -1,9 +1,9 @@
-import React, {useState, useEffect} from "react";
-import {Button, Card, DatePicker, Form, Input, Modal, Table, TimePicker, Typography} from "antd";
+import React, {useEffect, useState} from "react";
+import {Button, Card, DatePicker, Form, Input, Modal, Space, Table, TimePicker, Typography} from "antd";
 import _ from 'lodash';
-import {useParams} from "react-router-dom";
-import { useFetch } from '../../../hooks';
-import {useHistory} from "react-router-dom";
+import {useHistory, useParams} from "react-router-dom";
+import {useFetch} from '../../../hooks';
+import {formatDate, formatTime} from "../../../utils";
 
 
 export default function SignUpEdit(props) {
@@ -28,37 +28,43 @@ export default function SignUpEdit(props) {
   const [selectedDatetime, setSelectedDatetime] = useState(null);
 
   useEffect(() => {
-    if(!dateTimesResponse) return;
+    if (!dateTimesResponse) return;
     setDatetimes(dateTimesResponse);
   }, [dateTimesResponse]);
 
 
   const columns = [
     {
-      title: 'Date & Time',
+      title: 'Date',
       render: (text, record) => (
-        <Typography.Text>{record.date + " (" + record.start_time + " - " + record.end_time + ")"}</Typography.Text>
+        <Typography.Text>{formatDate(record.date)}</Typography.Text>
       )
     },
     {
-      title: 'Slots',
-      render: (text, record) => {
-        return (<div>
-          {record.slots.map((r, i) => <div key={i}>{`${r.title} (${r.required_volunteers})`}</div>)}
-        </div>);
-      },
+      title: 'Time',
+      render: (text, record) => (
+        <Typography.Text>{formatTime(record.start_time) + " to " + formatTime(record.end_time)}</Typography.Text>
+      )
     },
+
+    {
+      title: 'Slots',
+      render: (text, record) => (
+        <Typography.Text>Slots</Typography.Text>
+      )
+    },
+
     {
       title: 'Actions',
       render: (text, record) => {
-        return <div>
-          <Button type="default" size="small" onClick={() => onSlotAdd(record)}>
-            Add Slot
+        return <Space>
+          <Button type="default" size="small">
+            Edit
           </Button>
           <Button type="default" danger size="small">
-            Delete Time & Date
+            Delete
           </Button>
-        </div>;
+        </Space>;
       },
     }
   ];
@@ -98,8 +104,8 @@ export default function SignUpEdit(props) {
       const data = {
         signup: id,
         date: date.format("YYYY-MM-DD"),
-        start_time: time[0].format("HH:MM A"),
-        end_time: time[0].format("HH:MM A"),
+        start_time: time[0].format("HH:mm:ss"),
+        end_time: time[1].format("HH:mm:ss"),
       };
       console.log("submit data", data);
       let status = null;
@@ -107,26 +113,27 @@ export default function SignUpEdit(props) {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Token ${localStorage.getItem('token')}`},
+          'Authorization': `Token ${localStorage.getItem('token')}`
+        },
         body: JSON.stringify(data)
       })
-      .then(response => {
-        status = response.status;
-        return response.json();
-      })
-      .then(result => {
-        console.log("status", status);
-        if(status===201) {
-          setDatetimes([
-            ...datetimes,
-            result
-          ]);
-          setVisibleTimeModal(false);
-        }
-      })
-      .catch(err => {
-        console.log("err", err);
-      });
+        .then(response => {
+          status = response.status;
+          return response.json();
+        })
+        .then(result => {
+          console.log("status", status);
+          if (status === 201) {
+            setDatetimes([
+              ...datetimes,
+              result
+            ]);
+            setVisibleTimeModal(false);
+          }
+        })
+        .catch(err => {
+          console.log("err", err);
+        });
     }
   }
 
@@ -160,19 +167,20 @@ export default function SignUpEdit(props) {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${localStorage.getItem('token')}`},
+        'Authorization': `Token ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify(values)
     })
-    .then(response => {
-      status = response.status;
-      return response.json();
-    })
-    .then(result => {
-      if(status===200) history.push(`/signups`);
-    })
-    .catch(err => {
-      console.log("err", err);
-    });
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        if (status === 200) history.push(`/signups`);
+      })
+      .catch(err => {
+        console.log("err", err);
+      });
   };
 
   return (
@@ -185,9 +193,9 @@ export default function SignUpEdit(props) {
             <Input.TextArea rows={2} placeholder="What is the title for your form?"/>
           </Form.Item>
 
-          <Card title="Date-Times" extra={<Button onClick={() => setVisibleTimeModal(true)}>Add New</Button>}>
-            <Table columns={columns} dataSource={datetimes.map((d, i) => ({key: i, ...d}))}/>
-          </Card>
+          <Form.Item label="Description" name="description" rules={[{required: false}]}>
+            <Input.TextArea rows={4} placeholder="What is the purpose of your form?"/>
+          </Form.Item>
 
           <Form.Item>
             <Button type="primary" htmlType="submit" loading={savingSignup}>
@@ -197,6 +205,15 @@ export default function SignUpEdit(props) {
         </Form>}
       </Card>
 
+      <br/>
+
+      <Card title="Date-Time and Slots" extra={<Space>
+        <Button onClick={() => setVisibleTimeModal(true)}>Add New Date & Time</Button>
+        <Button onClick={() => setVisibleTimeModal(true)}>Add New Slot</Button>
+      </Space>}>
+        <Table columns={columns} dataSource={datetimes.map((d, i) => ({key: i, ...d}))}/>
+      </Card>
+
       <Modal
         visible={visibleTimeModal}
         title="Pick Date and Time"
@@ -204,11 +221,13 @@ export default function SignUpEdit(props) {
         onCancel={handleTimeModalCancel}
       >
         <Form name="" form={dateTimeForm} onFinish={handleTimeModalOk}>
-          <Form.Item label="Date" name="date" validateStatus={errors.date && "error"} help={errors.date && "Please select the correct date"}>
-            <DatePicker/> 
+          <Form.Item label="Date" name="date" validateStatus={errors.date && "error"}
+                     help={errors.date && "Please select the correct date"}>
+            <DatePicker/>
           </Form.Item>
 
-          <Form.Item label="Time" name="time" validateStatus={errors.time && "error"} help={errors.time && "Please select the time"}>
+          <Form.Item label="Time" name="time" validateStatus={errors.time && "error"}
+                     help={errors.time && "Please select the time"}>
             <TimePicker.RangePicker use12Hours={true} format={'HH:mm'} minuteStep={15}/>
           </Form.Item>
         </Form>
