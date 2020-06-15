@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState, useCallback} from 'react';
 import { Table, Avatar, Typography, Tag } from 'antd';
 import { useFetch } from '../../hooks';
-import { formatTime } from "../../utils";
+import { formatRelativeTime } from "../../utils";
 
 
 const columns = [
@@ -37,7 +37,7 @@ const columns = [
     dataIndex: 'is_expired',
     render: (text, record) => (
       <Typography.Text>
-        {formatTime(record.page_expiry_token_date)}
+        {formatRelativeTime(record.page_expiry_token_date)}
       </Typography.Text>
     )
   }

@@ -19,7 +19,7 @@ import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {postFetch} from '../../../actions';
 import InterestedVolunteers from '../InterestedVolunteers';
-import {formatTime} from "../../../utils";
+import {formatRelativeTime} from "../../../utils";
 import {truncateString} from '../../../utils';
 const {TextArea} = Input;
 
@@ -128,7 +128,7 @@ const PostDetailsView = () => {
                   title={post.page_name}
                   description={(
                     <div>
-                      <Typography.Text type="secondary">{formatTime(post.created_at)}</Typography.Text>
+                      <Typography.Text type="secondary">{formatRelativeTime(post.created_at)}</Typography.Text>
                       <br/>
                       <br/>
                       <Typography.Paragraph
