@@ -57,6 +57,7 @@ class Integration(models.Model):
 
 class SignUp(models.Model):
     title = models.CharField(max_length=200)
+    description = models.CharField(max_length=1000)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
     def __str__(self):

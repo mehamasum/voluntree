@@ -7,8 +7,167 @@
   <title>{{ title }}</title>
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <style>
+
+    body {
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+    }
+
+    .page-wrapper {
+      min-height: 100vh;
+    }
+
+    body {
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 400;
+    }
+
+    h1 {
+      font-size: 36px;
+    }
+
+    h2 {
+      font-size: 30px;
+    }
+
+    h3 {
+      font-size: 24px;
+    }
+
+    h4 {
+      font-size: 18px;
+    }
+
+    h5 {
+      font-size: 15px;
+    }
+
+    h6 {
+      font-size: 13px;
+    }
+
+    .bg-blue {
+      background: #2c6ed5;
+    }
+
+    .main {
+      padding: 100px 8px;
+    }
+
+    .wrapper {
+      margin: 0 auto;
+    }
+
+    .wrapper--w680 {
+      max-width: 680px;
+    }
+
+    /* ==========================================================================
+       #BUTTON
+       ========================================================================== */
+    .btn {
+      line-height: 40px;
+      display: inline-block;
+      padding: 0 25px;
+      cursor: pointer;
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      color: #fff;
+      -webkit-transition: all 0.4s ease;
+      -o-transition: all 0.4s ease;
+      -moz-transition: all 0.4s ease;
+      transition: all 0.4s ease;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    td.active {
+      background-color: #2c6ed5;
+    }
+
+    input[type="date" i] {
+      padding: 14px;
+    }
+
+    .table-condensed td, .table-condensed th {
+      font-size: 14px;
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      font-weight: 400;
+    }
+
+    input {
+      outline: none;
+      margin: 0;
+      border: none;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      width: 100%;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .title {
+      margin-bottom: 16px;
+    }
+
+    .desc {
+      margin: 16px 0;
+    }
+
+    .card {
+      overflow: hidden;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .card-1 {
+      -webkit-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+      -moz-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-1 .card-heading {
+      background: darkgray;
+      padding-top: 210px;
+    }
+
+    .card-1 .card-body {
+      padding: 0 90px;
+      padding-top: 55px;
+      padding-bottom: 65px;
+    }
+
+    @media (max-width: 767px) {
+      .card-1 .card-heading {
+        display: none;
+      }
+
+      .card-1 .card-body {
+        padding: 40px 24px;
+      }
+
+      .main {
+        padding: 8px;
+      }
+    }
+
+    input[type=checkbox] {
+      -ms-transform: scale(1.5); /* IE */
+      -moz-transform: scale(1.5); /* FF */
+      -webkit-transform: scale(1.5); /* Safari and Chrome */
+      -o-transform: scale(1.5); /* Opera */
+      padding: 10px;
+    }
+  </style>
 </head>
-<body class="py-4">
+<body>
 <script>
   (function (d, s, id) {
     var js, fjs = d.getElementsByTagName(s)[0];
@@ -33,39 +192,80 @@
     );
   };
 </script>
-<div class="container themed-container">
-  <div class="row">
-    <div class="col-sm-12">
-      <h1>{{ title }}</h1>
+<div class="page-wrapper bg-blue main">
+  <div class="wrapper wrapper--w680">
+    <div class="card card-1">
+      <div class="card-heading">
 
-      <form method="post">
-        {% for hidden_field in form.hidden_fields %}
-          {{ hidden_field }}
-        {% endfor %}
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="row">
+            <div class="col-sm-12">
+              <h2 class="title">{{ signup.title }}</h2>
+              <i>By {{ page }}</i>
 
-        {% if form.non_field_errors %}
-          <div class="alert alert-danger" role="alert">
-            {% for error in form.non_field_errors %}
-              {{ error }}
-            {% endfor %}
+              <p class="desc">{{ signup.description }}</p>
+              <br>
+
+              <form method="post">
+                {% for hidden_field in form.hidden_fields %}
+                  {{ hidden_field }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                  <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+
+                <table class="table">
+                  <thead>
+                  <tr>
+                    <th scope="col">Select</th>
+
+                    <th scope="col">Date</th>
+                    <th scope="col">Time</th>
+                    <th scope="col">Slot</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  {% for field in form.fields %}
+                    <tr>
+                      <td>
+                        <div class="form-group form-check">
+                          <input type="checkbox" class="form-check-input" id="{{ field.id }}" name="{{ field.name }}"
+                              {% if field.initial %}
+                                 checked
+                              {% endif %}
+                          >
+                        </div>
+                      </td>
+                      <td>{{ field.date }}</td>
+                      <td>{{ field.start_time }} - {{ field.end_time }}</td>
+                      <td>
+                        <h4>{{ field.slot.title }}</h4>
+                        <p>{{ field.slot.description }}</p>
+                        <span>1 of {{ field.slot.required_volunteers }} slots filled</span>
+                      </td>
+
+                    </tr>
+                  {% endfor %}
+                  </tbody>
+                </table>
+
+
+                <input type="submit" value="Book Slots" class="btn btn-primary">
+              </form>
+            </div>
           </div>
-        {% endif %}
-
-        {% for field in form.visible_fields %}
-          <div class="form-group form-check">
-            {{ field }}
-            {{ field.label_tag }}
-
-            {% if field.help_text %}
-              <small class="form-text text-muted">{{ field.help_text }}</small>
-            {% endif %}
-            <div>This is my extra data</div>
-          </div>
-        {% endfor %}
-        <input type="submit" value="Submit" class="btn btn-primary">
-      </form>
+        </div>
+      </div>
     </div>
   </div>
+
 </div>
 </body>
 </html>

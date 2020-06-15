@@ -10,7 +10,7 @@ from .services import (FacebookService, PostService, VolunteerService,
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer)
-from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, DateTimeSlot)
+from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, DateTimeSlot, Page)
 from .paginations import CreationTimeBasedPagination
 from .tasks import send_message_on_yes_confirmation, send_private_reply_on_comment, reply
 from .decorators import date_range_params_check
@@ -22,9 +22,8 @@ import re
 from django.core.cache import cache
 import json
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponseRedirect, HttpResponseBadRequest, HttpResponseNotFound
+from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
-from .forms import InterestForm
 
 class PageViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
@@ -505,24 +504,67 @@ def get_name(request, **kargs):
     except Volunteer.DoesNotExist:
         return HttpResponseNotFound('No volunteer')
 
+    page = Page.objects.get(facebook_page_id=page_id)
+
     # if this is a POST request we need to process the form data
     if request.method == 'POST':
         # create a form instance and populate it with data from the request:
         print('DATA', request.POST)
-        form = InterestForm(request.POST, date_time_slots=dts, volunteer=volunteer)
-        # check whether it's valid:
-        if form.is_valid():
-            # form.cleaned_data
-            count = form.save()
-            InteractionHandler.send_reply(psid, page_id, {
-                'text': "Cool, you signed up for %s slots" % count
-            })
-            return HttpResponseRedirect('/messenger/signup/done/')
+        cleaned_data = request.POST
+        count = 0
+        for d in dts:
+            field_name = 'dts_' + str(d.id)
+            print('>', field_name)
+
+            if field_name in cleaned_data:
+                interest = Interest.objects.get_or_create(
+                    datetimeslot=d,
+                    volunteer=volunteer
+                )
+                print('added', interest)
+                count += 1
+            else:
+                try:
+                    interest = Interest.objects.get(
+                        datetimeslot=d,
+                        volunteer=volunteer
+                    ).delete()
+                    print('deleted', interest)
+                except Interest.DoesNotExist:
+                    print('nothing to delete')
+
+        InteractionHandler.send_reply(psid, page_id, {
+            'text': "Cool, you signed up for %s slots" % count
+        })
+        return HttpResponseRedirect('/messenger/signup/done/')
     else:
-        form = InterestForm(date_time_slots=dts, volunteer=volunteer)
+        form = {
+            'fields': []
+        }
+
+        dts_ids = Interest.objects.filter(
+            datetimeslot__in=dts,
+            volunteer=volunteer
+        ).values_list('datetimeslot', flat=True)
+
+        print('interets ids', dts_ids)
+
+        for d in dts:
+            field_name = 'dts_' + str(d.id)
+            field = {
+                'id': 'id_' + field_name,
+                'name': field_name,
+                'date': d.date_time.date,
+                'start_time': d.date_time.start_time,
+                'end_time': d.date_time.end_time,
+                'slot': d.slot,
+                'initial': True if d.id in dts_ids else False
+            }
+            form['fields'].append(field)
 
     return render(request, 'messenger/signup.html', {
-        'title': signup.title,
+        'signup': signup,
+        'page': page.name,
         'form': form,
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })
