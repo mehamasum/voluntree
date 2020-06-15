@@ -471,6 +471,7 @@ class SignUpViewSet(ModelViewSet):
     def date_times(self, request, pk):
         queryset = self.get_object().date_times.all()
         serializer = DateTimeSetializer(queryset, many=True)
+        # TODO: paginate?
         return Response(serializer.data)
 
 
