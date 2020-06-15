@@ -1,17 +1,41 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, DatePicker, Form, Input, Modal, Select, Space, Table, TimePicker, Typography} from "antd";
-import {useHistory, useParams} from "react-router-dom";
+import {
+  Button,
+  Card,
+  DatePicker,
+  Form,
+  Input,
+  List,
+  Modal,
+  Select,
+  Space,
+  Table,
+  Tag,
+  TimePicker,
+  Typography
+} from "antd";
+import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {formatDate, formatTime} from "../../../utils";
 import _ from 'lodash';
+import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
+
+function makeColorGenerator() {
+  const db = {};
+  return function (key) {
+    if (!db[key]) {
+      db[key] = "#000000".replace(/0/g, () => (~~(Math.random() * 16)).toString(16));
+    }
+    return db[key];
+  }
+}
+
+const generateColor = makeColorGenerator();
 
 export default function SignUpEdit(props) {
   const {id} = useParams();
-  const history = useHistory();
   const [signUpResponse] = useFetch(`/api/signups/${id}/`);
   const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
-  const [date, setDate] = useState(null);
-  const [time, setTime] = useState(null);
   const [datetimes, setDatetimes] = useState([]);
   const [dateTimeForm] = Form.useForm();
   const [errors, setErrors] = useState({
@@ -24,8 +48,6 @@ export default function SignUpEdit(props) {
   const [savingSlot, setSavingSlot] = useState(false);
   const [savingSignup, setSavingSignup] = useState(false);
 
-  const [selectedDatetime, setSelectedDatetime] = useState(null);
-
   useEffect(() => {
     if (!dateTimesResponse) return;
     setDatetimes(dateTimesResponse);
@@ -35,6 +57,7 @@ export default function SignUpEdit(props) {
   const columns = [
     {
       title: 'Date',
+      width: 100,
       render: (text, record) => (
         <Typography.Text>{formatDate(record.date)}</Typography.Text>
       )
@@ -45,14 +68,6 @@ export default function SignUpEdit(props) {
         <Typography.Text>{formatTime(record.start_time) + " to " + formatTime(record.end_time)}</Typography.Text>
       )
     },
-
-    {
-      title: 'Slots',
-      render: (text, record) => (
-        <Typography.Text>{record.slots.map(slot => <div key={slot.id}>{slot.id}</div>)}</Typography.Text>
-      )
-    },
-
     {
       title: 'Actions',
       render: (text, record) => {
@@ -65,19 +80,26 @@ export default function SignUpEdit(props) {
           </Button>
         </Space>;
       },
+    },
+    {
+      title: 'Slots',
+      render: (text, record) => (
+        <List
+          bordered
+          dataSource={record.slots}
+          renderItem={slot => (
+            <List.Item actions={[<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>}/>]}>
+              <List.Item.Meta
+                title={<Tag color={generateColor(slot.id)}>{slot.title} ({slot.required_volunteers})</Tag>}
+                description={slot.description}
+              />
+            </List.Item>
+          )}
+        />
+      )
     }
   ];
 
-
-  function onDateChange(date, dateString) {
-    console.log(date, dateString);
-    setDate(date);
-  }
-
-  function onTimeRangeChange(dates, dateStrings) {
-    console.log(dates, dateStrings);
-    setTime(dates);
-  }
 
   const onSubmitSignUp = values => {
   };
