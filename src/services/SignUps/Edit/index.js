@@ -3,7 +3,7 @@ import {Button, Card, DatePicker, Form, Input, Modal, Select, Space, Table, Time
 import {useHistory, useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {formatDate, formatTime} from "../../../utils";
-
+import _ from 'lodash';
 
 export default function SignUpEdit(props) {
   const {id} = useParams();
@@ -49,7 +49,7 @@ export default function SignUpEdit(props) {
     {
       title: 'Slots',
       render: (text, record) => (
-        <Typography.Text>Slots</Typography.Text>
+        <Typography.Text>{record.slots.map(slot => <div key={slot.id}>{slot.id}</div>)}</Typography.Text>
       )
     },
 
@@ -157,6 +157,16 @@ export default function SignUpEdit(props) {
         setVisibleSlotModal(false);
         setSavingSlot(false);
 
+        const clonedDateTimes = _.clone(datetimes);
+        const ids = _.map(_.filter(datetimes, datetime => _.includes(result.date_times, datetime.id)), 'id');
+        _.forEach(ids, id => {
+          const index = _.findIndex(clonedDateTimes, ['id', id]);
+          clonedDateTimes[index].slots = [
+            ...clonedDateTimes[index].slots,
+            result
+          ]
+        })
+        setDatetimes(clonedDateTimes);
       })
       .catch(err => {
         console.log("err", err);
