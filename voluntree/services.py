@@ -1,6 +1,5 @@
 import json
 from datetime import datetime, timedelta
-
 import requests
 from django.conf import settings
 
@@ -9,6 +8,7 @@ from random import randint
 from mail_templated import send_mail
 from wit import Wit
 from itertools import groupby
+from rauth import OAuth2Service
 
 
 class VerificationService:
@@ -466,7 +466,33 @@ class OrganizationService:
 class NationBuilderService:
     NATIONBUILDER_BASE_URL = 'https://voluntree.nationbuilder.com/'
     NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
+    NATIONBUILDER_APP_SECRET = getattr(settings, 'NATIONBUILDER_APP_SECRET', '')
     REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+
+    nation_slug = 'voluntree'
+    access_token_url = "https://" + nation_slug + ".nationbuilder.com/oauth/token"
+    authorize_url = nation_slug + ".nationbuilder.com/oauth/authorize"
+
+    # FIXME Need to move this method in singleton class Pattern
+    @staticmethod
+    def get_oauth_service():
+        return OAuth2Service(
+            client_id=NationBuilderService.NATIONBUILDER_APP_ID,
+            client_secret=NationBuilderService.NATIONBUILDER_APP_SECRET,
+            name='Voluntree',
+            authorize_url=NationBuilderService.authorize_url,
+            access_token_url=NationBuilderService.access_token_url,
+            base_url=NationBuilderService.nation_slug + ".nationbuilder.com")
+
+    @staticmethod
+    def get_token(code):
+        service = NationBuilderService.get_oauth_service()
+        return service.get_access_token(
+            decoder=json.loads, data={
+                "code": code,
+                "redirect_uri": NationBuilderService.REDIRECT_URI,
+                "grant_type": "authorization_code"})
+
 
 
     @staticmethod
