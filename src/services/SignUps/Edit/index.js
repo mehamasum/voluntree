@@ -16,35 +16,10 @@ import {
 } from "antd";
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
-import {formatDate, formatTime} from "../../../utils";
+import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../../utils";
 import _ from 'lodash';
 import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
 
-function randDarkColor() {
-  const lum = -0.25;
-  let hex = String('#' + Math.random().toString(16).slice(2, 8).toUpperCase()).replace(/[^0-9a-f]/gi, '');
-  if (hex.length < 6) {
-    hex = hex[0] + hex[0] + hex[1] + hex[1] + hex[2] + hex[2];
-  }
-  let rgb = "#",
-    c, i;
-  for (i = 0; i < 3; i++) {
-    c = parseInt(hex.substr(i * 2, 2), 16);
-    c = Math.round(Math.min(Math.max(0, c + (c * lum)), 255)).toString(16);
-    rgb += ("00" + c).substr(c.length);
-  }
-  return rgb;
-}
-
-function makeColorGenerator() {
-  const db = {};
-  return function (key) {
-    if (!db[key]) {
-      db[key] = randDarkColor();
-    }
-    return db[key];
-  }
-}
 
 const generateColor = makeColorGenerator();
 
@@ -105,7 +80,11 @@ export default function SignUpEdit(props) {
           renderItem={slot => (
             <List.Item actions={[<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>}/>]}>
               <List.Item.Meta
-                title={<Tag color={generateColor(slot.id)}>{slot.title} ({slot.required_volunteers})</Tag>}
+                title={<Tag color={generateColor(slot.id)}>
+                  <span style={{color: getInvertColor(generateColor(slot.id))}}>
+                    {slot.title} ({slot.required_volunteers})
+                  </span>
+                </Tag>}
                 description={slot.description}
               />
             </List.Item>
