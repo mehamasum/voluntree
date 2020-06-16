@@ -493,11 +493,11 @@ def volunteer_signup_view(request, **kargs):
     page_id = kargs['page_id']
     signup_id = kargs['signup_id']
 
+    # TODO: optimize this view
+
     try:
         signup = SignUp.objects.get(id=signup_id)
-        date_times = signup.date_times.values('id')
-        # datetimeslots = DateTimeSlot.objects.filter(date_time_id__in=date_times)
-        datetimeslots = None
+        date_times = signup.date_times.all()
     except SignUp.DoesNotExist:
         return HttpResponseNotFound('No Signup')
 
@@ -510,24 +510,31 @@ def volunteer_signup_view(request, **kargs):
 
     if request.method == 'POST':
         cleaned_data = request.POST
-        count = 0
-        for datetimeslot in datetimeslots:
-            field_name = 'dts_' + str(datetimeslot.id)
+        print(cleaned_data)
 
-            if field_name in cleaned_data:
-                Interest.objects.get_or_create(
-                    datetimeslot=datetimeslot,
-                    volunteer=volunteer
-                )
-                count += 1
-            else:
-                try:
-                    Interest.objects.get(
-                        datetimeslot=datetimeslot,
+        count = 0
+        for dt in date_times:
+            slots = dt.slots.all()
+
+            for slot in slots:
+                field_name = 'dt_%s:slot_%s' % (str(dt.id), str(slot.id))
+
+                if field_name in cleaned_data:
+                    Interest.objects.get_or_create(
+                        datetime=dt,
+                        slot=slot,
                         volunteer=volunteer
-                    ).delete()
-                except Interest.DoesNotExist:
-                    pass
+                    )
+                    count += 1
+                else:
+                    try:
+                        Interest.objects.get(
+                            datetime=dt,
+                            slot=slot,
+                            volunteer=volunteer
+                        ).delete()
+                    except Interest.DoesNotExist:
+                        pass
 
         InteractionHandler.send_reply(psid, page_id, {
             'text': "Cool, you signed up for %s slots" % count
@@ -536,25 +543,25 @@ def volunteer_signup_view(request, **kargs):
     else:
         form = {'fields': []}
 
-        dts_ids = Interest.objects.filter(
-            datetimeslot__in=datetimeslots,
-            volunteer=volunteer
-        ).values_list('datetimeslot', flat=True)
+        for dt in date_times:
+            slots = dt.slots.all()
 
-        for datetimeslot in datetimeslots:
-            interested = Interest.objects.filter(datetimeslot=datetimeslot).count()
-            field_name = 'dts_' + str(datetimeslot.id)
-            field = {
-                'id': 'id_' + field_name,
-                'name': field_name,
-                'date': datetimeslot.date_time.date,
-                'start_time': datetimeslot.date_time.start_time,
-                'end_time': datetimeslot.date_time.end_time,
-                'slot': datetimeslot.slot,
-                'available': datetimeslot.slot.required_volunteers - interested,
-                'initial': True if datetimeslot.id in dts_ids else False
-            }
-            form['fields'].append(field)
+            for slot in slots:
+                interests = Interest.objects.filter(datetime=dt, slot=slot)
+                filled = interests.count()
+                interested = interests.filter(volunteer=volunteer)
+                field_name = 'dt_%s:slot_%s' % (str(dt.id), str(slot.id))
+                field = {
+                    'id': 'id_' + field_name,
+                    'name': field_name,
+                    'date': dt.date,
+                    'start_time': dt.start_time,
+                    'end_time': dt.end_time,
+                    'slot': slot,
+                    'available': slot.required_volunteers - filled,
+                    'initial': True if interested else False
+                }
+                form['fields'].append(field)
 
     return render(request, 'messenger/signup.html', {
         'signup': signup,
