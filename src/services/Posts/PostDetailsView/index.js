@@ -1,38 +1,42 @@
-import React, {useMemo, useState, useEffect} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
-  Typography, 
-  Modal, 
-  Input, 
-  Table, 
-  Avatar, 
-  Button, 
-  Card, 
-  Descriptions, 
-  Row, 
-  Col, 
-  PageHeader, 
-  Tag, 
+  Avatar,
+  Button,
+  Card,
+  Col,
+  Descriptions,
+  Input,
+  Modal,
+  PageHeader,
+  Row,
   Skeleton,
-  Popconfirm
+  Space,
+  Table,
+  Tag,
+  Typography
 } from 'antd';
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {postFetch} from '../../../actions';
 import InterestedVolunteers from '../InterestedVolunteers';
-import {formatRelativeTime} from "../../../utils";
-import {truncateString} from '../../../utils';
+import {formatRelativeTime, truncateString} from "../../../utils";
+import {
+    LinkOutlined,
+} from '@ant-design/icons';
+
+
 const {TextArea} = Input;
 
 const columns = [
-    {
-        title: 'Update',
-        dataIndex: 'message',
-        render: (text, record) => (
-          <Typography.Text>
-            {truncateString(record.message, 240)}
-          </Typography.Text>
-        )
-    },
+  {
+    title: 'Update',
+    dataIndex: 'message',
+    render: (text, record) => (
+      <Typography.Text>
+        {truncateString(record.message, 240)}
+      </Typography.Text>
+    )
+  },
 ];
 
 const PostDetailsView = () => {
@@ -54,17 +58,17 @@ const PostDetailsView = () => {
   }, [notification_response]);
 
   useEffect(() => {
-    if(newNotificationFetch) {
+    if (newNotificationFetch) {
       fetch(`/api/posts/${id}/notifications/`, {
-        headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
+        headers: {'Authorization': `Token ${localStorage.getItem('token')}`}
       })
-      .then(results => {
-        return results.json();
-      })
-      .then(response => {
-        setNotificationResponse(response);
-        return response;
-      });
+        .then(results => {
+          return results.json();
+        })
+        .then(response => {
+          setNotificationResponse(response);
+          return response;
+        });
       setNewNotificationFetch(false);
     }
   }, [newNotificationFetch, id, setNotificationResponse]);
@@ -78,17 +82,13 @@ const PostDetailsView = () => {
       setNewNotificationFetch(true);
       setModalValue('');
       setShowModal(false);
-    }).catch(error=> {
+    }).catch(error => {
       console.log('error', error);
     });
   };
 
 
-  const onDisablePostClick = () => {
-    postFetch(`/api/posts/${id}/disable/`).then(() => {
-      setPostResponse(prevPostResponse => ({...prevPostResponse, disabled: true}))
-    })
-  };
+
 
   return (
     <React.Fragment>
@@ -97,19 +97,18 @@ const PostDetailsView = () => {
         title="Post Details"
         tags={[
           <Tag color="success" key="tag1">Published</Tag>,
-          <Tag color={post.disabled? "warning":"processing"} key="tag2">{post.disabled? "Stopped Collecting Response":"Collecting Response"}</Tag>]}/>
+          post.signup ? <Tag color="processing" key="tag2">Linked with Sign Up</Tag> : null
+        ]}/>
 
       <Card
         title="Post Details"
         extra={
-          post.disabled ? null:
-          <Popconfirm
-            title="Are you sure? This can not be undone"
-            onConfirm={onDisablePostClick}
-            okText="Yes"
-          >
-            <Button danger>Stop Collecting Response</Button>
-          </Popconfirm>
+          <Space>
+            {post.signup ? <Button><Link to={`/signups/${post.signup}/`}>View Sign Up</Link></Button> : null}
+            <Button><a target="_blank" rel="noopener noreferrer"
+                 href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}><LinkOutlined/> View
+                  on Facebook</a></Button>
+          </Space>
         }>
         <Descriptions>
           <Descriptions.Item label="Facebook Link">
@@ -133,7 +132,7 @@ const PostDetailsView = () => {
                       <br/>
                       <Typography.Paragraph
                         ellipsis={{rows: 10, expandable: true}}>
-                          {post.status}
+                        {post.status}
                       </Typography.Paragraph>
                     </div>)}/>
               </Skeleton>
@@ -142,42 +141,42 @@ const PostDetailsView = () => {
         </div>
       </Card>
 
-    <br/>
+      <br/>
 
-    <Row gutter={16}>
-      <Col span={12}>
-        <Card
-          title="Sent Updates"
-          extra={
-            <Button
-              type="primary"
-              className="messenger-btn"
-              onClick={() => setShowModal(!showModal)}>
+      <Row gutter={16}>
+        <Col span={12}>
+          <Card
+            title="Sent Updates"
+            extra={
+              <Button
+                type="primary"
+                className="messenger-btn"
+                onClick={() => setShowModal(!showModal)}>
                 Send New Update
-            </Button>}>
-              <Table columns={columns} dataSource={tableData}/>
-        </Card>
-      </Col>
+              </Button>}>
+            <Table columns={columns} dataSource={tableData}/>
+          </Card>
+        </Col>
 
-      <Col span={12}>
-        <InterestedVolunteers id={id}/>
-      </Col>
-    </Row>
+        <Col span={12}>
+          <InterestedVolunteers id={id}/>
+        </Col>
+      </Row>
 
-    <div>
-      <Modal
-        title="Send update to all volunteers of this event"
-        visible={showModal}
-        onOk={onModalOk}
-        onCancel={() => setShowModal(false)}>
+      <div>
+        <Modal
+          title="Send update to all volunteers of this event"
+          visible={showModal}
+          onOk={onModalOk}
+          onCancel={() => setShowModal(false)}>
           <TextArea
             value={modalValue}
             onChange={e => setModalValue(e.target.value)}
             placeholder="What do you want to share?"
             autoSize={{minRows: 3, maxRows: 5}}/>
-      </Modal>
-    </div>
-  </React.Fragment>);
+        </Modal>
+      </div>
+    </React.Fragment>);
 };
 
 export default PostDetailsView;

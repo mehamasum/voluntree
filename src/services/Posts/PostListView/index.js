@@ -40,9 +40,12 @@ const columns = [
         )
     },
     {
-        title: 'Collecting Response',
+        title: 'Linked Sign Up',
         render: (text, record) => (
-          <Tag color={record.disabled? "warning":"processing"} key="tag2">{record.disabled? "No":"Yes"}</Tag>
+          <Space>
+              {record.signup ? <Link to={`/signups/${record.signup}/`}><LinkOutlined/> View</Link> : '--'}
+          </Space>
+
         ),
     },
     {

@@ -106,14 +106,6 @@ class PostViewSet(ModelViewSet):
         serializer = NotificationSerializer(queryset, many=True)
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'])
-    def disable(self, request, pk):
-        post = self.get_object()
-        post.disabled = True
-        post.save()
-        serializer = self.serializer_class(post, context={'request': request})
-        return Response(serializer.data)
-
 
     @action(detail=True)
     def interests(self,request, pk):
@@ -275,7 +267,7 @@ class InteractionHandler:
         comment_text = data['value']['message']
         post_id = comment_id.split('_')[0]
         try:
-            post = Post.objects.get(facebook_post_id=post_id, disabled=False)
+            post = Post.objects.get(facebook_post_id=post_id)
         except Post.DoesNotExist:
             # TODO: ignoring for now
             print('Ignoring comment for disabled or unknown post')
@@ -496,6 +488,14 @@ class SignUpViewSet(ModelViewSet):
         queryset = self.get_object().date_times.all()
         serializer = DateTimeSetializer(queryset, many=True)
         # TODO: paginate?
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['post'])
+    def disable(self, request, pk):
+        signup = self.get_object()
+        signup.disabled = True
+        signup.save()
+        serializer = self.serializer_class(signup, context={'request': request})
         return Response(serializer.data)
 
 
