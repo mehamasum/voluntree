@@ -2,7 +2,7 @@ import logging
 from config.celery import app
 from .models import Post, Volunteer, Notification, Page
 from .services import FacebookService
-from .utils import (build_comment_chip_message, build_confirmation_message,
+from .utils import (build_comment_chip_message,
                     build_notification_message)
 from mail_templated import send_mail
 import environ
@@ -24,17 +24,6 @@ def send_private_reply_on_comment(data):
     page = post.page
     recipient = {'comment_id': comment_id}
     message = build_comment_chip_message(post)
-    wellcome_msg = FacebookService.send_private_message(
-        page, recipient, message)
-    return wellcome_msg.json()
-
-@app.task
-def send_message_on_yes_confirmation(volunteer_id, post_id):
-    volunteer = Volunteer.objects.get(id=volunteer_id)
-    post = Post.objects.get(id=post_id)
-    page = post.page
-    recipient = {'id': volunteer.facebook_user_id}
-    message = build_confirmation_message(post)
     wellcome_msg = FacebookService.send_private_message(
         page, recipient, message)
     return wellcome_msg.json()

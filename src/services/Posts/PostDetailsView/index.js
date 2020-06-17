@@ -142,20 +142,6 @@ const PostDetailsView = () => {
         </div>
       </Card>
 
-      <br/>
-
-      <Card title="Messenger Interaction">
-        <Descriptions>
-          {/* TODO: checkbox for private or personal */}
-          <Descriptions.Item label="Message for Volunteer">
-          <Typography.Paragraph
-            ellipsis={{rows: 2, expandable: true}}>
-            {post.message_for_returning_volunteer}
-          </Typography.Paragraph>
-        </Descriptions.Item>
-      </Descriptions>
-    </Card>
-
     <br/>
 
     <Row gutter={16}>
