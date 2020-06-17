@@ -93,8 +93,6 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     status = models.TextField()
     facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
-    message_for_new_volunteer = models.TextField()
-    message_for_returning_volunteer = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
     disabled = models.BooleanField(default=False)
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)

@@ -12,7 +12,7 @@ from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer)
 from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, Page)
 from .paginations import CreationTimeBasedPagination
-from .tasks import send_message_on_yes_confirmation, send_private_reply_on_comment, reply
+from .tasks import send_private_reply_on_comment, reply
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
 from django.conf import settings
@@ -324,7 +324,6 @@ class InteractionHandler:
             })
         else:
             InteractionHandler.reset_context(psid, page_id)
-            # send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
             InteractionHandler.reply_with_slot_picker(psid, page_id, post)
 
         return Response(status.HTTP_200_OK)
@@ -453,7 +452,6 @@ class InteractionHandler:
                         'We have created an account for you in our volunteer management software.'
             })
 
-            # send_message_on_yes_confirmation.apply_async((volunteer.id, post.id))
             InteractionHandler.reply_with_slot_picker(psid, page_id, post)
             InteractionHandler.reset_context(psid, page_id)
 

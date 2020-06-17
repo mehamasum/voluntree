@@ -37,29 +37,6 @@ const PostForm = props => {
             <Form.Item label="Status" name="status" rules={[{required: true}]}>
               <Input.TextArea rows={6} placeholder="What do you want to share?"/>
             </Form.Item>
-          </Col>
-          <Col span={12} className="post-preview">
-            <Typography.Text type="secondary">This will show up as a regular post on your page</Typography.Text>
-            <img src={post} className="post-preview-img" alt="post-prev-img"/>
-          </Col>
-        </Row>
-
-        <br/>
-
-        <Row>
-          <Col span={12} className="post-form">
-            <Divider orientation="left">Messenger Interaction</Divider>
-            <Typography.Text type="secondary">Instruction/Info sharing when a person confirms interest on messenger</Typography.Text>
-            <br/>
-            <br/>
-            {/* TODO: checkbox for private or personal */}
-            <Form.Item label="Message For Volunteer" name="message_for_returning_volunteer" rules={[{required: true}]}>
-              <Input.TextArea rows={4} placeholder="What do you want to share with a volunteer?"/>
-            </Form.Item>
-
-            <br/>
-            <br/>
-
 
             <Form.Item>
               <Button type="primary" htmlType="submit" className="submit-post" loading={loading}>
@@ -68,10 +45,12 @@ const PostForm = props => {
             </Form.Item>
           </Col>
           <Col span={12} className="post-preview">
-            <Typography.Text type="secondary">Initial interaction with volunteer</Typography.Text>
-            <img src={messenger} className="message-preview-img" alt="message-preview-img"/>
+            <Typography.Text type="secondary">This will show up as a regular post on your page</Typography.Text>
+            <img src={post} className="post-preview-img" alt="post-prev-img"/>
           </Col>
         </Row>
+
+        <br/>
       </Form>
     </React.Fragment>
   );
