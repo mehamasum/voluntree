@@ -16,8 +16,6 @@ const PostForm = props => {
       <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical">
         <Row>
           <Col span={12} className="post-form">
-            <Divider orientation="left">Facebook Post</Divider>
-
             <Form.Item name="page" label="Select Page" rules={[{ required: true }]}>
               <Select placeholder="Which page do you want to post to?" allowClear >
                 {pages.map(page => {
@@ -26,16 +24,16 @@ const PostForm = props => {
               </Select>
             </Form.Item>
 
-            <Form.Item name="signup" label="Select Signup" rules={[{ required: true }]}>
-              <Select placeholder="Which page do you want to post to?" allowClear >
+            <Form.Item label="Status" name="status" rules={[{required: true}]}>
+              <Input.TextArea rows={6} placeholder="What do you want to share?"/>
+            </Form.Item>
+
+            <Form.Item name="signup" label="Select Signup (Optional)">
+              <Select placeholder="Select a signup if you want to collect sign up" allowClear >
                 {signups.map(signup => {
                   return <Option value={signup.id} key={signup.id}>{signup.title}</Option>;
                 })}
               </Select>
-            </Form.Item>
-
-            <Form.Item label="Status" name="status" rules={[{required: true}]}>
-              <Input.TextArea rows={6} placeholder="What do you want to share?"/>
             </Form.Item>
 
             <Form.Item>
