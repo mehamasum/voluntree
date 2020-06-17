@@ -21,7 +21,7 @@ class FacebookWebHookService:
     @staticmethod
     def get_new_comments():
         new_comments = []
-        for post in Post.objects.filter(disabled=False):
+        for post in Post.objects.all():
             print("Fetching comment for", post.facebook_post_id)
             comments = FacebookWebHookService \
                 .fetch_post_comments(post).get('data', [])

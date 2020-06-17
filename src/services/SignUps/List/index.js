@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {Button, Card, Form, Input, Modal, Space, Table, Typography} from "antd";
+import {Button, Card, Form, Input, Modal, Space, Table, Tag, Typography} from "antd";
 import {Link, useHistory} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {formatRelativeTime} from "../../../utils";
@@ -14,6 +14,12 @@ const columns = [
       <Typography.Text>{formatRelativeTime(record.created_at)}</Typography.Text>
     )
   },
+   {
+        title: 'Collecting Response',
+        render: (text, record) => (
+          <Tag color={record.disabled? "warning":"processing"} key="tag2">{record.disabled? "No":"Yes"}</Tag>
+        ),
+    },
   {
     title: 'Actions',
     render: (text, record) => (

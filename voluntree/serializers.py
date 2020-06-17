@@ -20,8 +20,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'disabled',)
-        read_only_fields = ('facebook_post_id', 'created_at', 'disabled')
+        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'signup',)
+        read_only_fields = ('facebook_post_id', 'created_at',)
 
     def get_page_name(self, obj):
         return obj.page.name
@@ -74,8 +74,8 @@ class SlotSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignUp
-        fields = ('id', 'title', 'description', 'created_at',)
-        read_only_fields = ('created_at',)
+        fields = ('id', 'title', 'description', 'created_at', 'disabled')
+        read_only_fields = ('created_at', 'disabled',)
 
     def create(self, validated_data):
         user = self.context.get('request').user
