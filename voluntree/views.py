@@ -25,6 +25,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
 
+
 class PageViewSet(ReadOnlyModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = PageSerializer
@@ -58,9 +59,35 @@ class PostViewSet(ModelViewSet):
             data=request.data, context={'request': request})
         if serializer.is_valid():
             page = request.user.organization.pages.get(id=request.data.get('page'))
-            signup_object = request.user.organization.signups.get(id=request.data.get('signup'))
-            print('before formating status')
-            fb_status = "{}\n{}".format(request.data.get('status'), signup_object)
+
+            #TODO: optimize
+            signup = request.user.organization.signups.get(id=request.data.get('signup'))
+            date_times = signup.date_times.all()
+
+            form_fields = []
+            for dt in date_times:
+                slots = dt.slots.all()
+                for slot in slots:
+                    interests = Interest.objects.filter(datetime=dt, slot=slot)
+                    filled = interests.count()
+                    available = slot.required_volunteers - filled
+                    row = 'Date: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                        dt.date,
+                        str(dt.start_time) + ' to ' + str(dt.end_time),
+                        slot.title,
+                        str(available) + " of " + str(slot.required_volunteers) + " volunteers required",
+                        slot.description,
+                    )
+                    form_fields.append(row)
+            separator = '-' * 50
+            newline_with_separator = separator + '\n'
+            fb_status = "{}\n\nDetails:\n{}\n{}\n\nSlots:\n{}\n{}".format(
+                request.data.get('status'),
+                signup.title,
+                signup.description,
+                separator,
+                newline_with_separator.join(form_fields),
+            )
             print('status', fb_status)
             fb_post = PostService.create_post_on_facebook_page(
                 page, fb_status)
@@ -457,7 +484,6 @@ class InteractionHandler:
                 }
             }
         })
-
 
 
 class SignUpViewSet(ModelViewSet):
