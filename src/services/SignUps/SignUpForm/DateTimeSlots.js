@@ -56,7 +56,7 @@ export const constructColumns = (editable) => {
           <List
             dataSource={record.slots}
             renderItem={slot => (
-              <List.Item actions={[<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>}/>]}>
+              <List.Item actions={editable ? [<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>}/>] : []}>
                 <List.Item.Meta
                   title={<Tag color={generateColor(slot.id)}>
                     <span style={{color: getInvertColor(generateColor(slot.id))}}>
