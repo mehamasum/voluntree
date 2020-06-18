@@ -7,10 +7,13 @@ from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.response import Response
 
-from voluntree.models import Post, Volunteer
+from voluntree.models import Post, Volunteer, SignUp
 from voluntree.services import FacebookService, VolunteerService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment
 
+
+class Intents:
+    QUES_EVENT_INFO = 'QUES_EVENT_INFO'
 
 class InteractionHandler:
     ASKED_FOR_SIGNUP_ID = 'ASKED_FOR_SIGNUP_ID'
@@ -50,6 +53,7 @@ class InteractionHandler:
             print('Ignoring comment for disabled or unknown post')
             return Response(status.HTTP_200_OK)
         print('Webhook callback handle comment', data)
+        page_id = post.page.facebook_page_id
 
         nlp = FacebookService.run_wit(comment_text)
         print('wit', nlp)
@@ -59,6 +63,11 @@ class InteractionHandler:
 
         if intent and intent['name'] == 'SIGN_UP_AS_VOLUNTEER' and intent['confidence'] > 0.8:
             send_private_reply_on_comment.apply_async((data,))
+        elif intent and intent['name'] == Intents.QUES_EVENT_INFO and intent['confidence'] > 0.8:
+            if post.signup:
+                message = post.signup.description
+                print('public comment', message)
+                InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         else:
             # TODO: skip for now
             pass
@@ -98,11 +107,11 @@ class InteractionHandler:
 
     @staticmethod
     def first_entity(nlp, name):
-        return nlp and 'entities' in nlp and name in nlp['entities'] and nlp['entities'][name][0]
+        return nlp and 'entities' in nlp and name in nlp['entities'] and len(nlp['entities'][name]) > 0 and nlp['entities'][name][0]
 
     @staticmethod
     def first_intent(nlp):
-        return nlp and 'intents' in nlp and nlp['intents'][0]
+        return nlp and 'intents' in nlp and len(nlp['intents']) > 0 and nlp['intents'][0]
 
     @staticmethod
     def validate_email(email_input):
