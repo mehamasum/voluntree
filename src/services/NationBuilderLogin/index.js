@@ -15,7 +15,6 @@ const NationBuilderLogin = () => {
 
   useEffect(() => {
     console.log("code", code);
-    return;
     if(!code) return;
     fetch('/api/nationbuilder/verify_oauth/', {
       method: 'POST',
