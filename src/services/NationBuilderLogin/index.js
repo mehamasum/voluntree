@@ -9,6 +9,7 @@ function useQuery() {
 
 const NationBuilderLogin = () => {
   const code = useQuery().get('code');
+  const state = useQuery().get('state');
   const [loading, setLoading] = useState(true);
   const [status, setStatus] = useState(null);
   const [message, setMessage] = useState("");
@@ -21,7 +22,7 @@ const NationBuilderLogin = () => {
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${localStorage.getItem('token')}`},
-      body: JSON.stringify({'code': code})
+      body: JSON.stringify({'code': code, 'state': state})
     })
     .then(response => response.status)
     .then(status => {
