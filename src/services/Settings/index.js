@@ -1,6 +1,6 @@
 import './index.css';
 import React, {useState, useEffect} from 'react';
-import {Button, Card, Modal, Input, Form} from 'antd';
+import {Button, Card, Modal, Input, Form, Tag} from 'antd';
 import {useFetch} from '../../hooks';
 import PageListView from './PageListView';
 
@@ -10,9 +10,10 @@ import PaymentSettings from "./PaymentSettings";
 
 
 const Settings = () => {
+  const [nationbuilderState, setNationbuilderState] = useState(null);
   const [facebook_oauth_url] = useFetch('/api/facebook/oauth_url/');
   const [nationbuilder_oauth_url, setNbResponse, setNationBuilderOauthUrl] = useFetch();
-  const [integrations] = useFetch('/api/integrations');
+  const [integrations] = useFetch('/api/integrations/');
   const [visible, setVisible] = useState(false);
   const [form] = Form.useForm();
 
@@ -39,7 +40,15 @@ const Settings = () => {
     setNbResponse(null);
   }, [nationbuilder_oauth_url]);
 
-  console.log("Integrations", integrations);
+  useEffect(() => {
+    if(!integrations || !integrations.results) return;
+    integrations.results.forEach(integration => {
+      if(integration.integration_type==='NATION_BUILDER') {
+        setNationbuilderState(integration);
+      }
+    });
+  }, [integrations]);
+
   return (
     <div>
       <div className="create-new-page">
@@ -77,6 +86,9 @@ const Settings = () => {
           cover={<img alt="example" src={nationbuilder} className="vms-nb"/>}
         >
           <div className="vms-card-body">
+            {nationbuilderState ?
+              (nationbuilderState.is_expired) ? <Tag color="error">Expired</Tag> : <Tag color="success">Connected</Tag> : <React.Fragment/>
+            }
             <Button
               type="primary"
               className="vms-connect"
