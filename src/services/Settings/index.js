@@ -32,6 +32,17 @@ const Settings = () => {
       </Card>
       <br/>
 
+
+      <Card title="Who can volunteer?">
+      </Card>
+      <br/>
+
+
+      <Card title="Payment/Donation">
+      </Card>
+      <br/>
+
+
       <Card title="VMS Integrations">
         <Card
           hoverable
