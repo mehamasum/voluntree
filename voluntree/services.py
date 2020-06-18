@@ -498,11 +498,14 @@ class NationBuilderService:
         try:
             token = NationBuilderService.get_token(code)
             expiry_token_date = datetime.now() + timedelta(days=59)
-            Integration.objects.create(
+            Integration.objects.update_or_create(
                 integration_type=Integration.NATION_BUILDER,
-                organization=user.organization, integration_data="",
-                integration_access_token=token,
-                integration_expiry_date=expiry_token_date)
+                organization=user.organization,
+                defaults={
+                    'integration_data': '',
+                    'integration_expiry_date': expiry_token_date,
+                    'integration_access_token': token,
+                })
             return True
         except KeyError:
             return False
