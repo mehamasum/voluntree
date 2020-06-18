@@ -4,7 +4,7 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest, Verification
+from .models import Page, Volunteer, Post, Interest, Verification, SignUp
 from random import randint
 from mail_templated import send_mail
 from wit import Wit
@@ -333,8 +333,8 @@ class OrganizationService:
         ).count()
         return post_count
 
-    def number_of_active_posts(organization_id, from_date, to_date):
-        post_count = Post.objects.filter(
+    def number_of_active_signups(organization_id, from_date, to_date):
+        post_count = SignUp.objects.filter(
             user__organization=organization_id,
             created_at__date__range=(from_date, to_date),
             disabled=False
@@ -396,7 +396,7 @@ class OrganizationService:
         end_date = datetime.strptime(to_date, "%Y-%m-%d").date()
 
         results = {
-            'active_posts': OrganizationService.number_of_active_posts(
+            'active_signups': OrganizationService.number_of_active_signups(
                 organization_id, start_date, end_date),
             'posts': OrganizationService.number_of_posts(
                 organization_id, start_date, end_date),

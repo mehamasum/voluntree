@@ -53,14 +53,14 @@ const Dashboard = ({...props}) => {
         <Row gutter={16}>
           <Col xs={12} sm={8} lg={6}>
             <Statistic
-              title="Active Posts"
-              value={stats ? stats.active_posts : 0}
+              title="Active Sign Ups"
+              value={stats ? stats.active_signups : 0}
               prefix={<FireOutlined/>}
               className="stat-column"
             />
           </Col>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="Total Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>}
+            <Statistic title="Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>}
                        className="stat-column"/>
           </Col>
           <Col xs={12} sm={8} lg={6}>
