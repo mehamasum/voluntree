@@ -109,7 +109,7 @@ class Interest(models.Model):
     slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='interests', null=True)
 
     def __str__(self):
-        return str(self.datetimeslot)
+        return str(self.slot)
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')

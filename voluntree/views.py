@@ -466,11 +466,12 @@ class InteractionHandler:
                     "buttons": [
                         {
                             "type": "web_url",
-                            "url": "%s/messenger/%s/signup/%s/%s/" % (
+                            "url": "%s/messenger/%s/signup/%s/%s/?post_id=%s" % (
                                 getattr(settings, 'APP_URL'),
                                 page_id,
                                 str(post.signup.id),
-                                psid
+                                psid,
+                                str(post.id)
                             ),
                             "title": "Select Slots",
                             "webview_height_ratio": "tall",
@@ -536,6 +537,15 @@ def volunteer_signup_view(request, **kargs):
     except Volunteer.DoesNotExist:
         return HttpResponseNotFound('No volunteer')
 
+    post_id = request.GET.get('post_id', None)
+    post = None
+
+    if post_id:
+        try:
+            post = Post.objects.get(id=post_id)
+        except Post.DoesNotExist:
+            return HttpResponseNotFound('No Post')
+
     page = Page.objects.get(facebook_page_id=page_id)
 
     if request.method == 'POST':
@@ -548,21 +558,21 @@ def volunteer_signup_view(request, **kargs):
 
             for slot in slots:
                 field_name = 'dt_%s:slot_%s' % (str(dt.id), str(slot.id))
+                filters = {
+                    'datetime': dt,
+                    'slot': slot,
+                    'volunteer': volunteer
+                }
+
+                if post:
+                    filters['post'] = post
 
                 if field_name in cleaned_data:
-                    Interest.objects.get_or_create(
-                        datetime=dt,
-                        slot=slot,
-                        volunteer=volunteer
-                    )
+                    Interest.objects.get_or_create(**filters)
                     count += 1
                 else:
                     try:
-                        Interest.objects.get(
-                            datetime=dt,
-                            slot=slot,
-                            volunteer=volunteer
-                        ).delete()
+                        Interest.objects.get(**filters).delete()
                     except Interest.DoesNotExist:
                         pass
 
