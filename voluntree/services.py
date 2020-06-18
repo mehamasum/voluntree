@@ -290,6 +290,21 @@ class FacebookService:
         return requests.post(url, headers=headers, data=params)
 
     @staticmethod
+    def send_public_reply(page, post_id, comment_id, message):
+        headers = {'content-type': "application/json"}
+        url = '%s/%s_%s/comments' % (
+            FacebookService.FACEBOOK_GRAPH_API_URL,
+            post_id,
+            comment_id,
+        )
+        params = json.dumps({
+            "access_token": page.page_access_token,
+            "message": message
+        })
+
+        return requests.post(url, headers=headers, data=params)
+
+    @staticmethod
     def get_user_metadata(page_id, recipient_id):
         page = Page.objects.get(facebook_page_id=page_id)
         # TODO: use graph api version

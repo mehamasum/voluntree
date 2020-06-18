@@ -37,6 +37,13 @@ def reply(psid, page_id, message):
     return res.json()
 
 @app.task
+def comment(page_id, post_id, comment_id, message):
+    page = Page.objects.get(facebook_page_id=page_id)
+    res = FacebookService.send_public_reply(
+        page, post_id, comment_id, message)
+    return res.json()
+
+@app.task
 def ask_for_pin(volunteer_id):
     volunteer = Volunteer.objects.get(id=volunteer_id)
     page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
