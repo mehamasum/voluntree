@@ -43,12 +43,10 @@ const PaymentSettings = () => {
             message: 'Describe how people can make donations/payments',
           },
         ]}
+        extra="This will help Voluntree to automatically reply to frequently asked questions"
       >
         <Input.TextArea rows={5} placeholder="How can people make donations/payments?"/>
-        <small>This will help Voluntree to automatically reply to frequently asked questions</small>
       </Form.Item>
-
-      <br/>
 
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">

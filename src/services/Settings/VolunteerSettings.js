@@ -29,7 +29,7 @@ const VolunteerSettings = () => {
       {...layout}
       name="basic"
       initialValues={{
-        remember: true,
+        volunteer_verification: true,
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
@@ -43,23 +43,19 @@ const VolunteerSettings = () => {
             message: 'Describe requirements for a volunteer',
           },
         ]}
+        extra="This will help Voluntree to automatically reply to frequently asked questions"
       >
         <Input.TextArea rows={2} placeholder="What are the requirements for a volunteer?"/>
-        <small>This will help Voluntree to automatically reply to frequently asked questions</small>
       </Form.Item>
-
-      <br/>
 
       <Form.Item
         {...tailLayout}
         name="volunteer_verification"
         valuePropName="checked"
-        help="If checked, Voluntree will verify the email address of each volunteer when they sign up"
+        extra="If checked, Voluntree will verify the email address of each volunteer when they sign up"
       >
         <Checkbox>Verify email at sign up</Checkbox>
       </Form.Item>
-
-      <br/>
 
       <Form.Item {...tailLayout}>
         <Button type="primary" htmlType="submit">
