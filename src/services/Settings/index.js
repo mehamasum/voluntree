@@ -6,6 +6,8 @@ import {useFetch} from '../../hooks';
 import PageListView from './PageListView';
 
 import nationbuilder from '../../assets/icons/nationbuilder.svg';
+import VolunteerSettings from "./VolunteerSettings";
+import PaymentSettings from "./PaymentSettings";
 
 
 const Settings = () => {
@@ -33,12 +35,14 @@ const Settings = () => {
       <br/>
 
 
-      <Card title="Who can volunteer?">
+      <Card title="Volunteer Settings">
+        <VolunteerSettings/>
       </Card>
       <br/>
 
 
-      <Card title="Payment/Donation">
+      <Card title="Payment Settings">
+        <PaymentSettings/>
       </Card>
       <br/>
 
