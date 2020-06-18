@@ -1,6 +1,7 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import (Page, Post, Volunteer, Interest, Notification, Organization, Slot, SignUp, DateTime)
+from .models import (Page, Post, Volunteer, Interest, Notification,
+                     Organization, Slot, SignUp, DateTime, Integration)
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -91,3 +92,15 @@ class DateTimeSetializer(serializers.ModelSerializer):
     class Meta:
         model = DateTime
         fields = ('id', 'date', 'start_time', 'end_time', 'signup', 'slots')
+
+
+class IntegrationSerializer(serializers.ModelSerializer):
+    is_expired = serializers.SerializerMethodField()
+
+    def get_is_expired(self, obj):
+        return obj.integration_expiry_date < datetime.now().date()
+
+    class Meta:
+        model = Integration
+        fields = ('id', 'integration_expiry_date', 'integration_type',
+                  'is_expired')

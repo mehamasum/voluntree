@@ -10,8 +10,10 @@ from .services import (FacebookService, PostService, OrganizationService, SignUp
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
-                          SlotSerializer, SignUpSerializer, DateTimeSetializer)
-from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, Page)
+                          SlotSerializer, SignUpSerializer, DateTimeSetializer,
+                          IntegrationSerializer)
+from .models import (Post, Interest, Volunteer, Notification, Organization,
+                     Slot, DateTime, SignUp, Page, Integration)
 from .paginations import CreationTimeBasedPagination
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
@@ -384,3 +386,11 @@ def signup_confirmation_view(request, **kargs):
     return render(request, 'messenger/done.html', {
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })
+
+
+class IntegrationViewSet(ModelViewSet):
+    serializer_class = IntegrationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Integration.objects.filter(organization=self.request.user.organization)

@@ -47,7 +47,7 @@ const NationBuilderLogin = () => {
   return (
     <Layout style={{height:"100vh"}} className="middle-align">
       <Layout.Content className="middle-align">
-        <Card title="Facebook Login" style={{ width: 300 }}>
+        <Card title="NationBuilder Login" style={{ width: 300 }}>
           <Space size="middle">
             <Spin size="large" spinning={loading}/>
           </Space>
