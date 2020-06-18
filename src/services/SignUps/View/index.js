@@ -3,6 +3,7 @@ import {Button, Card, PageHeader, Popconfirm, Space, Spin, Tag} from "antd";
 import {Link, useParams} from "react-router-dom";
 import SendUpdatesView from './SendUpdatesView';
 import useFetch from 'use-http';
+import SignUpForm from '../SignUpForm';
 
 export default function SignUpView(props) {
   const {id} = useParams();
@@ -52,7 +53,8 @@ export default function SignUpView(props) {
               <Link to={`/signups/${props.match.params.id}/edit`}>Edit</Link>
             </Button>
           </Space>}>
-        {JSON.stringify(signup)}
+          <SignUpForm editable={false}/>
+       
       </Card>
       <br/>
 
