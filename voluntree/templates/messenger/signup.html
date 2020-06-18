@@ -69,10 +69,6 @@
       font-family: inherit;
     }
 
-    .title {
-      margin-bottom: 0;
-    }
-
     .desc {
       margin: 16px 0;
     }
@@ -96,10 +92,6 @@
       height: 210px;
     }
 
-    .signup-title {
-      padding-bottom: 32px;
-    }
-
     .card-1 .card-body {
       padding: 0 90px;
       padding-top: 55px;
@@ -112,15 +104,11 @@
       }
 
       .card-1 .card-body {
-        padding: 40px 24px;
+        padding: 16px 16px;
       }
 
       .main {
         padding: 0;
-      }
-
-      .signup-title {
-        padding: 16px 0;
       }
     }
 
@@ -156,7 +144,7 @@
     }
 
     .slot-info {
-      margin: 16px 0;
+      margin-top: 16px;
     }
   </style>
 </head>
@@ -195,8 +183,8 @@
           <div class="row">
             <div class="col-sm-12">
 
-              <div class="signup-title">
-                <h1 class="title">{{ signup.title }}</h1>
+              <div>
+                <h1>{{ signup.title }}</h1>
               </div>
 
               <i>By {{ page }}</i>
