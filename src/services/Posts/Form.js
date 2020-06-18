@@ -1,22 +1,22 @@
 import './form.css';
 import post from '../../assets/post.png';
-import React from 'react';
+import React, {useState} from 'react';
 import {Button, Checkbox, Col, Form, Input, Row, Select, Typography} from 'antd';
 
 const {Option} = Select;
 
 
 const PostForm = props => {
+  const [showAttachInfo, setShowAttachInfo] = useState(false);
   const {onSubmit, initialValues = {}, pages, signups, loading} = props;
+
+  const onSignupSelect = value => {
+    setShowAttachInfo(!!value);
+  }
 
   return (
     <React.Fragment>
-      <Form name="basic"
-            initialValues={{
-              ...initialValues,
-              attach_info: initialValues.attach_info ? initialValues.attach_info : true
-            }} onFinish={onSubmit} layout="vertical"
-      >
+      <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical">
         <Row>
           <Col span={12} className="post-form">
             <Form.Item name="page" label="Select Page" rules={[{required: true}]}>
@@ -36,20 +36,20 @@ const PostForm = props => {
               label="Select Signup"
               extra="This will help Voluntree to automatically reply to frequently asked questions"
             >
-              <Select placeholder="Select a signup if you want to collect sign up" allowClear>
+              <Select placeholder="Select a signup if you want to collect sign up" allowClear onChange={onSignupSelect}>
                 {signups.map(signup => {
                   return <Option value={signup.id} key={signup.id}>{signup.title}</Option>;
                 })}
               </Select>
             </Form.Item>
 
-            <Form.Item
+            {showAttachInfo ? <Form.Item
               name="attach_info"
               valuePropName="checked"
               extra="If checked, Voluntree will concatenate date-time and slot info under the post"
             >
               <Checkbox>Attach Sign Up Info</Checkbox>
-            </Form.Item>
+            </Form.Item> : null}
 
             <Form.Item>
               <Button type="primary" htmlType="submit" className="submit-post" loading={loading}>
