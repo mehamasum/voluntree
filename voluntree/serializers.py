@@ -59,10 +59,11 @@ class NotificationSerializer(serializers.ModelSerializer):
         notification = Notification.objects.create(user=user, **validated_data)
         return notification
 
+
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'payment_info', 'volunteer_info', 'volunteer_verification')
 
 
 class SlotSerializer(serializers.ModelSerializer):
