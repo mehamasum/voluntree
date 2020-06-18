@@ -12,7 +12,7 @@ import PaymentSettings from "./PaymentSettings";
 
 const Settings = () => {
   const [facebook_oauth_url] = useFetch('/api/facebook/oauth_url/');
-  const [nationbuilder_oauth_url] = useFetch('/api/nationbuilder/oauth_url/');
+  const [nationbuilder_oauth_url] = useFetch('/api/nationbuilder/oauth_url/?slug=voluntree');
 
   const onClickConnect = () => {
     window.open(facebook_oauth_url, "Popup", "width=800,height=800");
@@ -22,6 +22,7 @@ const Settings = () => {
     window.open(nationbuilder_oauth_url, "Popup", "width=800,height=800");
   };
 
+  console.log("url", nationbuilder_oauth_url);
   return (
     <div>
       <div className="create-new-page">

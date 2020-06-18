@@ -470,23 +470,22 @@ class NationBuilderService:
     REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
 
     nation_slug = 'voluntree'
-    access_token_url = "https://" + nation_slug + ".nationbuilder.com/oauth/token"
-    authorize_url = nation_slug + ".nationbuilder.com/oauth/authorize"
 
-    # FIXME Need to move this method in singleton class Pattern
     @staticmethod
-    def get_oauth_service():
+    def get_oauth_service(slug):
+        access_token_url = "https://" + slug + ".nationbuilder.com/oauth/token"
+        authorize_url = slug + ".nationbuilder.com/oauth/authorize"
         return OAuth2Service(
             client_id=NationBuilderService.NATIONBUILDER_APP_ID,
             client_secret=NationBuilderService.NATIONBUILDER_APP_SECRET,
             name='Voluntree',
-            authorize_url=NationBuilderService.authorize_url,
-            access_token_url=NationBuilderService.access_token_url,
-            base_url=NationBuilderService.nation_slug + ".nationbuilder.com")
+            authorize_url=authorize_url,
+            access_token_url=access_token_url,
+            base_url=slug + ".nationbuilder.com")
 
     @staticmethod
-    def get_token(code):
-        service = NationBuilderService.get_oauth_service()
+    def get_token(code, slug):
+        service = NationBuilderService.get_oauth_service(slug)
         return service.get_access_token(
             decoder=json.loads, data={
                 "code": code,
@@ -494,9 +493,10 @@ class NationBuilderService:
                 "grant_type": "authorization_code"})
 
     @staticmethod
-    def verify_oauth(code, user):
+    def verify_oauth(code, state, user):
+        slug = state # TODO decode it
         try:
-            token = NationBuilderService.get_token(code)
+            token = NationBuilderService.get_token(code, slug)
             expiry_token_date = datetime.now() + timedelta(days=59)
             Integration.objects.update_or_create(
                 integration_type=Integration.NATION_BUILDER,
@@ -511,11 +511,12 @@ class NationBuilderService:
             return False
 
     @staticmethod
-    def get_oauth_url():
+    def get_oauth_url(slug):
+        state = slug # TODO Encode it
         url = "%soauth/authorize" % NationBuilderService.NATIONBUILDER_BASE_URL
-        return "%s?response_type=code&client_id=%s&redirect_uri=%s" % (
+        return "%s?response_type=code&client_id=%s&redirect_uri=%s&state=%s" % (
             url, NationBuilderService.NATIONBUILDER_APP_ID,
-            NationBuilderService.REDIRECT_URI)
+            NationBuilderService.REDIRECT_URI, state)
 
 
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

@@ -157,13 +157,15 @@ class NationBuilderApiViewSet(ViewSet):
     @action(detail=False, methods=['post'])
     def verify_oauth(self, request):
         code = request.data.get('code')
-        if NationBuilderService.verify_oauth(code, request.user):
+        state = request.data.get('state')
+        if NationBuilderService.verify_oauth(code, state, request.user):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
     @action(detail=False)
     def oauth_url(self, request):
-        url = NationBuilderService.get_oauth_url()
+        slug = request.query_params.get('slug')
+        url = NationBuilderService.get_oauth_url(slug)
         return Response(url)
 
 
