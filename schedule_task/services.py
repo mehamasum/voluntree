@@ -25,7 +25,6 @@ class FacebookWebHookService:
             print("Fetching comment for", post.facebook_post_id)
             comments = FacebookWebHookService \
                 .fetch_post_comments(post).get('data', [])
-            print("Fetching comment response", comments)
             can_reply_comments = list(
                 filter(lambda c: c['can_reply_privately'] is True, comments))
             new_comments = new_comments + can_reply_comments

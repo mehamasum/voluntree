@@ -13,7 +13,6 @@ env = environ.Env()
 
 @app.task(name="schedule_task.webhook.fetch_comment")
 def fetch_comment():
-    print(f"Running comment fetch task")
     server = env.str('APP_URL', default='http://localhost:8000')
     url = server + '/facebook/webhook/'
     headers = {'content-type': "application/json"}
