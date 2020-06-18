@@ -157,7 +157,7 @@ class NationBuilderApiViewSet(ViewSet):
     @action(detail=False, methods=['post'])
     def verify_oauth(self, request):
         code = request.data.get('code')
-        if FacebookService.verify_oauth(code, request.user):
+        if NationBuilderService.verify_oauth(code, request.user):
             return Response(status=status.HTTP_204_NO_CONTENT)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 

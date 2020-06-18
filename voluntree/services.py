@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest, Verification, SignUp
+from .models import Page, Volunteer, Post, Interest, Verification, SignUp, Integration
 from random import randint
 from mail_templated import send_mail
 from wit import Wit
@@ -493,7 +493,19 @@ class NationBuilderService:
                 "redirect_uri": NationBuilderService.REDIRECT_URI,
                 "grant_type": "authorization_code"})
 
-
+    @staticmethod
+    def verify_oauth(code, user):
+        try:
+            token = NationBuilderService.get_token(code)
+            expiry_token_date = datetime.now() + timedelta(days=59)
+            Integration.objects.create(
+                integration_type=Integration.NATION_BUILDER,
+                organization=user.organization, integration_data="",
+                integration_access_token=token,
+                integration_expiry_date=expiry_token_date)
+            return True
+        except KeyError:
+            return False
 
     @staticmethod
     def get_oauth_url():
