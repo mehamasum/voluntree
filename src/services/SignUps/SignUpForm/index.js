@@ -12,7 +12,9 @@ import {
   Table,
   Tag,
   TimePicker,
-  Typography
+  Typography,
+  Col,
+  Row
 } from "antd";
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
@@ -49,8 +51,10 @@ export default function SignUpForm(props) {
   const onSubmitSignUp = values => {
   };
 
-  const handleTimeModalOk = values => {
+  const handleTimeModalOk = (values , url = null, method = null) => {
     const {date, time} = values;
+    const fetchUrl = `/api/datetimes/` || url;
+    const fetchMethod = 'POST' || method;
     if (!date || !time) {
       setErrors(errors => ({
         date: !date,
@@ -68,8 +72,8 @@ export default function SignUpForm(props) {
         end_time: time[1].format("HH:mm:ss"),
       };
       setSavingDatetime(true);
-      fetch(`/api/datetimes/`, {
-        method: 'POST',
+      fetch(fetchUrl, {
+        method: fetchMethod,
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Token ${localStorage.getItem('token')}`
@@ -164,11 +168,16 @@ export default function SignUpForm(props) {
       });
   };
 
+  console.log('signUpResponse', signUpResponse, signUpResponse && signUpResponse.title);
+
   return (
     <div>
+      {
+      editable ? 
       <Card title="Sign Up">
 
         {signUpResponse &&
+        (
         <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} layout="vertical">
           <Form.Item label="Title" name="title" rules={[{required: editable}]}>
             <Input.TextArea rows={2} disabled={!editable} placeholder="What is the title for your form?"/>
@@ -183,9 +192,29 @@ export default function SignUpForm(props) {
               Save
             </Button>
           </Form.Item>}
-        </Form>}
+        </Form>)
+         
+        }
+      </Card>
+      
+    :
+
+     <div>
+  
+      <Card title={"Title"} >
+      {signUpResponse && signUpResponse.title}
       </Card>
 
+      <br/>
+
+      <Card title={"Description"} >
+        {signUpResponse && signUpResponse.description}
+      </Card>
+
+    </div>
+
+    
+    }
       <br/>
 
       <DateTimeSlots 
