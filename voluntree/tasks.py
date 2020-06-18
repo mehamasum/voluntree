@@ -1,3 +1,4 @@
+import json
 import logging
 from config.celery import app
 from .models import Post, Volunteer, Notification, Page
@@ -33,7 +34,7 @@ def reply(psid, page_id, message):
     recipient = {'id': psid}
     page = Page.objects.get(facebook_page_id=page_id)
     res = FacebookService.send_private_message(
-        page, recipient, message)
+        page, recipient, json.loads(message))
     return res.json()
 
 @app.task

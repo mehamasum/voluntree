@@ -14,6 +14,10 @@ from voluntree.tasks import send_private_reply_on_comment, reply, comment
 
 class Intents:
     QUES_EVENT_INFO = 'QUES_EVENT_INFO'
+    APPRECIATION = 'APPRECIATION'
+    PAYMENT_INFO = 'PAYMENT_INFO'
+    HOW_CAN_I_SIGNUP = 'HOW_CAN_I_SIGNUP'
+    VOLUNTEER_REQUIRMENTS = 'VOLUNTEER_REQUIRMENTS'
 
 class InteractionHandler:
     ASKED_FOR_SIGNUP_ID = 'ASKED_FOR_SIGNUP_ID'
@@ -62,12 +66,33 @@ class InteractionHandler:
         print('intent', intent)
 
         if intent and intent['name'] == 'SIGN_UP_AS_VOLUNTEER' and intent['confidence'] > 0.8:
+            message = 'Thank you for your interest. We have sent you a private reply.'
+            print('public comment', message)
+            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+            send_private_reply_on_comment.apply_async((data,))
+        elif intent and intent['name'] == Intents.HOW_CAN_I_SIGNUP and intent['confidence'] > 0.8:
+            message = 'Thank you for your interest. We have sent you a private reply.'
+            print('public comment', message)
+            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
             send_private_reply_on_comment.apply_async((data,))
         elif intent and intent['name'] == Intents.QUES_EVENT_INFO and intent['confidence'] > 0.8:
             if post.signup:
                 message = post.signup.description
                 print('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+        elif intent and intent['name'] == Intents.APPRECIATION and intent['confidence'] > 0.8:
+            message = 'Thank you'
+            print('public comment', message)
+            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+        elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.8:
+            message = 'Here is how you can send donations'
+            print('public comment', message)
+            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+        elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.8:
+            message = 'Here are the requirements'
+            print('public comment', message)
+            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+
         else:
             # TODO: skip for now
             pass
@@ -131,13 +156,12 @@ class InteractionHandler:
 
     @staticmethod
     def send_reply(psid, page_id, message):
-        # TODO: async
-        reply(psid, page_id, message)
+        reply.apply_async((psid, page_id, json.dumps(message),))
 
     @staticmethod
     def send_comment(page_id, post_id, comment_id, message):
         # TODO: async
-        comment(page_id, post_id, comment_id, message)
+        comment.apply_async((page_id, post_id, comment_id, message,))
 
     @staticmethod
     def handle_expired_session(psid, page_id):
