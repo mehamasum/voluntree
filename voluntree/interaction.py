@@ -85,11 +85,13 @@ class InteractionHandler:
             print('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.8:
-            message = 'Here is how you can send donations'
+            payment_info = post.page.organization.payment_info
+            message = 'Here is how you can send donations\n%s' % payment_info
             print('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.8:
-            message = 'Here are the requirements'
+            volunteer_info = post.page.organization.volunteer_info
+            message = 'Here are the requirements\n%s' % volunteer_info
             print('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
 
