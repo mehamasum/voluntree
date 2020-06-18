@@ -1,7 +1,6 @@
 import './index.css';
-
-import React from 'react';
-import {Button, Card} from 'antd';
+import React, {useState, useEffect} from 'react';
+import {Button, Card, Modal, Input, Form} from 'antd';
 import {useFetch} from '../../hooks';
 import PageListView from './PageListView';
 
@@ -12,17 +11,35 @@ import PaymentSettings from "./PaymentSettings";
 
 const Settings = () => {
   const [facebook_oauth_url] = useFetch('/api/facebook/oauth_url/');
-  const [nationbuilder_oauth_url] = useFetch('/api/nationbuilder/oauth_url/?slug=voluntree');
+  const [nationbuilder_oauth_url, setNbResponse, setNationBuilderOauthUrl] = useFetch();
+  const [integrations] = useFetch('/api/integrations');
+  const [visible, setVisible] = useState(false);
+  const [form] = Form.useForm();
 
   const onClickConnect = () => {
     window.open(facebook_oauth_url, "Popup", "width=800,height=800");
   };
 
   const onClickConnectNationBuilder = () => {
-    window.open(nationbuilder_oauth_url, "Popup", "width=800,height=800");
+    setVisible(true);
   };
 
-  console.log("url", nationbuilder_oauth_url);
+  const handleOk = (values) => {
+    setNationBuilderOauthUrl(`/api/nationbuilder/oauth_url/?slug=${values.slug}`);
+    setVisible(false);
+  }
+
+  const handleCancel = () => {
+    setVisible(false);
+  }
+
+  useEffect(() => {
+    if(!nationbuilder_oauth_url) return;
+    window.open(nationbuilder_oauth_url, "Popup", "width=800,height=800");
+    setNbResponse(null);
+  }, [nationbuilder_oauth_url]);
+
+  console.log("Integrations", integrations);
   return (
     <div>
       <div className="create-new-page">
@@ -63,7 +80,6 @@ const Settings = () => {
             <Button
               type="primary"
               className="vms-connect"
-              disabled={!nationbuilder_oauth_url}
               onClick={onClickConnectNationBuilder}
             >
               Connect Nation Builder
@@ -72,6 +88,22 @@ const Settings = () => {
         </Card>
 
       </Card>
+
+      <Modal
+        visible={visible}
+        title="Enter Your NationBuilder Slug"
+        okButtonProps={{}}
+        onOk={form.submit}
+        onCancel={handleCancel}
+      >
+        <Form form={form} onFinish={handleOk}>
+          <Form.Item label="Slug" name="slug" rules={[{required: true}]}>
+            <Input.TextArea
+              placeholder="Enter you nation builder slug."
+              autoSize={{minRows: 2, maxRows: 5}}/>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };
