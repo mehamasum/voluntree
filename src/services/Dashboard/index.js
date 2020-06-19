@@ -15,11 +15,6 @@ const Dashboard = ({...props}) => {
   console.log('got stats', stats);
   return (
     <div>
-      <PageHeader
-        className="site-page-header"
-        title="Dashboard"
-      />
-
       {
         pagesResponse && pagesResponse.count === 0 ? (
           <div>

@@ -97,6 +97,7 @@ class PostViewSet(ModelViewSet):
                     fb_post.json(), status=status.HTTP_400_BAD_REQUEST)
             post = serializer.save()
             post.facebook_post_id = fb_post.json().get('id', 'x_y').split('_')[1]
+            post.status = fb_status
             post.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

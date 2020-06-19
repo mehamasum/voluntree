@@ -1,6 +1,6 @@
 import './index.css';
-import React, {useState, useEffect} from 'react';
-import {Button, Card, Modal, Input, Form, Tag} from 'antd';
+import React from 'react';
+import {Card} from 'antd';
 
 import Tabs from "./SettingsTabs";
 
@@ -10,7 +10,7 @@ const Settings = () => {
 
   return (
     <div>
-      <Card>
+      <Card title="Settings">
         <Tabs/>
       </Card>
     </div>
