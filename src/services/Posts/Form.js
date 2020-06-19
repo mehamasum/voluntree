@@ -44,7 +44,7 @@ const PostForm = props => {
             </Form.Item>
 
             {showAttachInfo ? <Form.Item
-              name="attach_info"
+              name="append_signup_info"
               valuePropName="checked"
               extra="If checked, Voluntree will concatenate date-time and slot info under the post"
             >

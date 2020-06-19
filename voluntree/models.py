@@ -99,6 +99,7 @@ class Post(models.Model):
     facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
+    append_signup_info = models.BooleanField(default=False)
 
     def __str__(self):
         return self.status

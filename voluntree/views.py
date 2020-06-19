@@ -56,8 +56,9 @@ class PostViewSet(ModelViewSet):
             page = request.user.organization.pages.get(id=request.data.get('page'))
 
             signup_id = request.data.get('signup')
+            append_signup_info = request.data.get('append_signup_info', False)
 
-            if signup_id:
+            if signup_id and append_signup_info:
                 # TODO: optimize
                 fields, signup = SignUpService.get_human_readable_version(signup_id)
 
