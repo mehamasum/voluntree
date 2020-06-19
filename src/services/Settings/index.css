@@ -8,16 +8,22 @@
     width: 300px;
 }
 
+.vms-list {
+    margin: 32px 8px;
+}
+
 .vms-card-body {
     display: flex;
     align-items: center;
+    flex-direction: column;
 }
 
 .vms-connect {
     margin: auto;
 }
 
-.vms-nb {
+.vms-logo {
     padding: 30px;
     background: #eee;
+    height: 150px;
 }
