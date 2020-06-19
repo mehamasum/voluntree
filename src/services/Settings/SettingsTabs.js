@@ -6,8 +6,7 @@ import PageListView from "./PageListView";
 import {useFetch} from "../../hooks";
 
 
-import nationbuilder from "../../assets/icons/nationbuilder.svg";
-import kindful from "../../assets/icons/kindful.svg";
+import IntegrationsTab from "./Integrations";
 import OrgSettings from "./OrgSettings";
 
 const {TabPane} = Tabs;
@@ -42,59 +41,6 @@ const PagesTab = () => {
         <PageListView/>
       </Card>
     </>
-  )
-}
-
-const IntegrationsTab = () => {
-  const integrations = [
-    {
-      name: 'Nation Builder',
-      logo: nationbuilder,
-      connected: true,
-      expired: false,
-      ready: true
-    },
-    {
-      name: 'Kindful',
-      logo: kindful,
-      connected: false,
-      expired: false,
-      ready: false
-    }
-  ]
-  return (
-    <div className="vms-list">
-      <Space>
-        {integrations.map(integration => (
-          <Card
-            key={integration.name}
-            hoverable
-            className="vms-card"
-            cover={<img alt="example" src={integration.logo} className="vms-logo"/>}
-          >
-            <div className="vms-card-body">
-              <div>
-                {
-                  integration.connected ? (
-                    integration.expired ? <Tag color="error">Expired</Tag> : <Tag color="success">Connected</Tag>
-                  ) : <Tag>Not Connected</Tag>
-                }
-              </div>
-              <br/>
-              <div>
-                <Button
-                  type="primary"
-                  className="vms-connect"
-                  disabled={!integration.ready}
-                >
-                  Connect {integration.name}
-                </Button>
-              </div>
-            </div>
-          </Card>
-        ))}
-      </Space>
-    </div>
   )
 }
 
