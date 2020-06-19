@@ -73,7 +73,7 @@ const VolunteerListPerPage = props => {
         total: data.count
       }}
       onChange={() => setPage(page + 1)}
-      scroll={{y: 500}}/>
+    />
   );
 };
 
