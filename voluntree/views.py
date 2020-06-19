@@ -176,8 +176,8 @@ class OrganizationViewSet(ModelViewSet):
     serializer_class = OrganizationSerializer
 
     def get_queryset(self):
-        user = self.request.user
-        return [user.organization]
+        organization = self.request.user.organization
+        return Organization.objects.filter(id=organization.id)
 
     @date_range_params_check
     @action(detail=False)

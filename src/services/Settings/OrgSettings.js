@@ -18,8 +18,12 @@ const tailLayout = {
 
 const OrgSettings = () => {
   const [org, setOrg] = useState(null);
+  const [saving, setSaving] = useState(false);
   const {get, patch} = useFetch(`/api/organizations`, {
-    headers: {'Authorization': `Token ${localStorage.getItem('token')}`}
+    headers: {
+      'Authorization': `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    }
   });
 
   useEffect(() => {
@@ -31,7 +35,11 @@ const OrgSettings = () => {
 
   const onFinish = values => {
     console.log('Success:', values);
-    patch(`/${org.id}/`, values);
+    setSaving(true);
+    patch(`/${org.id}/`, values).then(res => {
+      setOrg(org => ({...org, res}));
+      setSaving(false);
+    });
   };
 
   const onFinishFailed = errorInfo => {
@@ -45,7 +53,9 @@ const OrgSettings = () => {
       {...layout}
       name="basic"
       initialValues={{
-        volunteer_verification: true,
+        ...org,
+        language: 'en',
+        timezone: 'America/Los_Angeles'
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
@@ -54,10 +64,10 @@ const OrgSettings = () => {
       <Divider orientation="left">Language and Timezone</Divider>
 
       <Form.Item
-        name="lang"
+        name="language"
         label="Language"
       >
-        <Select defaultValue="en">
+        <Select>
           <Select.Option value="en">English</Select.Option>
         </Select>
       </Form.Item>
@@ -66,7 +76,7 @@ const OrgSettings = () => {
         name="timezone"
         label="Timezone"
       >
-        <Select defaultValue="America/Los_Angeles">
+        <Select>
           <Select.Option value="America/Los_Angeles">Los Angeles (Pacific)</Select.Option>
         </Select>
       </Form.Item>
@@ -85,7 +95,7 @@ const OrgSettings = () => {
 
       <Form.Item
         label="Requirements"
-        name="volunteer_requirements"
+        name="volunteer_info"
         extra="This will help Voluntree to automatically reply to frequently asked questions"
       >
         <Input.TextArea rows={2} placeholder="What are the requirements for a volunteer?"/>
@@ -102,7 +112,7 @@ const OrgSettings = () => {
       </Form.Item>
 
       <Form.Item {...tailLayout}>
-        <Button type="primary" htmlType="submit">
+        <Button type="primary" htmlType="submit" loading={saving}>
           Save
         </Button>
       </Form.Item>
