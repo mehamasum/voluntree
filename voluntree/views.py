@@ -275,7 +275,7 @@ class SignUpViewSet(ModelViewSet):
 
     @action(detail=True)
     def notifications(self, request, pk):
-        queryset = self.get_object().notifications.all()
+        queryset = self.get_object().notifications.all().order_by('-id')
         serializer = NotificationSerializer(queryset, many=True)
         return Response(serializer.data)
 

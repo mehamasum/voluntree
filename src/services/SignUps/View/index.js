@@ -61,7 +61,7 @@ export default function SignUpView(props) {
 
       <br/>
 
-      <SendUpdatesView/>
+      <SendUpdatesView signUpId={id}/>
 
       <br/>
 
