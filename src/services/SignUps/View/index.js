@@ -1,9 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, PageHeader, Popconfirm, Space, Spin, Tag} from "antd";
+import {Button, Card, Popconfirm, Space, Spin, Tabs, Tag} from "antd";
 import {Link, useParams} from "react-router-dom";
 import SendUpdatesView from './SendUpdatesView';
 import useFetch from 'use-http';
 import SignUpForm from '../SignUpForm';
+
+const {TabPane} = Tabs;
+
 
 export default function SignUpView(props) {
   const {id} = useParams();
@@ -30,15 +33,14 @@ export default function SignUpView(props) {
 
   return (
     <div>
-      <PageHeader
-        onBack={() => window.history.back()}
-        title="Sign Up Details"
-        tags={[
-          <Tag color={signup.disabled ? "warning" : "processing"}
-               key="tag2">{signup.disabled ? "Stopped Collecting Response" : "Collecting Response"}</Tag>
-        ]}/>
       <Card
-        title="Sign Up Details"
+        title={
+          <Space>
+            Sign Up Details
+            <Tag color={signup.disabled ? "warning" : "processing"}
+                 key="tag2">{signup.disabled ? "Stopped Collecting Response" : "Collecting Response"}</Tag>
+          </Space>
+        }
         extra={
           <Space size="middle">
             {signup.disabled ? null :
@@ -53,12 +55,16 @@ export default function SignUpView(props) {
               <Link to={`/signups/${props.match.params.id}/edit`}>Edit</Link>
             </Button>
           </Space>}>
-          <SignUpForm editable={false}/>
-       
-      </Card>
-      <br/>
 
-      <SendUpdatesView signUpId={id}/>
+        <Tabs defaultActiveKey="1">
+          <TabPane tab="Details" key="1">
+            <SignUpForm editable={false}/>
+          </TabPane>
+          <TabPane tab="Sent Updates" key="2">
+            <SendUpdatesView signUpId={id}/>
+          </TabPane>
+        </Tabs>
+      </Card>
     </div>
   );
 }
