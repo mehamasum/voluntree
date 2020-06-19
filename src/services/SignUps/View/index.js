@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Card, PageHeader, Popconfirm, Space, Spin, Tag} from "antd";
 import {Link, useParams} from "react-router-dom";
+import SendUpdatesView from './SendUpdatesView';
 import useFetch from 'use-http';
 
 export default function SignUpView(props) {
@@ -60,8 +61,7 @@ export default function SignUpView(props) {
 
       <br/>
 
-      <Card title="Sent Updates">
-      </Card>
+      <SendUpdatesView signUpId={id}/>
 
       <br/>
 

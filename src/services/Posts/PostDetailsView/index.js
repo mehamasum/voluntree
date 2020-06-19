@@ -27,18 +27,6 @@ import {
 
 const {TextArea} = Input;
 
-const columns = [
-  {
-    title: 'Update',
-    dataIndex: 'message',
-    render: (text, record) => (
-      <Typography.Text>
-        {truncateString(record.message, 240)}
-      </Typography.Text>
-    )
-  },
-];
-
 const PostDetailsView = () => {
   const {id} = useParams();
   const [postResponse, setPostResponse] = useFetch(`/api/posts/${id}/`);
@@ -51,42 +39,6 @@ const PostDetailsView = () => {
     if (!postResponse) return {};
     return postResponse;
   }, [postResponse]);
-
-  const tableData = useMemo(() => {
-    if (!notification_response) return [];
-    return notification_response.map(r => ({...r, key: r.id}));
-  }, [notification_response]);
-
-  useEffect(() => {
-    if (newNotificationFetch) {
-      fetch(`/api/posts/${id}/notifications/`, {
-        headers: {'Authorization': `Token ${localStorage.getItem('token')}`}
-      })
-        .then(results => {
-          return results.json();
-        })
-        .then(response => {
-          setNotificationResponse(response);
-          return response;
-        });
-      setNewNotificationFetch(false);
-    }
-  }, [newNotificationFetch, id, setNotificationResponse]);
-
-  const onModalOk = () => {
-    const postData = {
-      'post': id,
-      'message': modalValue
-    };
-    postFetch(`/api/notifications/`, postData).then(() => {
-      setNewNotificationFetch(true);
-      setModalValue('');
-      setShowModal(false);
-    }).catch(error => {
-      console.log('error', error);
-    });
-  };
-
 
 
 
@@ -145,37 +97,9 @@ const PostDetailsView = () => {
 
       <Row gutter={16}>
         <Col span={12}>
-          <Card
-            title="Sent Updates"
-            extra={
-              <Button
-                type="primary"
-                className="messenger-btn"
-                onClick={() => setShowModal(!showModal)}>
-                Send New Update
-              </Button>}>
-            <Table columns={columns} dataSource={tableData}/>
-          </Card>
-        </Col>
-
-        <Col span={12}>
           <InterestedVolunteers id={id}/>
         </Col>
       </Row>
-
-      <div>
-        <Modal
-          title="Send update to all volunteers of this event"
-          visible={showModal}
-          onOk={onModalOk}
-          onCancel={() => setShowModal(false)}>
-          <TextArea
-            value={modalValue}
-            onChange={e => setModalValue(e.target.value)}
-            placeholder="What do you want to share?"
-            autoSize={{minRows: 3, maxRows: 5}}/>
-        </Modal>
-      </div>
     </React.Fragment>);
 };
 
