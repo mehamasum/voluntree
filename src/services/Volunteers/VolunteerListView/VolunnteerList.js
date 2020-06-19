@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {Avatar, Button, Spin, Table, Typography} from 'antd';
-import {MessengerIcon} from '../../../assets/icons';
+import {MessengerIcon, NationBuilderIcon} from '../../../assets/icons';
 import useFetch, { Provider } from 'use-http';
 
 
@@ -19,16 +19,32 @@ const columns = [
   {
     title: 'Actions',
     render: (text, record) => (
-      <a
-        href={`https://www.facebook.com/${record.facebook_page_id}/inbox/`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        <Button type="primary" className="messenger-btn">
-          <MessengerIcon/>
-          Messenger
-        </Button>
-      </a>
+      <div className="action">
+        <a
+          href={`https://www.facebook.com/${record.facebook_page_id}/inbox/`}
+          target="_blank"
+          rel="noopener noreferrer">
+          <Button type="primary" className="messenger-btn">
+            <MessengerIcon/>
+            Messenger
+          </Button>
+        </a>
+        {record.integrations.map((integration, indx) => {
+          if(integration.integration_type !== 'NATION_BUILDER') return <React.Fragment/>;
+          console.log("integration", integration);
+          return (
+            <a
+              key={indx}
+              href={`https://${integration.integration_data}.nationbuilder.com/admin/signups/${integration.data}`}
+              target="_blank"
+              rel="noopener noreferrer">
+              <Button type="default" className="messenger-btn">
+                <NationBuilderIcon/>
+                View Profile
+              </Button>
+            </a>);
+        })}
+      </div>
     )
   },
 ];
@@ -45,6 +61,7 @@ const VolunteerListPerPage = props => {
 
   if (loading) return <Spin/>;
 
+  console.log("data", data);
   return (
     <Table
       columns={columns}

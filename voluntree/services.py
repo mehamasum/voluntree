@@ -1,14 +1,16 @@
+from django.core import signing
 import json
 from datetime import datetime, timedelta
-
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest, Verification, SignUp
+from .models import (Page, Volunteer, Post, Interest, Verification, SignUp,
+                     Integration, VolunteerThirdPartyIntegration)
 from random import randint
 from mail_templated import send_mail
 from wit import Wit
 from itertools import groupby
+from rauth import OAuth2Service
 
 
 class VerificationService:
@@ -461,6 +463,112 @@ class OrganizationService:
                 organization_id, start_date, to_date)
         }
         return results 
+
+
+class NationBuilderService:
+    NATIONBUILDER_BASE_URL = 'https://voluntree.nationbuilder.com/'
+    NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
+    NATIONBUILDER_APP_SECRET = getattr(settings, 'NATIONBUILDER_APP_SECRET', '')
+    REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+    NATIONBUILDER_PUSH_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/push'
+    NATIONBUILDER_REGISTER_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/%s/register'
+    
+    headers = {"Content-Type": "application/json"}
+
+    nation_slug = 'voluntree'
+
+    @staticmethod
+    def get_oauth_service(slug):
+        access_token_url = "https://" + slug + ".nationbuilder.com/oauth/token"
+        authorize_url = slug + ".nationbuilder.com/oauth/authorize"
+        return OAuth2Service(
+            client_id=NationBuilderService.NATIONBUILDER_APP_ID,
+            client_secret=NationBuilderService.NATIONBUILDER_APP_SECRET,
+            name='Voluntree',
+            authorize_url=authorize_url,
+            access_token_url=access_token_url,
+            base_url=slug + ".nationbuilder.com")
+
+    @staticmethod
+    def get_token(code, slug):
+        service = NationBuilderService.get_oauth_service(slug)
+        return service.get_access_token(
+            decoder=json.loads, data={
+                "code": code,
+                "redirect_uri": NationBuilderService.REDIRECT_URI,
+                "grant_type": "authorization_code"})
+
+    @staticmethod
+    def verify_oauth(code, state, user):
+        slug = signing.loads(state)
+        try:
+            token = NationBuilderService.get_token(code, slug)
+            expiry_token_date = datetime.now() + timedelta(days=59)
+            Integration.objects.update_or_create(
+                integration_type=Integration.NATION_BUILDER,
+                organization=user.organization,
+                defaults={
+                    'integration_data': slug,
+                    'integration_expiry_date': expiry_token_date,
+                    'integration_access_token': token,
+                })
+            return True
+        except KeyError:
+            return False
+
+    @staticmethod
+    def create_people(email, volunteer, post):
+        organization = post.page.organization
+        try:
+            integration = Integration.objects.get(
+                integration_type=Integration.NATION_BUILDER,
+                organization=organization)
+        except Integration.DoesNotExist:
+            integration = None
+
+        if integration is None:
+            return False
+
+        service = NationBuilderService.get_oauth_service(integration.integration_data)
+        session = service.get_session(integration.integration_access_token)
+        data = {
+            "person": {
+                "email": email,
+                "first_name": volunteer.first_name,
+                "last_name": volunteer.last_name,
+                "is_volunteer": True,
+            }
+        }
+        res = session.put(
+            NationBuilderService.NATIONBUILDER_PUSH_ENDPOINT,
+            headers=NationBuilderService.headers,
+            data=json.dumps(data))
+
+        if res.status_code == 200 or res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            volunteer.email = email
+            volunteer.save()
+
+            VolunteerThirdPartyIntegration.objects.update_or_create(
+                integration=integration,
+                volunteer=volunteer,
+                defaults={"data": id})
+            return True
+        if res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            register_endpoint = NationBuilderService.NATIONBUILDER_REGISTER_ENDPOINT % id
+            session.get(register_endpoint, headers=NationBuilderService.headers)
+            return True
+
+        return False
+
+    @staticmethod
+    def get_oauth_url(slug):
+        state = signing.dumps(slug)
+        url = "%soauth/authorize" % NationBuilderService.NATIONBUILDER_BASE_URL
+        return "%s?response_type=code&client_id=%s&redirect_uri=%s&state=%s" % (
+            url, NationBuilderService.NATIONBUILDER_APP_ID,
+            NationBuilderService.REDIRECT_URI, state)
 
 
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

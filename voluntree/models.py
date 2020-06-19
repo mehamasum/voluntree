@@ -58,6 +58,18 @@ class Integration(models.Model):
     integration_expiry_date = models.DateField(null=True, blank=True)
 
 
+class VolunteerThirdPartyIntegration(models.Model):
+    volunteer = models.ForeignKey(
+        Volunteer,
+        on_delete=models.CASCADE,
+        related_name='volunteer_third_party_integrations')
+    integration = models.ForeignKey(
+        Integration,
+        on_delete=models.CASCADE,
+        related_name='volunteer_third_party_integrations')
+    data = models.CharField(max_length=200)
+
+
 class SignUp(models.Model):
     title = models.CharField(max_length=200)
     description = models.CharField(max_length=1000, null=True, blank=True)

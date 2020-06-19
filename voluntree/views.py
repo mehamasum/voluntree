@@ -4,14 +4,16 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
-
 from .interaction import InteractionHandler
-from .services import (FacebookService, PostService, OrganizationService, SignUpService)
+from .services import (FacebookService, PostService, OrganizationService, SignUpService,
+                       NationBuilderService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
-                          SlotSerializer, SignUpSerializer, DateTimeSetializer)
-from .models import (Post, Interest, Volunteer, Notification, Organization, Slot, DateTime, SignUp, Page)
+                          SlotSerializer, SignUpSerializer, DateTimeSetializer,
+                          IntegrationSerializer)
+from .models import (Post, Interest, Volunteer, Notification, Organization,
+                     Slot, DateTime, SignUp, Page, Integration)
 from .paginations import CreationTimeBasedPagination
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
@@ -148,6 +150,24 @@ class FacebookApiViewSet(ViewSet):
     def oauth_url(self, request):
         # TODO generate a STATE dynamically
         url = FacebookService.get_oauth_url()
+        return Response(url)
+
+
+class NationBuilderApiViewSet(ViewSet):
+    permission_classes = (IsAuthenticated, )
+
+    @action(detail=False, methods=['post'])
+    def verify_oauth(self, request):
+        code = request.data.get('code')
+        state = request.data.get('state')
+        if NationBuilderService.verify_oauth(code, state, request.user):
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+    @action(detail=False)
+    def oauth_url(self, request):
+        slug = request.query_params.get('slug')
+        url = NationBuilderService.get_oauth_url(slug)
         return Response(url)
 
 
@@ -369,3 +389,11 @@ def signup_confirmation_view(request, **kargs):
     return render(request, 'messenger/done.html', {
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })
+
+
+class IntegrationViewSet(ModelViewSet):
+    serializer_class = IntegrationSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Integration.objects.filter(organization=self.request.user.organization)
