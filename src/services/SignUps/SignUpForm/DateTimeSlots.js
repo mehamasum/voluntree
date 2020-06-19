@@ -22,7 +22,11 @@ import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../
 import {DeleteOutlined, EditOutlined, UserOutlined} from '@ant-design/icons';
 import { DeleteFetch } from '../../../actions';
 import DeleteModal from './DeleteModal';
+import ReconnectingWebSocket from 'reconnecting-websocket';
+
 const generateColor = makeColorGenerator();
+
+const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.host;
 
 const ActionButton = (props) => {
   const {setVisibleTimeModal, id} = props;
@@ -67,8 +71,41 @@ const PopulateAvatar = (props) => {
 const SlotItem = (props) => {
   
   const {slot, editable} = props;
+  const {id} = slot;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [volunteerList] = useFetch(`/api/slots/${slot.id}/volunteers/`);
+  const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/`);
+  const [newVolunteer, ,setNewVolunteerDetailsUrl] = useFetch();
+  const [isSocketClose, setIsSocketClose] = useState(false);
+
+  useEffect(() => {
+    const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+    const endPoint = `${wsScheme}://${WEB_SOCKET_HOST}/ws/slots/${id}/interests`;
+    const ws = new ReconnectingWebSocket(endPoint);
+    ws.onerror = () => {
+      setIsSocketClose(true);
+    };
+    ws.onmessage = (e) => {
+      const json_parsed_data = JSON.parse(e.data);
+      const data = json_parsed_data.data;
+      if (data.status === 'created') {
+        setNewVolunteerDetailsUrl(`/api/volunteers/${data.id}/`);
+      }
+    };
+    ws.onopen = () => {
+      setIsSocketClose(false);
+    };
+    ws.onclose = () => {
+      setIsSocketClose(true);
+    };
+    return () => {
+      ws && ws.close();
+    }
+  }, [id, setNewVolunteerDetailsUrl, setIsSocketClose]);
+
+  useEffect(() => {
+    if(!newVolunteer) return;
+    setVolunteerList(prevList => [newVolunteer, ...prevList]);
+  }, [newVolunteer]);
 
   const volunteerListData = useMemo(() => {
     if (!volunteerList) return [];
@@ -107,8 +144,7 @@ const SlotItem = (props) => {
 </List.Item>
 }
 
-const constructColumns = (props) => {
-    const {editable, setVisibleTimeModal, datetimes } = props;
+const constructColumns = (editable, setVisibleTimeModal, datetimes ) => {
     const dateRow = {
         title: 'Date',
         width: 100,
@@ -156,7 +192,10 @@ const constructColumns = (props) => {
 
 export default function DateTimeSlots(props) {
   const {editable, setVisibleTimeModal, setVisibleSlotModal, datetimes } = props;
-  const columns = constructColumns(props);
+  const columns = useMemo(() => {
+       console.log('calling');
+      return constructColumns(editable, setVisibleTimeModal, datetimes);
+  }, [editable, setVisibleTimeModal, datetimes])
   return (
     <Card title="Date-Time and Slots" extra={editable && <Space>
       <Button onClick={() => setVisibleTimeModal(true)}>Add New Date & Time</Button>

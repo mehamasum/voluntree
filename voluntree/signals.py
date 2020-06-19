@@ -29,7 +29,7 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                 'type': 'send_post_intereset_response',
                 'data': {
                     'status': 'created',
-                    'id': instance.volunteer.id
+                    'id': str(instance.volunteer.id)
                 }
             }
         )
