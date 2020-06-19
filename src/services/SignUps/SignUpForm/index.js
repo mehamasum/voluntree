@@ -45,7 +45,7 @@ export default function SignUpForm(props) {
   const [savingSlot, setSavingSlot] = useState(false);
   const [savingSignup, setSavingSignup] = useState(false);
   const {editable} = props;
-  console.log('props', props);
+ 
   useEffect(() => {
     if (!dateTimesResponse) return;
     setDatetimes(dateTimesResponse);
