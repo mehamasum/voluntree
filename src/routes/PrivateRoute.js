@@ -7,7 +7,7 @@ const PrivateRoute = props => {
   const isAuthenticated = !!localStorage.getItem('token');
 
   const getPrivateView = (componentProps) => withoutTemplate ? <Component {...componentProps} /> : (
-      <Template path={rest.location.pathname}>
+      <Template path={"/" + rest.location.pathname.split('/')[1]}>
           <Component {...componentProps} />
       </Template>
   );
