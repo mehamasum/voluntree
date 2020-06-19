@@ -285,6 +285,11 @@ class SignUpViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+class VolunteerViewSet(ModelViewSet):
+    queryset = Volunteer.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = VolunteerSerializer
+    
 class SlotViewSet(ModelViewSet):
     queryset = Slot.objects.all()
     permission_classes = (IsAuthenticated, )

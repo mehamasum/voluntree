@@ -1,7 +1,7 @@
 from .views import (FacebookApiViewSet, PageViewSet, PostViewSet,
                     NotificationViewSet, InterestViewSet, OrganizationViewSet,
                     SignUpViewSet, SlotViewSet, DateTimeViewSet,
-                    NationBuilderApiViewSet, IntegrationViewSet)
+                    NationBuilderApiViewSet, IntegrationViewSet, VolunteerViewSet)
 def register_urls(router):
     router.register('pages', PageViewSet, 'page')
     router.register('posts', PostViewSet, 'post')
@@ -14,3 +14,4 @@ def register_urls(router):
     router.register('datetimes', DateTimeViewSet, 'datetime')
     router.register('slots', SlotViewSet, 'slot')
     router.register('integrations', IntegrationViewSet, 'integration')
+    router.register('volunteers', VolunteerViewSet, 'volunteer')
