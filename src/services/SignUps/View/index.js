@@ -56,18 +56,7 @@ export default function SignUpView(props) {
       </Card>
       <br/>
 
-      <Card title="Posts">
-      </Card>
-
-      <br/>
-
       <SendUpdatesView signUpId={id}/>
-
-      <br/>
-
-      <Card title="Confirmed Volunteers (0)">
-      </Card>
-
     </div>
   );
 }
