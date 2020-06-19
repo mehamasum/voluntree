@@ -262,6 +262,13 @@ class SlotViewSet(ModelViewSet):
     permission_classes = (IsAuthenticated, )
     serializer_class = SlotSerializer
 
+    @action(detail=True)
+    def volunteers(self, request, pk):
+        queryset = Volunteer.objects.filter(interests__slot=pk)
+        serializer = VolunteerSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
+
 
 class DateTimeViewSet(ModelViewSet):
     queryset = DateTime.objects.all()
