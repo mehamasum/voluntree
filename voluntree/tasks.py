@@ -1,7 +1,7 @@
 import json
 import logging
 from config.celery import app
-from .models import Post, Volunteer, Notification, Page
+from .models import Post, Volunteer, Notification, Page, Interest
 from .services import FacebookService
 from .utils import (build_comment_chip_message,
                     build_notification_message)
@@ -86,13 +86,14 @@ def ask_for_pin(volunteer_id):
 def send_notification_on_interested_person(notification_id):
     return
     notification = Notification.objects.get(id=notification_id)
-    page = notification.post.page
-    interests = notification.post.interests.filter(interested=True)
+    signup = notification.post.page
+    interests = Interest.objects.all().filter(slot__date_times__signup=signup)
     for interest in interests:
         volunteer = interest.volunteer
         recipient = {'id': volunteer.facebook_user_id}
         message = build_notification_message(notification)
-        FacebookService.send_private_message(page, recipient, message)
+        FacebookService.send_private_message(
+            interest.post.page, recipient, message)
 
 @app.task
 def send_email(to_email, send_pin):
