@@ -16,15 +16,14 @@
     margin: 5px;
 }
 
-.fb-post-embed-wrapper {
-    display: flex;
-    width: 100%;
-}
-
 .fb-post-embed {
     width: 600px;
     margin: 8px auto;
     box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.fb-status {
+    white-space: pre-line;
 }
 
 .full-page-loader {
@@ -34,4 +33,8 @@
     -moz-transform: translateX(-50%) translateY(-50%);
     -webkit-transform: translateX(-50%) translateY(-50%);
     transform: translateX(-50%) translateY(-50%);
+}
+
+.clickable-row {
+    cursor: pointer;
 }
