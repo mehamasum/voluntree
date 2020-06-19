@@ -72,7 +72,7 @@ const PageListView = () => {
         dataSource={tableData}
         pagination={{...pagination, total}}
         onChange={onChangeTable}
-        scroll={{y: 500 }}/>
+        />
     </React.Fragment>
   );
 };

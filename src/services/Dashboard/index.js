@@ -28,7 +28,7 @@ const Dashboard = ({...props}) => {
                 title="Your haven't connected a Facebook Page yet"
                 subTitle="Let's go to Page settings and add one."
                 extra={
-                  <Link to={`/settings`}>
+                  <Link to={`/settings/connected-pages`}>
                     <Button type="primary" key="console">
                       Go to Page Settings
                     </Button>
