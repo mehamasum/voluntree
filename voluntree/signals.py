@@ -8,7 +8,7 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
     if created and instance.interested:
         # TODO interest is not tied to posts anymore
         group_name = 'interested_%s' % str(instance.post.id)
-        # group_name = 'todo'
+        slot_group_name = 'slot_%s' % str(instance.slot.id)
 
         channel_layer = layers.get_channel_layer()
 
@@ -19,6 +19,17 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                 'data': {
                     'status': 'created',
                     'id': instance.id
+                }
+            }
+        )
+
+        async_to_sync(channel_layer.group_send)(
+            slot_group_name,
+            {
+                'type': 'send_post_intereset_response',
+                'data': {
+                    'status': 'created',
+                    'id': instance.volunteer.id
                 }
             }
         )

@@ -5,4 +5,6 @@ from . import consumers
 websocket_urlpatterns = [
     path('ws/posts/<uuid:post_id>/interests',
          consumers.PostInterestConsumer),
+    path('ws/slots/<uuid:slot_id>/interests',
+         consumers.PostInterestConsumer),
 ]
