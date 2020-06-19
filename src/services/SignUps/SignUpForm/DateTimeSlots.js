@@ -20,8 +20,23 @@ import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
 
 const generateColor = makeColorGenerator();
 
-export const constructColumns = (editable) => {
+const ActionButton = (props) => {
+  const {setVisibleTimeModal} = props;
+  console.log('new Data', props);
+  return <Space>
+            <Button type="default" size="small" onClick={() => setVisibleTimeModal(true)}>
+              Edit
+            </Button>
+            <Button type="default" danger size="small">
+              Delete
+            </Button>
+            
+          </Space>;
+  
+}
 
+const constructColumns = (props) => {
+    const {editable, setVisibleTimeModal, datetimes } = props;
     const dateRow = {
         title: 'Date',
         width: 100,
@@ -39,14 +54,12 @@ export const constructColumns = (editable) => {
     const actionRow = {
         title: 'Actions',
         render: (text, record) => {
-          return <Space>
-            <Button type="default" size="small">
-              Edit
-            </Button>
-            <Button type="default" danger size="small">
-              Delete
-            </Button>
-          </Space>;
+          console.log('record', record);
+          return <ActionButton 
+                        setVisibleTimeModal={setVisibleTimeModal}
+                        datetimes={datetimes}
+                  />
+           
         },
     };
 
@@ -81,7 +94,7 @@ export const constructColumns = (editable) => {
 
 export default function DateTimeSlots(props) {
   const {editable, setVisibleTimeModal, setVisibleSlotModal, datetimes } = props;
-  const columns = constructColumns(editable);
+  const columns = constructColumns(props);
   return (
     <Card title="Date-Time and Slots" extra={editable && <Space>
       <Button onClick={() => setVisibleTimeModal(true)}>Add New Date & Time</Button>
