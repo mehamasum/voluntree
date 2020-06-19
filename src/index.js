@@ -30,7 +30,7 @@ const App = (props) => {
             <LoginView/>
           </Route>
           <PrivateRoute exact path="/" component={Dashboard} />
-          <PrivateRoute exact path="/settings/" component={Settings} />
+          <PrivateRoute exact path="/settings/:tab?" component={Settings} />
           <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
           <PrivateRoute exact path="/nationbuilder_login/" component={NationBuilderLogin} withoutTemplate/>
 

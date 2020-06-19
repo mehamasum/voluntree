@@ -7,6 +7,7 @@ import PageListView from './PageListView';
 import nationbuilder from '../../assets/icons/nationbuilder.svg';
 import VolunteerSettings from "./VolunteerSettings";
 import PaymentSettings from "./PaymentSettings";
+import Tabs from "./SettingsTabs";
 
 
 const Settings = () => {
@@ -51,6 +52,9 @@ const Settings = () => {
 
   return (
     <div>
+      <Card>
+        <Tabs/>
+      </Card>
       <div className="create-new-page">
         <Button
           type="primary"
