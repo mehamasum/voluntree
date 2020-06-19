@@ -469,6 +469,10 @@ class NationBuilderService:
     NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
     NATIONBUILDER_APP_SECRET = getattr(settings, 'NATIONBUILDER_APP_SECRET', '')
     REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+    NATIONBUILDER_PUSH_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/push'
+    NATIONBUILDER_REGISTER_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/%s/register'
+    
+    headers = {"Content-Type": "application/json"}
 
     nation_slug = 'voluntree'
 
@@ -510,6 +514,50 @@ class NationBuilderService:
             return True
         except KeyError:
             return False
+
+    @staticmethod
+    def create_people(email, volunteer, post):
+        organization = post.page.organization
+        try:
+            integration = Integration.objects.get(
+                integration_type=Integration.NATION_BUILDER,
+                organization=organization)
+        except Integration.DoesNotExist:
+            integration = None
+
+        if integration is None:
+            return False
+
+        service = NationBuilderService.get_oauth_service(integration.integration_data)
+        session = service.get_session(integration.integration_access_token)
+        data = {
+            "person": {
+                "email": email,
+                "first_name": volunteer.first_name,
+                "last_name": volunteer.last_name,
+                "is_volunteer": True,
+            }
+        }
+        res = session.put(
+            NationBuilderService.NATIONBUILDER_PUSH_ENDPOINT,
+            headers=NationBuilderService.headers,
+            data=json.dumps(data))
+
+        if res.status_code == 200 or res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            slug = integration.integration_data
+            volunteer.email = email
+            volunteer.nation_builder_id = id
+            volunteer.nation_builder_slug = slug
+            volunteer.save()
+            return True
+        if res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            register_endpoint = NationBuilderService.NATIONBUILDER_REGISTER_ENDPOINT % id
+            session.get(register_endpoint, headers=NationBuilderService.headers)
+            return True
+
+        return False
 
     @staticmethod
     def get_oauth_url(slug):

@@ -30,6 +30,7 @@ class Page(models.Model):
         return self.name
 
 
+# TODO Need to move nation builder info in 3rd party integration model.
 class Volunteer(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     facebook_user_id = models.CharField(max_length=200) #PSID
@@ -38,6 +39,8 @@ class Volunteer(models.Model):
     last_name = models.CharField(max_length=100, null=True, blank=True)
     profile_pic = models.CharField(max_length=500, null=True, blank=True)
     email = models.CharField(max_length=200, null=True, blank=True)
+    nation_builder_id = models.IntegerField(null=True, blank=True)
+    nation_builder_slug = models.CharField(max_length=50, null=True, blank=True)
 
     def __str__(self):
         return "PSID " + self.facebook_user_id + " for " + self.facebook_page_id
