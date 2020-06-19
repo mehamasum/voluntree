@@ -1,11 +1,15 @@
 import React from "react";
 
-import {Button, Card, Tabs} from 'antd';
+import {Button, Card, Space, Tabs, Tag} from 'antd';
 import {useHistory, useParams} from "react-router";
 import PageListView from "./PageListView";
 import {useFetch} from "../../hooks";
 import VolunteerSettings from "./VolunteerSettings";
 import PaymentSettings from "./PaymentSettings";
+
+
+import nationbuilder from "../../assets/icons/nationbuilder.svg";
+import kindful from "../../assets/icons/kindful.svg";
 
 const {TabPane} = Tabs;
 
@@ -52,6 +56,59 @@ const PagesTab = () => {
   )
 }
 
+const IntegrationsTab = () => {
+  const integrations = [
+    {
+      name: 'Nation Builder',
+      logo: nationbuilder,
+      connected: true,
+      expired: false,
+      ready: true
+    },
+    {
+      name: 'Kindful',
+      logo: kindful,
+      connected: false,
+      expired: false,
+      ready: false
+    }
+  ]
+  return (
+    <div className="vms-list">
+      <Space>
+        {integrations.map(integration => (
+          <Card
+            key={integration.name}
+            hoverable
+            className="vms-card"
+            cover={<img alt="example" src={integration.logo} className="vms-logo"/>}
+          >
+            <div className="vms-card-body">
+              <div>
+                {
+                  integration.connected ? (
+                    integration.expired ? <Tag color="error">Expired</Tag> : <Tag color="success">Connected</Tag>
+                  ) : <Tag>Not Connected</Tag>
+                }
+              </div>
+              <br/>
+              <div>
+                <Button
+                  type="primary"
+                  className="vms-connect"
+                  disabled={!integration.ready}
+                >
+                  Connect {integration.name}
+                </Button>
+              </div>
+            </div>
+          </Card>
+        ))}
+      </Space>
+    </div>
+  )
+}
+
 const SettingsTabs = props => {
   const history = useHistory();
   const {tab} = useParams();
@@ -68,7 +125,7 @@ const SettingsTabs = props => {
         <PagesTab/>
       </TabPane>
       <TabPane tab="Integrations" key="integrations">
-        Content of tab 3
+        <IntegrationsTab/>
       </TabPane>
     </Tabs>
   )
