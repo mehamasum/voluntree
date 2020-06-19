@@ -101,12 +101,6 @@ class PostViewSet(ModelViewSet):
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    @action(detail=True)
-    def notifications(self, request, pk):
-        queryset = self.get_object().notifications.all()
-        serializer = NotificationSerializer(queryset, many=True)
-        return Response(serializer.data)
-
 
     @action(detail=True)
     def interests(self,request, pk):
@@ -277,6 +271,12 @@ class SignUpViewSet(ModelViewSet):
         signup.disabled = True
         signup.save()
         serializer = self.serializer_class(signup, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def notifications(self, request, pk):
+        queryset = self.get_object().notifications.all()
+        serializer = NotificationSerializer(queryset, many=True)
         return Response(serializer.data)
 
 

@@ -129,7 +129,7 @@ class Interest(models.Model):
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
+    signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
 
 class Verification(models.Model):

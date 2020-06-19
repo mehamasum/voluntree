@@ -84,6 +84,7 @@ def ask_for_pin(volunteer_id):
 
 @app.task
 def send_notification_on_interested_person(notification_id):
+    return
     notification = Notification.objects.get(id=notification_id)
     page = notification.post.page
     interests = notification.post.interests.filter(interested=True)
