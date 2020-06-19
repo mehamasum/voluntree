@@ -2,6 +2,10 @@
     height: 100%;
 }
 
+.action {
+    display: flex;
+}
+
 .messenger-icon {
     fill: white;
     margin: 0 8px;
@@ -9,6 +13,7 @@
 
 .messenger-btn {
     display: flex;
+    margin: 5px;
 }
 
 .fb-post-embed-wrapper {
