@@ -1,7 +1,8 @@
 from datetime import datetime
 from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
-                     Organization, Slot, SignUp, DateTime, Integration)
+                     Organization, Slot, SignUp, DateTime, Integration,
+                     VolunteerThirdPartyIntegration)
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -37,11 +38,24 @@ class PostSerializer(serializers.ModelSerializer):
         return post
 
 
+class VolunteerThirdPartyIntegrationSerializer(serializers.ModelSerializer):
+    integration_type = serializers.CharField(source='integration.integration_type')
+    integration_data = serializers.CharField(source='integration.integration_data')
+
+    class Meta:
+        model = VolunteerThirdPartyIntegration
+        fields = '__all__'
+
+
 class VolunteerSerializer(serializers.ModelSerializer):
+    integrations = VolunteerThirdPartyIntegrationSerializer(
+        source='volunteer_third_party_integrations',
+        many=True, read_only=True)
+
     class Meta:
         model = Volunteer
         fields = ('id', 'facebook_user_id', 'facebook_page_id', 'first_name',
-                  'last_name', 'profile_pic')
+                  'last_name', 'profile_pic', 'integrations')
 
 
 class InterestGeterializer(serializers.ModelSerializer):

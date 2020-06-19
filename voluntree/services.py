@@ -4,7 +4,8 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest, Verification, SignUp, Integration
+from .models import (Page, Volunteer, Post, Interest, Verification, SignUp,
+                     Integration, VolunteerThirdPartyIntegration)
 from random import randint
 from mail_templated import send_mail
 from wit import Wit
@@ -545,11 +546,13 @@ class NationBuilderService:
 
         if res.status_code == 200 or res.status_code == 201:
             id = res.json().get('person', {}).get('id')
-            slug = integration.integration_data
             volunteer.email = email
-            volunteer.nation_builder_id = id
-            volunteer.nation_builder_slug = slug
             volunteer.save()
+
+            VolunteerThirdPartyIntegration.objects.update_or_create(
+                integration=integration,
+                volunteer=volunteer,
+                defaults={"integration_data": id})
             return True
         if res.status_code == 201:
             id = res.json().get('person', {}).get('id')
