@@ -17,22 +17,70 @@ import {
 
 import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../../utils";
 import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
-
+import { DeleteFetch } from '../../../actions';
+import DeleteModal from './DeleteModal';
 const generateColor = makeColorGenerator();
 
 const ActionButton = (props) => {
-  const {setVisibleTimeModal} = props;
+  const {setVisibleTimeModal, id} = props;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
   console.log('new Data', props);
+  const deleteItemAction = () => {
+    DeleteFetch(`/api/datetimes/${id}/`).then(()=> {
+      console.log('successful');
+      setShowDeleteModal(false);
+    }).catch(err => {
+      console.log('got error', err);
+    })
+  }
+
+  const onCancle = () => {
+    setShowDeleteModal(false);
+  }
   return <Space>
-            <Button type="default" size="small" onClick={() => setVisibleTimeModal(true)}>
-              Edit
-            </Button>
-            <Button type="default" danger size="small">
-              Delete
-            </Button>
-            
+            <Button icon={<EditOutlined/>} onClick={() => setVisibleTimeModal(true)} />
+            <Button icon={<DeleteOutlined/>} onClick={() => setShowDeleteModal(true)} />
+            <DeleteModal 
+              deleteItemAction={deleteItemAction}
+              showModal={showDeleteModal}
+              onCancle={onCancle}
+            />
           </Space>;
   
+}
+
+
+const SlotItem = (props) => {
+  const {slot, editable} = props;
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const deleteItemAction = () => {
+    DeleteFetch(`/api/slots/${slot.id}/`).then(()=> {
+      console.log('successful');
+      setShowDeleteModal(false);
+    }).catch(err => {
+      console.log('got error', err);
+    })
+  }
+
+  const onCancle = () => {
+    setShowDeleteModal(false);
+  }
+
+  return <List.Item actions={editable ? [<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>} onClick={() => setShowDeleteModal(true)}/>] : []}>
+  <List.Item.Meta
+    title={<Tag color={generateColor(slot.id)}>
+      <span style={{color: getInvertColor(generateColor(slot.id))}}>
+        {slot.title} ({slot.required_volunteers})
+      </span>
+    </Tag>}
+    description={slot.description}
+  />
+  <DeleteModal 
+    deleteItemAction={deleteItemAction}
+    showModal={showDeleteModal}
+    onCancle={onCancle}
+  />
+</List.Item>
 }
 
 const constructColumns = (props) => {
@@ -58,6 +106,7 @@ const constructColumns = (props) => {
           return <ActionButton 
                         setVisibleTimeModal={setVisibleTimeModal}
                         datetimes={datetimes}
+                        id={record.id}
                   />
            
         },
@@ -68,18 +117,7 @@ const constructColumns = (props) => {
         render: (text, record) => (
           <List
             dataSource={record.slots}
-            renderItem={slot => (
-              <List.Item actions={editable ? [<Button icon={<EditOutlined/>}/>, <Button icon={<DeleteOutlined/>}/>] : []}>
-                <List.Item.Meta
-                  title={<Tag color={generateColor(slot.id)}>
-                    <span style={{color: getInvertColor(generateColor(slot.id))}}>
-                      {slot.title} ({slot.required_volunteers})
-                    </span>
-                  </Tag>}
-                  description={slot.description}
-                />
-              </List.Item>
-            )}
+            renderItem={slot => <SlotItem  slot={slot} editable={editable}/>}
           />
         )
     };

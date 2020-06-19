@@ -138,11 +138,11 @@ export default function SignUpForm(props) {
             <Input.TextArea rows={4} disabled={!editable} placeholder="What is the purpose of your form?"/>
           </Form.Item>
 
-          {editable && <Form.Item>
+          <Form.Item>
             <Button type="primary" htmlType="submit" loading={savingSignup}>
               Save
             </Button>
-          </Form.Item>}
+          </Form.Item>
         </Form>)
          
         }
