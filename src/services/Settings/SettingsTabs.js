@@ -4,29 +4,18 @@ import {Button, Card, Space, Tabs, Tag} from 'antd';
 import {useHistory, useParams} from "react-router";
 import PageListView from "./PageListView";
 import {useFetch} from "../../hooks";
-import VolunteerSettings from "./VolunteerSettings";
-import PaymentSettings from "./PaymentSettings";
 
 
 import nationbuilder from "../../assets/icons/nationbuilder.svg";
 import kindful from "../../assets/icons/kindful.svg";
+import OrgSettings from "./OrgSettings";
 
 const {TabPane} = Tabs;
 
 
 const OrgTab = () => {
   return (
-    <>
-      <Card title="Volunteer Settings">
-        <VolunteerSettings/>
-      </Card>
-      <br/>
-
-
-      <Card title="Payment Settings">
-        <PaymentSettings/>
-      </Card>
-    </>
+    <OrgSettings/>
   )
 }
 

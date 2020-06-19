@@ -152,9 +152,12 @@ class FacebookApiViewSet(ViewSet):
 
 
 class OrganizationViewSet(ModelViewSet):
-    queryset = Organization.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = OrganizationSerializer
+
+    def get_queryset(self):
+        user = self.request.user
+        return [user.organization]
 
     @date_range_params_check
     @action(detail=False)
