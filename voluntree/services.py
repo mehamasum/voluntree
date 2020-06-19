@@ -552,7 +552,7 @@ class NationBuilderService:
             VolunteerThirdPartyIntegration.objects.update_or_create(
                 integration=integration,
                 volunteer=volunteer,
-                defaults={"integration_data": id})
+                defaults={"data": id})
             return True
         if res.status_code == 201:
             id = res.json().get('person', {}).get('id')
