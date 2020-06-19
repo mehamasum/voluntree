@@ -275,7 +275,12 @@ class SignUpViewSet(ModelViewSet):
 
     @action(detail=True)
     def notifications(self, request, pk):
-        queryset = self.get_object().notifications.all().order_by('-id')
+        queryset = self.get_object().notifications.all().order_by('-created_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = NotificationSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
         serializer = NotificationSerializer(queryset, many=True)
         return Response(serializer.data)
 

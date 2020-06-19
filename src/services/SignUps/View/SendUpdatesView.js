@@ -28,13 +28,22 @@ const columns = [
       </Typography.Text>
     )
   },
+  {
+    title: 'Sent',
+    dataIndex: 'created_at',
+    render: (text, record) => (
+      <Typography.Text>
+        {formatRelativeTime(record.created_at)}
+      </Typography.Text>
+    )
+  },
 ];
 
 const SendUpdatesView = props => {
   const {signUpId} = props;
   const [showModal, setShowModal] = useState(false);
   const [modalValue, setModalValue] = useState('');
-  const {get: getNotifications, data: notifications=[]} = useFetch(`/api/signups/${signUpId}/notifications/`, {
+  const {get: getNotifications, data: notifications = null} = useFetch(`/api/signups/${signUpId}/notifications/`, {
     cachePolicy: 'no-cache',
     headers: {'Authorization': `Token ${localStorage.getItem('token')}`}
   }, [signUpId]);
@@ -55,7 +64,8 @@ const SendUpdatesView = props => {
   };
 
   const tableData = useMemo(() => {
-    return notifications.map(n => ({...n, key: n.id}));
+    if (!notifications) return [];
+    return notifications.results.map(n => ({...n, key: n.id}));
   }, [notifications]);
 
 
@@ -63,7 +73,7 @@ const SendUpdatesView = props => {
   return (
     <React.Fragment>
       <Card
-        title="Sent Updates"
+        title={`Sent Updates (${notifications ? notifications.count : 0 })`}
         extra={
           <Button
             type="primary"
@@ -75,7 +85,7 @@ const SendUpdatesView = props => {
       </Card>
       <div>
         <Modal
-          title="Send update to all volunteers of this event"
+          title="Send update to signed up volunteers"
           visible={showModal}
           onOk={onModalOk}
           onCancel={() => setShowModal(false)}>

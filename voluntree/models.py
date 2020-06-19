@@ -131,6 +131,10 @@ class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.message)
 
 class Verification(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='verifications')
