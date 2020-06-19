@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from voluntree.models import Post, Volunteer, SignUp
-from voluntree.services import FacebookService, VolunteerService
+from voluntree.services import FacebookService, VolunteerService, SignUpService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment
 
 
@@ -18,6 +18,7 @@ class Intents:
     PAYMENT_INFO = 'PAYMENT_INFO'
     HOW_CAN_I_SIGNUP = 'HOW_CAN_I_SIGNUP'
     VOLUNTEER_REQUIRMENTS = 'VOLUNTEER_REQUIRMENTS'
+    VACANCIES_ON_SLOT = 'VACANCIES_ON_SLOT'
 
 class InteractionHandler:
     ASKED_FOR_SIGNUP_ID = 'ASKED_FOR_SIGNUP_ID'
@@ -86,14 +87,87 @@ class InteractionHandler:
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.8:
             payment_info = post.page.organization.payment_info
-            message = 'Here is how you can send donations\n%s' % payment_info
-            print('public comment', message)
-            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+            if payment_info:
+                message = 'Here is how you can send donations\n%s' % payment_info
+                print('public comment', message)
+                InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.8:
             volunteer_info = post.page.organization.volunteer_info
-            message = 'Here are the requirements\n%s' % volunteer_info
-            print('public comment', message)
-            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+            if volunteer_info:
+                message = 'Here are the requirements\n%s' % volunteer_info
+                print('public comment', message)
+                InteractionHandler.send_comment(page_id, post_id, comment_id, message)
+        elif intent and intent['name'] == Intents.VACANCIES_ON_SLOT and intent['confidence'] > 0.8:
+            """
+            'entities': {
+                'custom_signup-slot:signup-slot': [{'id': '681286802715130', 'name': 'custom_signup-slot', 'role': 'signup-slot', 'start': 33, 'end': 39, 'body': 'slot 5', 'confidence': 0.9792, 'entities': [], 'value': 'slot 5', 'type': 'value'}], 
+                'custom_signup-day:signup-day': [{'id': '314261056257055', 'name': 'custom_signup-day', 'role': 'signup-day', 'start': 27, 'end': 32, 'body': 'day 1', 'confidence': 0.9587, 'entities': [], 'value': 'day 1', 'type': 'value'}]},
+            """
+            if post.signup:
+                fields, signup = SignUpService.get_human_readable_version(post.signup.id)
+                slot_query = InteractionHandler.first_entity(nlp, 'custom_signup-slot:signup-slot')
+                day_query = InteractionHandler.first_entity(nlp, 'custom_signup-day:signup-day')
+                if day_query and slot_query:
+                    day_count = int(day_query['body'].lower().replace("day ", ""))
+                    slot_count = int(slot_query['body'].lower().replace("slot ", ""))
+                    match = [field for field in fields if field['day_count'] == day_count and field['slot_count'] == slot_count]
+                    if match and match[0]:
+                        message = str(match[0]['available']) + " of " + str(match[0]['required_volunteers']) + " volunteers required",
+                    else:
+                        message = 'Sorry, no data found'
+                elif day_query:
+                    day_count = day_query['body'].lower().replace("day ", "")
+                    matches = [field for field in fields if field['day_count'] == day_count]
+                    if matches:
+                        slot_strings = []
+                        for field in matches:
+                            row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                                field['day_count'],
+                                field['slot_count'],
+                                field['date'],
+                                str(field['start_time']) + ' to ' + str(field['end_time']),
+                                field['title'],
+                                str(field['available']) + " of " + str(
+                                    field['required_volunteers']) + " volunteers required",
+                                field['description'],
+                            )
+                            slot_strings.append(row)
+
+                        separator = '-' * 50
+                        newline_with_separator = separator + '\n'
+                        message = "We need volunteers across slots on that day. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
+                            signup.title,
+                            signup.description,
+                            separator,
+                            newline_with_separator.join(slot_strings),
+                        )
+                    else:
+                        message = 'Sorry, no data found'
+                else:
+                    slot_strings = []
+                    for field in fields:
+                        row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                            field['day_count'],
+                            field['slot_count'],
+                            field['date'],
+                            str(field['start_time']) + ' to ' + str(field['end_time']),
+                            field['title'],
+                            str(field['available']) + " of " + str(
+                                field['required_volunteers']) + " volunteers required",
+                            field['description'],
+                        )
+                        slot_strings.append(row)
+
+                    separator = '-' * 50
+                    newline_with_separator = separator + '\n'
+                    message = "We need volunteers across slots. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
+                        signup.title,
+                        signup.description,
+                        separator,
+                        newline_with_separator.join(slot_strings),
+                    )
+                print('public comment', message)
+                InteractionHandler.send_comment(page_id, post_id, comment_id, message)
 
         else:
             # TODO: skip for now

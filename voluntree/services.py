@@ -8,6 +8,7 @@ from .models import Page, Volunteer, Post, Interest, Verification, SignUp
 from random import randint
 from mail_templated import send_mail
 from wit import Wit
+from itertools import groupby
 
 
 class VerificationService:
@@ -118,7 +119,44 @@ class InterestService:
         intereset.interested = interested
         intereset.save()
         return True
-    
+
+
+class SignUpService:
+    @staticmethod
+    def get_human_readable_version(signup_id):
+        # TODO: optimize
+        signup = SignUp.objects.get(id=signup_id)
+        date_times = signup.date_times.all().order_by('date', 'start_time', 'end_time')
+
+        form_fields = []
+
+        iterator = groupby(date_times, lambda x: x.date)
+        days = 0
+        for group, grouped_date_times in iterator:
+            print(group, grouped_date_times)
+            days += 1
+
+            slot_count = 0
+            for dt in grouped_date_times:
+                slots = dt.slots.all()
+                for slot in slots:
+                    slot_count += 1
+                    interests = Interest.objects.filter(datetime=dt, slot=slot)
+                    filled = interests.count()
+                    available = slot.required_volunteers - filled
+
+                    form_fields.append({
+                        'day_count': days,
+                        'slot_count': slot_count,
+                        'date': dt.date,
+                        'start_time': dt.start_time,
+                        'end_time': str(dt.end_time),
+                        'title': slot.title,
+                        'available': available,
+                        'required_volunteers': slot.required_volunteers,
+                        'description': slot.description,
+                    })
+        return form_fields, signup
 
 
 class PostService:

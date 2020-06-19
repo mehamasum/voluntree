@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 
 from .interaction import InteractionHandler
-from .services import (FacebookService, PostService, OrganizationService)
+from .services import (FacebookService, PostService, OrganizationService, SignUpService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
@@ -58,25 +58,22 @@ class PostViewSet(ModelViewSet):
             signup_id = request.data.get('signup')
 
             if signup_id:
-                #TODO: optimize
-                signup = request.user.organization.signups.get(id=signup_id)
-                date_times = signup.date_times.all()
+                # TODO: optimize
+                fields, signup = SignUpService.get_human_readable_version(signup_id)
 
-                form_fields = []
-                for dt in date_times:
-                    slots = dt.slots.all()
-                    for slot in slots:
-                        interests = Interest.objects.filter(datetime=dt, slot=slot)
-                        filled = interests.count()
-                        available = slot.required_volunteers - filled
-                        row = 'Date: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
-                            dt.date,
-                            str(dt.start_time) + ' to ' + str(dt.end_time),
-                            slot.title,
-                            str(available) + " of " + str(slot.required_volunteers) + " volunteers required",
-                            slot.description,
-                        )
-                        form_fields.append(row)
+                slot_strings = []
+                for field in fields:
+                    row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                        field['day_count'],
+                        field['slot_count'],
+                        field['date'],
+                        str(field['start_time']) + ' to ' + str(field['end_time']),
+                        field['title'],
+                        str(field['available']) + " of " + str(field['required_volunteers']) + " volunteers required",
+                        field['description'],
+                    )
+                    slot_strings.append(row)
+
                 separator = '-' * 50
                 newline_with_separator = separator + '\n'
                 fb_status = "{}\n\nDetails:\n{}\n{}\n\nSlots:\n{}\n{}".format(
@@ -84,7 +81,7 @@ class PostViewSet(ModelViewSet):
                     signup.title,
                     signup.description,
                     separator,
-                    newline_with_separator.join(form_fields),
+                    newline_with_separator.join(slot_strings),
                 )
                 print('status', fb_status)
             else:
