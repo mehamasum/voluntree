@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from voluntree.models import Post, Volunteer, SignUp
-from voluntree.services import FacebookService, VolunteerService, SignUpService
+from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment
 
 
@@ -328,11 +328,11 @@ class InteractionHandler:
             volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
             post = Post.objects.get(facebook_post_id=post_id)
 
-            # TODO: get or create 3rd party account
-            InteractionHandler.send_reply(psid, page_id, {
-                'text': 'Your email is verified. ' +
-                        'We have created an account for you in our volunteer management software.'
-            })
+            if NationBuilderService.create_people(email, volunteer, post):
+                InteractionHandler.send_reply(psid, page_id, {
+                    'text': 'Your email is verified. ' +
+                    'We have created an account for you in our volunteer management software.'
+                })
 
             InteractionHandler.reply_with_slot_picker(psid, page_id, post)
             InteractionHandler.reset_context(psid, page_id)
