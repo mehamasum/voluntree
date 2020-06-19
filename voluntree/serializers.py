@@ -20,7 +20,8 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'signup',)
+        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'signup',
+                  'append_signup_info')
         read_only_fields = ('facebook_post_id', 'created_at',)
 
     def get_page_name(self, obj):
