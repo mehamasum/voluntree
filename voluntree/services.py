@@ -544,6 +544,7 @@ class NationBuilderService:
             headers=NationBuilderService.headers,
             data=json.dumps(data))
 
+        is_success = False
         if res.status_code == 200 or res.status_code == 201:
             id = res.json().get('person', {}).get('id')
             volunteer.email = email
@@ -553,14 +554,13 @@ class NationBuilderService:
                 integration=integration,
                 volunteer=volunteer,
                 defaults={"data": id})
-            return True
+            is_success = True
         if res.status_code == 201:
             id = res.json().get('person', {}).get('id')
             register_endpoint = NationBuilderService.NATIONBUILDER_REGISTER_ENDPOINT % id
             session.get(register_endpoint, headers=NationBuilderService.headers)
-            return True
 
-        return False
+        return is_success
 
     @staticmethod
     def get_oauth_url(slug):
