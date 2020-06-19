@@ -1,30 +1,13 @@
 import React, {useEffect, useState} from "react";
-import {
-  Button,
-  Card,
-  DatePicker,
-  Form,
-  Input,
-  List,
-  Modal,
-  Select,
-  Space,
-  Table,
-  Tag,
-  TimePicker,
-  Typography,
-  Descriptions,
-  Col,
-  Row
-} from "antd";
+import {Button, Card, Descriptions, Form, Input, Modal, Select, Typography} from "antd";
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
-import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../../utils";
+import {formatDate, formatTime, makeColorGenerator} from "../../../utils";
 import _ from 'lodash';
-import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
 
 import DateTimeSlots from './DateTimeSlots';
 import TimeModal from './TimeModal';
+
 const generateColor = makeColorGenerator();
 
 export default function SignUpForm(props) {
@@ -45,7 +28,7 @@ export default function SignUpForm(props) {
   const [savingSlot, setSavingSlot] = useState(false);
   const [savingSignup, setSavingSignup] = useState(false);
   const {editable} = props;
- 
+
   useEffect(() => {
     if (!dateTimesResponse) return;
     setDatetimes(dateTimesResponse);
@@ -124,74 +107,72 @@ export default function SignUpForm(props) {
   return (
     <div>
       {
-      editable ? 
-      <Card title="Sign Up">
+        editable ?
+          <Card title="Sign Up">
 
-        {signUpResponse &&
-        (
-        <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} layout="vertical">
-          <Form.Item label="Title" name="title" rules={[{required: editable}]}>
-            <Input.TextArea rows={2} disabled={!editable} placeholder="What is the title for your form?"/>
-          </Form.Item>
+            {signUpResponse &&
+            (
+              <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} layout="vertical">
+                <Form.Item label="Title" name="title" rules={[{required: editable}]}>
+                  <Input.TextArea rows={2} disabled={!editable} placeholder="What is the title for your form?"/>
+                </Form.Item>
 
-          <Form.Item label="Description" name="description" rules={[{required: false}]}>
-            <Input.TextArea rows={4} disabled={!editable} placeholder="What is the purpose of your form?"/>
-          </Form.Item>
+                <Form.Item label="Description" name="description" rules={[{required: false}]}>
+                  <Input.TextArea rows={4} disabled={!editable} placeholder="What is the purpose of your form?"/>
+                </Form.Item>
 
-          <Form.Item>
-            <Button type="primary" htmlType="submit" loading={savingSignup}>
-              Save
-            </Button>
-          </Form.Item>
-        </Form>)
-         
-        }
-      </Card>
-      
-    :
-    <div>
-      <Descriptions>
-        <Descriptions.Item label="Title">
-          <Typography.Paragraph>
-          {signUpResponse && signUpResponse.title}
-          </Typography.Paragraph>
-        </Descriptions.Item>
-      </Descriptions>
-      <Descriptions>
-        <Descriptions.Item label="Description">
-          <Typography.Paragraph >
-          {signUpResponse && signUpResponse.description}
-          </Typography.Paragraph>
-        </Descriptions.Item>
-      </Descriptions>
-      <Descriptions>
-        <Descriptions.Item label="Created at">
-          <Typography.Paragraph >
-          {signUpResponse && formatDate(signUpResponse.created_at)}
-          </Typography.Paragraph>
-        </Descriptions.Item>
-      </Descriptions>
-    </div>
-  
-    
-    }
+                <Form.Item>
+                  <Button type="primary" htmlType="submit" loading={savingSignup}>
+                    Save
+                  </Button>
+                </Form.Item>
+              </Form>)
+
+            }
+          </Card>
+
+          :
+          <div>
+            <Descriptions>
+              <Descriptions.Item label="Title">
+                <Typography.Paragraph>
+                  {signUpResponse && signUpResponse.title}
+                </Typography.Paragraph>
+              </Descriptions.Item>
+            </Descriptions>
+            <Descriptions>
+              <Descriptions.Item label="Description">
+                <Typography.Paragraph>
+                  {signUpResponse && signUpResponse.description}
+                </Typography.Paragraph>
+              </Descriptions.Item>
+            </Descriptions>
+            <Descriptions>
+              <Descriptions.Item label="Created">
+                <Typography.Paragraph>
+                  {signUpResponse && formatDate(signUpResponse.created_at)}
+                </Typography.Paragraph>
+              </Descriptions.Item>
+            </Descriptions>
+          </div>
+
+
+      }
       <br/>
 
-      <DateTimeSlots 
-          editable={editable}
-          datetimes={datetimes}
-          setVisibleTimeModal={setVisibleTimeModal}
-          setVisibleSlotModal={setVisibleSlotModal}
-          signUpId={id}
-          visibleTimeModal={visibleTimeModal}
-          datetimes={datetimes}
-          setDatetimes={setDatetimes}
-
+      <DateTimeSlots
+        editable={editable}
+        datetimes={datetimes}
+        setVisibleTimeModal={setVisibleTimeModal}
+        setVisibleSlotModal={setVisibleSlotModal}
+        signUpId={id}
+        visibleTimeModal={visibleTimeModal}
+        setDatetimes={setDatetimes}
       />
 
 
-      <TimeModal 
-        signUpId={id} 
+      <TimeModal
+        signUpId={id}
         visibleTimeModal={visibleTimeModal}
         setVisibleTimeModal={setVisibleTimeModal}
         datetimes={datetimes}
