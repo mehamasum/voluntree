@@ -6,6 +6,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.response import Response
+import arrow
 
 from voluntree.models import Post, Volunteer, SignUp
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
@@ -105,44 +106,38 @@ class InteractionHandler:
             """
             if post.signup:
                 fields, signup = SignUpService.get_human_readable_version(post.signup.id)
+                print(fields)
+
                 slot_query = InteractionHandler.first_entity(nlp, 'custom_signup-slot:signup-slot')
                 day_query = InteractionHandler.first_entity(nlp, 'custom_signup-day:signup-day')
+
+                specific_time = InteractionHandler.first_entity(nlp, 'wit$datetime:datetime')
+
                 if day_query and slot_query:
                     day_count = int(day_query['body'].lower().replace("day ", ""))
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
-                    match = [field for field in fields if field['day_count'] == day_count and field['slot_count'] == slot_count]
-                    if match and match[0]:
-                        message = str(match[0]['available']) + " of " + str(match[0]['required_volunteers']) + " volunteers required",
-                    else:
-                        message = 'Sorry, no data found'
+                    match = [field for field in fields if
+                             field['day_count'] == day_count and field['slot_count'] == slot_count]
+                    InteractionHandler.reply_about_day_and_slot(match)
+
+                elif specific_time and slot_query:
+                    datetime_query = arrow.get(specific_time['value']).date()
+                    slot_count = int(slot_query['body'].lower().replace("slot ", ""))
+                    match = [field for field in fields if
+                             field['date'] == datetime_query and field['slot_count'] == slot_count]
+                    InteractionHandler.reply_about_day_and_slot(match)
+
                 elif day_query:
                     day_count = day_query['body'].lower().replace("day ", "")
                     matches = [field for field in fields if field['day_count'] == day_count]
-                    if matches:
-                        slot_strings = []
-                        for field in matches:
-                            row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
-                                field['day_count'],
-                                field['slot_count'],
-                                field['date'],
-                                str(field['start_time']) + ' to ' + str(field['end_time']),
-                                field['title'],
-                                str(field['available']) + " of " + str(
-                                    field['required_volunteers']) + " volunteers required",
-                                field['description'],
-                            )
-                            slot_strings.append(row)
+                    message = InteractionHandler.reply_about_day(matches, signup)
 
-                        separator = '-' * 50
-                        newline_with_separator = separator + '\n'
-                        message = "We need volunteers across slots on that day. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
-                            signup.title,
-                            signup.description,
-                            separator,
-                            newline_with_separator.join(slot_strings),
-                        )
-                    else:
-                        message = 'Sorry, no data found'
+                elif specific_time:
+                    datetime_query = arrow.get(specific_time['value']).date()
+                    print('date', datetime_query)
+                    matches = [field for field in fields if field['date'] == datetime_query]
+                    message = InteractionHandler.reply_about_day(matches, signup)
+
                 else:
                     slot_strings = []
                     for field in fields:
@@ -173,6 +168,44 @@ class InteractionHandler:
             # TODO: skip for now
             pass
         return Response(status.HTTP_200_OK)
+
+
+    @staticmethod
+    def reply_about_day(matches, signup):
+        if matches:
+            slot_strings = []
+            for field in matches:
+                row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                    field['day_count'],
+                    field['slot_count'],
+                    field['date'],
+                    str(field['start_time']) + ' to ' + str(field['end_time']),
+                    field['title'],
+                    str(field['available']) + " of " + str(
+                        field['required_volunteers']) + " volunteers required",
+                    field['description'],
+                )
+                slot_strings.append(row)
+
+            separator = '-' * 50
+            newline_with_separator = separator + '\n'
+            message = "We need volunteers across slots on the day. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
+                signup.title,
+                signup.description,
+                separator,
+                newline_with_separator.join(slot_strings),
+            )
+        else:
+            message = 'Sorry, no data found'
+        return message
+
+    @staticmethod
+    def reply_about_day_and_slot(match):
+        if match and match[0]:
+            message = str(match[0]['available']) + " of " + str(
+                match[0]['required_volunteers']) + " volunteers required",
+        else:
+            message = 'Sorry, no data found'
 
     @staticmethod
     def handle_new_postback(psid, page_id, postback):
