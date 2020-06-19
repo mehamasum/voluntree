@@ -13,6 +13,7 @@ import {
   Tag,
   TimePicker,
   Typography,
+  Descriptions,
   Col,
   Row
 } from "antd";
@@ -168,7 +169,6 @@ export default function SignUpForm(props) {
       });
   };
 
-  console.log('signUpResponse', signUpResponse, signUpResponse && signUpResponse.title);
 
   return (
     <div>
@@ -198,21 +198,30 @@ export default function SignUpForm(props) {
       </Card>
       
     :
-
-     <div>
-  
-      <Card title={"Title"} >
-      {signUpResponse && signUpResponse.title}
-      </Card>
-
-      <br/>
-
-      <Card title={"Description"} >
-        {signUpResponse && signUpResponse.description}
-      </Card>
-
+    <div>
+      <Descriptions>
+        <Descriptions.Item label="Title">
+          <Typography.Paragraph>
+          {signUpResponse && signUpResponse.title}
+          </Typography.Paragraph>
+        </Descriptions.Item>
+      </Descriptions>
+      <Descriptions>
+        <Descriptions.Item label="Description">
+          <Typography.Paragraph >
+          {signUpResponse && signUpResponse.description}
+          </Typography.Paragraph>
+        </Descriptions.Item>
+      </Descriptions>
+      <Descriptions>
+        <Descriptions.Item label="Created at">
+          <Typography.Paragraph >
+          {signUpResponse && formatDate(signUpResponse.created_at)}
+          </Typography.Paragraph>
+        </Descriptions.Item>
+      </Descriptions>
     </div>
-
+  
     
     }
       <br/>
