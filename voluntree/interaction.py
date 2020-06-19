@@ -291,7 +291,8 @@ class InteractionHandler:
             })
             return Response(status.HTTP_200_OK)
 
-        elif email_entity and InteractionHandler.validate_email(email_entity['value']) and email_entity['confidence'] > 0.8:
+        elif InteractionHandler.validate_email(text) or (
+                email_entity and InteractionHandler.validate_email(email_entity['value']) and email_entity['confidence'] > 0.8):
             email = email_entity['value']
             context = InteractionHandler.get_context(psid, page_id)
             if not context:
@@ -309,7 +310,8 @@ class InteractionHandler:
                 'text': 'What is the OTP?'
             })
 
-        elif otp_entity and InteractionHandler.validate_otp(otp_entity['value']) and otp_entity['confidence'] > 0.7:
+        elif InteractionHandler.validate_otp(text) or (
+                otp_entity and InteractionHandler.validate_otp(otp_entity['value']) and otp_entity['confidence'] > 0.7):
             pin = otp_entity['value']
 
             context = InteractionHandler.get_context(psid, page_id)
