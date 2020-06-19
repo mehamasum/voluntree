@@ -10,3 +10,14 @@ export const postFetch = (fetchUrl, postData = {}) => {
     return fetch(fetchUrl, requestOptions)
       .then(response => response.json())
 }
+
+
+export const DeleteFetch = (fetchUrl) => {
+  const requestOptions = {
+    method: 'DELETE',
+    headers: { 
+      'Authorization': `Token ${localStorage.getItem('token')}` 
+    },
+  };
+  return fetch(fetchUrl, requestOptions)
+}

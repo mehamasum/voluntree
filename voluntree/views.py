@@ -286,10 +286,22 @@ class SignUpViewSet(ModelViewSet):
         return Response(serializer.data)
 
 
+class VolunteerViewSet(ModelViewSet):
+    queryset = Volunteer.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = VolunteerSerializer
+    
 class SlotViewSet(ModelViewSet):
     queryset = Slot.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = SlotSerializer
+
+    @action(detail=True)
+    def volunteers(self, request, pk):
+        queryset = Volunteer.objects.filter(interests__slot=pk)
+        serializer = VolunteerSerializer(queryset, many=True, context={'request': request})
+        return Response(serializer.data)
+
 
 
 class DateTimeViewSet(ModelViewSet):
