@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useEffect, useState, useMemo} from "react";
 import {
   Button,
   Card,
@@ -15,6 +15,7 @@ import {
   Typography
 } from "antd";
 
+import {useFetch} from '../../../hooks';
 import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../../utils";
 import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
 import { DeleteFetch } from '../../../actions';
@@ -51,8 +52,16 @@ const ActionButton = (props) => {
 
 
 const SlotItem = (props) => {
+  
   const {slot, editable} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [volunteerList] = useFetch(`/api/slots/${slot.id}/volunteers/`);
+
+  const volunteerListData = useMemo(() => {
+    if (!volunteerList) return [];
+    return volunteerList.map(r => ({...r, key: r.id}));
+  }, [volunteerList]);
+
   const deleteItemAction = () => {
     DeleteFetch(`/api/slots/${slot.id}/`).then(()=> {
       console.log('successful');
@@ -62,6 +71,8 @@ const SlotItem = (props) => {
     })
   }
 
+  console.log('VolunteerList', volunteerListData);
+
   const onCancle = () => {
     setShowDeleteModal(false);
   }
@@ -70,7 +81,7 @@ const SlotItem = (props) => {
   <List.Item.Meta
     title={<Tag color={generateColor(slot.id)}>
       <span style={{color: getInvertColor(generateColor(slot.id))}}>
-        {slot.title} ({slot.required_volunteers})
+        {slot.title} ({volunteerListData.length} / {slot.required_volunteers})
       </span>
     </Tag>}
     description={slot.description}
