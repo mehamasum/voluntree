@@ -495,7 +495,7 @@ class NationBuilderService:
 
     @staticmethod
     def verify_oauth(code, state, user):
-        slug = signing.loads(state) # TODO decode it
+        slug = signing.loads(state)
         try:
             token = NationBuilderService.get_token(code, slug)
             expiry_token_date = datetime.now() + timedelta(days=59)
@@ -503,7 +503,7 @@ class NationBuilderService:
                 integration_type=Integration.NATION_BUILDER,
                 organization=user.organization,
                 defaults={
-                    'integration_data': '',
+                    'integration_data': slug,
                     'integration_expiry_date': expiry_token_date,
                     'integration_access_token': token,
                 })
@@ -513,7 +513,7 @@ class NationBuilderService:
 
     @staticmethod
     def get_oauth_url(slug):
-        state = signing.dumps(slug) # TODO Encode it
+        state = signing.dumps(slug)
         url = "%soauth/authorize" % NationBuilderService.NATIONBUILDER_BASE_URL
         return "%s?response_type=code&client_id=%s&redirect_uri=%s&state=%s" % (
             url, NationBuilderService.NATIONBUILDER_APP_ID,
