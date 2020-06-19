@@ -12,12 +12,14 @@ import {
   Table,
   Tag,
   TimePicker,
-  Typography
+  Typography,
+  Avatar,
+  Tooltip
 } from "antd";
 
 import {useFetch} from '../../../hooks';
 import {formatDate, formatTime, makeColorGenerator, getInvertColor} from "../../../utils";
-import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
+import {DeleteOutlined, EditOutlined, UserOutlined} from '@ant-design/icons';
 import { DeleteFetch } from '../../../actions';
 import DeleteModal from './DeleteModal';
 const generateColor = makeColorGenerator();
@@ -51,6 +53,17 @@ const ActionButton = (props) => {
 }
 
 
+const PopulateAvatar = (props) => {
+  const {record} = props;
+  return (
+      <div key={record.id}>
+        <Tooltip placement="top" title={`${record.first_name} ${record.last_name}`}>
+        <Avatar src={record.profile_pic}/>&nbsp;&nbsp;
+        </Tooltip>
+      </div>
+  )
+}
+
 const SlotItem = (props) => {
   
   const {slot, editable} = props;
@@ -59,7 +72,7 @@ const SlotItem = (props) => {
 
   const volunteerListData = useMemo(() => {
     if (!volunteerList) return [];
-    return volunteerList.map(r => ({...r, key: r.id}));
+    return volunteerList.map(r => (<PopulateAvatar key={r.id} record={r} />));
   }, [volunteerList]);
 
   const deleteItemAction = () => {
@@ -71,8 +84,7 @@ const SlotItem = (props) => {
     })
   }
 
-  console.log('VolunteerList', volunteerListData);
-
+ 
   const onCancle = () => {
     setShowDeleteModal(false);
   }
@@ -86,6 +98,7 @@ const SlotItem = (props) => {
     </Tag>}
     description={slot.description}
   />
+  {volunteerListData}
   <DeleteModal 
     deleteItemAction={deleteItemAction}
     showModal={showDeleteModal}
