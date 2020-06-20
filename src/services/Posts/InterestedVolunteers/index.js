@@ -1,8 +1,8 @@
-import React, {useState, useEffect} from 'react';
-import {List, Button, Avatar, Typography, Card} from 'antd';
+import React, {useEffect, useState} from 'react';
+import {Avatar, Button, Card, List, Typography} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
-import {MessengerIcon} from '../../../assets/icons';
+import {MessengerIcon, NationBuilderIcon} from '../../../assets/icons';
 import {DisconnectOutlined} from '@ant-design/icons';
 import ReconnectingWebSocket from 'reconnecting-websocket';
 
@@ -21,7 +21,7 @@ const InterestedVolunteers = props => {
   const [isSocketClose, setIsSocketClose] = useState(false);
 
   useEffect(() => {
-    if(initialcount_of_interested_volunteers) {
+    if (initialcount_of_interested_volunteers) {
       setNumberOfVolunteer(initialcount_of_interested_volunteers.count);
     }
   }, [initialcount_of_interested_volunteers]);
@@ -52,15 +52,15 @@ const InterestedVolunteers = props => {
   }, [id, setInterestDetailsUrl, setIsSocketClose]);
 
   useEffect(() => {
-    if(!interests_response) return;
+    if (!interests_response) return;
     setListData(prevList => [...prevList, ...interests_response.results]);
     setNextUrl(interests_response.next);
   }, [interests_response]);
 
   useEffect(() => {
-    if(!interest_details_response) return;
+    if (!interest_details_response) return;
     setListData(prevList => [interest_details_response, ...prevList]);
-    setNumberOfVolunteer(prevNumberOfVolunteer => prevNumberOfVolunteer + 1 );
+    setNumberOfVolunteer(prevNumberOfVolunteer => prevNumberOfVolunteer + 1);
   }, [interest_details_response]);
 
   return (
@@ -79,24 +79,37 @@ const InterestedVolunteers = props => {
             bordered
             dataSource={listData}
             renderItem={item => (
-            <List.Item>
-              <div>
-                <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
+              <List.Item actions={[<a
+                  href={`https://www.facebook.com/${item.volunteer.facebook_page_id}/inbox/`}
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  <Button type="primary" className="messenger-btn">
+                    <MessengerIcon/>
+                    Messenger
+                  </Button>
+                </a>,
+
+                ...item.volunteer.integrations.map((integration, indx) => {
+                  if (integration.integration_type !== 'NATION_BUILDER') return <React.Fragment/>;
+                  return (
+                    <a
+                      key={indx}
+                      href={`https://${integration.integration_data}.nationbuilder.com/admin/signups/${integration.data}`}
+                      target="_blank"
+                      rel="noopener noreferrer">
+                      <Button type="default" className="messenger-btn">
+                        <NationBuilderIcon/>
+                        View Profile
+                      </Button>
+                    </a>);
+                })]}>
+                <div>
+                  <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
                   <Typography.Text>
                     {item.volunteer.first_name} {item.volunteer.last_name}
                   </Typography.Text>
-              </div>
-
-              <a
-                href={`https://www.facebook.com/${item.volunteer.facebook_page_id}/inbox/`}
-                target="_blank"
-                rel="noopener noreferrer">
-                <Button type="primary" className="messenger-btn">
-                  <MessengerIcon/>
-                  Messenger
-                </Button>
-              </a>
-            </List.Item>)}
+                </div>
+              </List.Item>)}
           />
         </InfiniteScroll>
       </div>

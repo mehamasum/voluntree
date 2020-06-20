@@ -1,6 +1,8 @@
 from datetime import datetime
 from rest_framework import serializers
-from .models import (Page, Post, Volunteer, Interest, Notification, Organization, Slot, SignUp, DateTime)
+from .models import (Page, Post, Volunteer, Interest, Notification,
+                     Organization, Slot, SignUp, DateTime, Integration,
+                     VolunteerThirdPartyIntegration)
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -20,9 +22,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Post
-        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'disabled',
-                  'message_for_returning_volunteer')
-        read_only_fields = ('facebook_post_id', 'created_at', 'disabled')
+        fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'signup',
+                  'append_signup_info')
+        read_only_fields = ('facebook_post_id', 'created_at',)
 
     def get_page_name(self, obj):
         return obj.page.name
@@ -36,11 +38,24 @@ class PostSerializer(serializers.ModelSerializer):
         return post
 
 
+class VolunteerThirdPartyIntegrationSerializer(serializers.ModelSerializer):
+    integration_type = serializers.CharField(source='integration.integration_type')
+    integration_data = serializers.CharField(source='integration.integration_data')
+
+    class Meta:
+        model = VolunteerThirdPartyIntegration
+        fields = '__all__'
+
+
 class VolunteerSerializer(serializers.ModelSerializer):
+    integrations = VolunteerThirdPartyIntegrationSerializer(
+        source='volunteer_third_party_integrations',
+        many=True, read_only=True)
+
     class Meta:
         model = Volunteer
         fields = ('id', 'facebook_user_id', 'facebook_page_id', 'first_name',
-                  'last_name', 'profile_pic')
+                  'last_name', 'profile_pic', 'integrations')
 
 
 class InterestGeterializer(serializers.ModelSerializer):
@@ -53,29 +68,31 @@ class InterestGeterializer(serializers.ModelSerializer):
 class NotificationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Notification
-        fields = ('id', 'message', 'post')
+        fields = ('id', 'message', 'signup', 'created_at')
         
     def create(self, validated_data):
         user = self.context.get('request').user
         notification = Notification.objects.create(user=user, **validated_data)
         return notification
 
+
 class OrganizationSerializer(serializers.ModelSerializer):
     class Meta:
         model = Organization
-        fields = ('id', 'name')
+        fields = ('id', 'name', 'payment_info', 'volunteer_info', 'volunteer_verification')
 
 
 class SlotSerializer(serializers.ModelSerializer):
     class Meta:
         model = Slot
-        fields = ('id', 'need_volunteer', 'date_times')
+        fields = ('id', 'required_volunteers', 'title', 'description', 'date_times')
 
 
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignUp
-        fields = ('id', 'title')
+        fields = ('id', 'title', 'description', 'created_at', 'disabled')
+        read_only_fields = ('created_at', 'disabled',)
 
     def create(self, validated_data):
         user = self.context.get('request').user
@@ -89,3 +106,15 @@ class DateTimeSetializer(serializers.ModelSerializer):
     class Meta:
         model = DateTime
         fields = ('id', 'date', 'start_time', 'end_time', 'signup', 'slots')
+
+
+class IntegrationSerializer(serializers.ModelSerializer):
+    is_expired = serializers.SerializerMethodField()
+
+    def get_is_expired(self, obj):
+        return obj.integration_expiry_date < datetime.now().date()
+
+    class Meta:
+        model = Integration
+        fields = ('id', 'integration_expiry_date', 'integration_type',
+                  'is_expired')

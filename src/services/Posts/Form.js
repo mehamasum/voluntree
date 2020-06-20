@@ -1,41 +1,60 @@
 import './form.css';
 import post from '../../assets/post.png';
-import messenger from '../../assets/messenger.png';
-import React from 'react';
-import { Form, Input, Button, Select, Typography } from 'antd';
-import { Row, Col, Divider } from 'antd';
+import React, {useState} from 'react';
+import {Button, Checkbox, Col, Form, Input, Row, Select, Typography} from 'antd';
 
 const {Option} = Select;
 
 
 const PostForm = props => {
-  const {onSubmit = () => {}, initialValues={}, pages=[], signups=[], loading} = props;
+  const [showAttachInfo, setShowAttachInfo] = useState(false);
+  const {onSubmit, initialValues = {}, pages, signups, loading} = props;
+
+  const onSignupSelect = value => {
+    setShowAttachInfo(!!value);
+  }
 
   return (
     <React.Fragment>
       <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical">
         <Row>
           <Col span={12} className="post-form">
-            <Divider orientation="left">Facebook Post</Divider>
-
-            <Form.Item name="page" label="Select Page" rules={[{ required: true }]}>
-              <Select placeholder="Which page do you want to post to?" allowClear >
+            <Form.Item name="page" label="Select Page" rules={[{required: true}]}>
+              <Select placeholder="Which page do you want to post to?" allowClear>
                 {pages.map(page => {
                   return <Option value={page.id} key={page.id}>{page.name}</Option>;
                 })}
               </Select>
             </Form.Item>
 
-            <Form.Item name="signup" label="Select Signup" rules={[{ required: true }]}>
-              <Select placeholder="Which page do you want to post to?" allowClear >
+            <Form.Item label="Status" name="status" rules={[{required: true}]}>
+              <Input.TextArea rows={6} placeholder="What do you want to share?"/>
+            </Form.Item>
+
+            <Form.Item
+              name="signup"
+              label="Select Signup"
+              extra="This will help Voluntree to automatically reply to frequently asked questions"
+            >
+              <Select placeholder="Select a signup if you want to collect sign up" allowClear onChange={onSignupSelect}>
                 {signups.map(signup => {
                   return <Option value={signup.id} key={signup.id}>{signup.title}</Option>;
                 })}
               </Select>
             </Form.Item>
 
-            <Form.Item label="Status" name="status" rules={[{required: true}]}>
-              <Input.TextArea rows={6} placeholder="What do you want to share?"/>
+            {showAttachInfo ? <Form.Item
+              name="append_signup_info"
+              valuePropName="checked"
+              extra="If checked, Voluntree will concatenate date-time and slot info under the post"
+            >
+              <Checkbox>Attach Sign Up Info</Checkbox>
+            </Form.Item> : null}
+
+            <Form.Item>
+              <Button type="primary" htmlType="submit" className="submit-post" loading={loading}>
+                Create Post
+              </Button>
             </Form.Item>
           </Col>
           <Col span={12} className="post-preview">
@@ -45,33 +64,6 @@ const PostForm = props => {
         </Row>
 
         <br/>
-
-        <Row>
-          <Col span={12} className="post-form">
-            <Divider orientation="left">Messenger Interaction</Divider>
-            <Typography.Text type="secondary">Instruction/Info sharing when a person confirms interest on messenger</Typography.Text>
-            <br/>
-            <br/>
-            {/* TODO: checkbox for private or personal */}
-            <Form.Item label="Message For Volunteer" name="message_for_returning_volunteer" rules={[{required: true}]}>
-              <Input.TextArea rows={4} placeholder="What do you want to share with a volunteer?"/>
-            </Form.Item>
-
-            <br/>
-            <br/>
-
-
-            <Form.Item>
-              <Button type="primary" htmlType="submit" className="submit-post" loading={loading}>
-                Create Post
-              </Button>
-            </Form.Item>
-          </Col>
-          <Col span={12} className="post-preview">
-            <Typography.Text type="secondary">Initial interaction with volunteer</Typography.Text>
-            <img src={messenger} className="message-preview-img" alt="message-preview-img"/>
-          </Col>
-        </Row>
       </Form>
     </React.Fragment>
   );

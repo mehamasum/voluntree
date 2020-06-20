@@ -15,11 +15,6 @@ const Dashboard = ({...props}) => {
   console.log('got stats', stats);
   return (
     <div>
-      <PageHeader
-        className="site-page-header"
-        title="Dashboard"
-      />
-
       {
         pagesResponse && pagesResponse.count === 0 ? (
           <div>
@@ -28,7 +23,7 @@ const Dashboard = ({...props}) => {
                 title="Your haven't connected a Facebook Page yet"
                 subTitle="Let's go to Page settings and add one."
                 extra={
-                  <Link to={`/settings`}>
+                  <Link to={`/settings/connected-pages`}>
                     <Button type="primary" key="console">
                       Go to Page Settings
                     </Button>
@@ -53,14 +48,14 @@ const Dashboard = ({...props}) => {
         <Row gutter={16}>
           <Col xs={12} sm={8} lg={6}>
             <Statistic
-              title="Active Posts"
-              value={stats ? stats.active_posts : 0}
+              title="Active Sign Ups"
+              value={stats ? stats.active_signups : 0}
               prefix={<FireOutlined/>}
               className="stat-column"
             />
           </Col>
           <Col xs={12} sm={8} lg={6}>
-            <Statistic title="Total Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>}
+            <Statistic title="Posts Created" value={stats ? stats.posts : '...'} prefix={<FormOutlined/>}
                        className="stat-column"/>
           </Col>
           <Col xs={12} sm={8} lg={6}>

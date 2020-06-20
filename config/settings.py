@@ -98,7 +98,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'csp.middleware.CSPMiddleware',
 ]
+
+X_FRAME_OPTIONS = 'ALLOW-FROM https://facebook.com/'
+CSP_FRAME_ANCESTORS = ("'self'", 'https://www.messenger.com', 'https://www.facebook.com')
+CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
+CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com')
 
 ROOT_URLCONF = 'config.urls'
 
@@ -251,6 +258,12 @@ FACEBOOK_OAUTH_REDIRECT_URI = env.str('FACEBOOK_OAUTH_REDIRECT_URI', default='')
 FACEBOOK_OAUTH_STATE = env.str('FACEBOOK_OAUTH_STATE', default='')
 FACEBOOK_OAUTH_SCOPE = env.str('FACEBOOK_OAUTH_SCOPE', default='')
 FACEBOOK_WEBHOOK_VERIFY_TOKEN = env.str('FACEBOOK_WEBHOOK_VERIFY_TOKEN', default='')
+WIT_AI_TOKEN = env.str('WIT_AI_TOKEN', default='')
+
+
+NATIONBUILDER_APP_ID = env.str('NATIONBUILDER_APP_ID', default='')
+NATIONBUILDER_APP_SECRET = env.str('NATIONBUILDER_APP_SECRET', default='')
+NATIONBUILDER_OAUTH_REDIRECT_URI = env.str('NATIONBUILDER_OAUTH_REDIRECT_URI', default='')
 
 
 # Celery Settings

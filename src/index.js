@@ -11,6 +11,7 @@ import { Result } from 'antd';
 import PrivateRoute from './routes/PrivateRoute';
 import Settings from './services/Settings';
 import FacebookLogin from './services/FacebookLogin';
+import NationBuilderLogin from './services/NationBuilderLogin';
 import PostCreateView from './services/Posts/PostCreateView';
 import PostEditView from './services/Posts/PostEditView';
 import PostDetailsView from './services/Posts/PostDetailsView';
@@ -29,8 +30,9 @@ const App = (props) => {
             <LoginView/>
           </Route>
           <PrivateRoute exact path="/" component={Dashboard} />
-          <PrivateRoute exact path="/settings/" component={Settings} />
+          <PrivateRoute exact path="/settings/:tab?" component={Settings} />
           <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
+          <PrivateRoute exact path="/nationbuilder_login/" component={NationBuilderLogin} withoutTemplate/>
 
 
           <PrivateRoute exact path="/posts/" component={PostListView} />

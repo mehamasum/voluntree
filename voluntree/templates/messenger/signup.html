@@ -1,0 +1,257 @@
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <meta name="description" content="Volunteer Signup Form">
+  <meta name="author" content="Voluntree">
+  <title>{{ title }}</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
+        integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <style>
+    .page-wrapper {
+      min-height: 100vh;
+    }
+
+    body {
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      font-weight: 400;
+      font-size: 14px;
+    }
+
+    .bg-blue {
+      background: #2c6ed5;
+    }
+
+    .main {
+      padding: 100px 8px;
+    }
+
+    .wrapper {
+      margin: 0 auto;
+      max-width: 768px;
+    }
+
+    .btn {
+      line-height: 40px;
+      display: inline-block;
+      padding: 0 25px;
+      cursor: pointer;
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      color: #fff;
+      -webkit-transition: all 0.4s ease;
+      -o-transition: all 0.4s ease;
+      -moz-transition: all 0.4s ease;
+      transition: all 0.4s ease;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input[type="date" i] {
+      padding: 14px;
+    }
+
+    .table-condensed td, .table-condensed th {
+      font-size: 14px;
+      font-family: "Roboto", "Arial", "Helvetica Neue", sans-serif;
+      font-weight: 400;
+    }
+
+    input {
+      outline: none;
+      margin: 0;
+      border: none;
+      -webkit-box-shadow: none;
+      -moz-box-shadow: none;
+      box-shadow: none;
+      width: 100%;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    .desc {
+      margin: 16px 0;
+    }
+
+    .card {
+      overflow: hidden;
+      -webkit-border-radius: 3px;
+      -moz-border-radius: 3px;
+      border-radius: 3px;
+      background: #fff;
+    }
+
+    .card-1 {
+      -webkit-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+      -moz-box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+      box-shadow: 0px 8px 20px 0px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-1 .card-heading {
+      background: #dfe3ee;
+      height: 210px;
+    }
+
+    .card-1 .card-body {
+      padding: 0 90px;
+      padding-top: 55px;
+      padding-bottom: 65px;
+    }
+
+    @media (max-width: 767px) {
+      .card-1 .card-heading {
+        height: 0;
+      }
+
+      .card-1 .card-body {
+        padding: 16px 16px;
+      }
+
+      .main {
+        padding: 0;
+      }
+    }
+
+    input[type=checkbox] {
+      -ms-transform: scale(1.5); /* IE */
+      -moz-transform: scale(1.5); /* FF */
+      -webkit-transform: scale(1.5); /* Safari and Chrome */
+      -o-transform: scale(1.5); /* Opera */
+      padding: 10px;
+    }
+
+    .slot-desc {
+      white-space: pre-line
+    }
+
+    .green {
+      color: #57b846;
+    }
+
+    .datetime {
+      border-radius: 3px;
+    }
+
+    .date, .time {
+      background: #eee;
+      padding: 2px 5px;
+      white-space: nowrap;
+    }
+
+    .time {
+      background: #2c6ed5;
+      color: white;
+    }
+
+    .slot-info {
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+<script>
+  (function (d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) {
+      return;
+    }
+    js = d.createElement(s);
+    js.id = id;
+    js.src = "//connect.facebook.net/en_US/messenger.Extensions.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'Messenger'));
+
+  window.extAsyncInit = function () {
+    console.log('Messenger Extensions JS SDK is done loading');
+    MessengerExtensions.getContext('{{ FACEBOOK_APP_ID }}',
+      function success(thread_context) {
+        console.log(thread_context);
+      },
+      function error(err) {
+        console.error(err);
+      }
+    );
+  };
+</script>
+<div class="page-wrapper bg-blue main">
+  <div class="wrapper wrapper--w680">
+    <div class="card card-1">
+      <div class="card-heading">
+      </div>
+      <div class="card-body">
+        <div>
+          <div class="row">
+            <div class="col-sm-12">
+
+              <div>
+                <h1>{{ signup.title }}</h1>
+              </div>
+
+              <i>By {{ page }}</i>
+
+              <p class="desc">{{ signup.description }}</p>
+              <br>
+
+              <form method="post">
+                {% for hidden_field in form.hidden_fields %}
+                  {{ hidden_field }}
+                {% endfor %}
+
+                {% if form.non_field_errors %}
+                  <div class="alert alert-danger" role="alert">
+                    {% for error in form.non_field_errors %}
+                      {{ error }}
+                    {% endfor %}
+                  </div>
+                {% endif %}
+                <div class="table-responsive">
+                  <table class="table table-bordered">
+                    <thead class="thead-light">
+                    <tr>
+                      <th scope="col">Select</th>
+                      <th scope="col">Slot</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {% for field in form.fields %}
+                      <tr>
+                        <td>
+                          <div class="form-group form-check">
+                            <input type="checkbox" class="form-check-input" id="{{ field.id }}" name="{{ field.name }}"
+                                {% if field.initial %}
+                                   checked
+                                {% endif %}
+                            >
+                          </div>
+                        </td>
+                        <td>
+                          <div class="datetime">
+                            <div class="date">{{ field.date }}</div>
+                            <div class="time">{{ field.start_time }} to {{ field.end_time }}</div>
+                          </div>
+                          <div class="slot-info">
+                            <p><strong>{{ field.slot.title }} ({{ field.slot.required_volunteers }})</strong></p>
+                            <p class="slot-desc">{{ field.slot.description }}</p>
+                            <small class="green">{{ field.available }} of {{ field.slot.required_volunteers }}
+                              volunteers
+                              required</small>
+                          </div>
+                        </td>
+
+                      </tr>
+                    {% endfor %}
+                    </tbody>
+                  </table>
+                </div>
+                <input type="submit" value="Book Slots" class="btn btn-primary">
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

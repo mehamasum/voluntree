@@ -1,12 +1,17 @@
+from django.core import signing
 import json
 from datetime import datetime, timedelta
-
 import requests
 from django.conf import settings
 
-from .models import Page, Volunteer, Post, Interest, Verification
+from .models import (Page, Volunteer, Post, Interest, Verification, SignUp,
+                     Integration, VolunteerThirdPartyIntegration)
 from random import randint
 from mail_templated import send_mail
+from wit import Wit
+from itertools import groupby
+from rauth import OAuth2Service
+
 
 class VerificationService:
     @staticmethod
@@ -36,6 +41,9 @@ class VerificationService:
                 volunteer_id=volunteer_id, email=email, referred_post_id=referred_post_id)
         except Verification.DoesNotExist as e:
             pin = randint(100000, 999999) # generate 6 digit random pin
+            print('-'*50)
+            print('OTP', pin)
+            print('-'*50)
             verification_object = Verification.objects.create(
                 volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
 
@@ -93,10 +101,6 @@ class VolunteerService:
 
 
 class InterestService:
-    @staticmethod
-    def create_interest_after_consent(volunteer, post):
-        return Interest.objects.create(post=post, volunteer=volunteer)
-        
     def get_interested_status_from_postback_data(postback_data):
         payload = postback_data['payload'].split("_")
 
@@ -117,7 +121,44 @@ class InterestService:
         intereset.interested = interested
         intereset.save()
         return True
-    
+
+
+class SignUpService:
+    @staticmethod
+    def get_human_readable_version(signup_id):
+        # TODO: optimize
+        signup = SignUp.objects.get(id=signup_id)
+        date_times = signup.date_times.all().order_by('date', 'start_time', 'end_time')
+
+        form_fields = []
+
+        iterator = groupby(date_times, lambda x: x.date)
+        days = 0
+        for group, grouped_date_times in iterator:
+            print(group, grouped_date_times)
+            days += 1
+
+            slot_count = 0
+            for dt in grouped_date_times:
+                slots = dt.slots.all()
+                for slot in slots:
+                    slot_count += 1
+                    interests = Interest.objects.filter(datetime=dt, slot=slot)
+                    filled = interests.count()
+                    available = slot.required_volunteers - filled
+
+                    form_fields.append({
+                        'day_count': days,
+                        'slot_count': slot_count,
+                        'date': dt.date,
+                        'start_time': dt.start_time,
+                        'end_time': str(dt.end_time),
+                        'title': slot.title,
+                        'available': available,
+                        'required_volunteers': slot.required_volunteers,
+                        'description': slot.description,
+                    })
+        return form_fields, signup
 
 
 class PostService:
@@ -151,6 +192,10 @@ class FacebookService:
     WEBHOOK_SUBSCRIPTION_FIELDS = 'messages,messaging_postbacks,feed'
     WEBHOOK_URL = getattr(settings, 'APP_URL', '') + '/facebook/webhook/'
     WEBHOOK_VERIFY_TOKEN = getattr(settings, 'FACEBOOK_WEBHOOK_VERIFY_TOKEN')
+
+    WIT_AI_TOKEN = getattr(settings, 'WIT_AI_TOKEN')
+
+    APP_URL = getattr(settings, 'APP_URL')
 
     @staticmethod
     def get_oauth_url():
@@ -211,18 +256,49 @@ class FacebookService:
             page_access_token = page['access_token']
 
             headers = {'content-type': "application/json"}
+
+            # setup web hooks
             url = '%s/%s/subscribed_apps' % (
                 FacebookService.FACEBOOK_GRAPH_API_URL,
                 facebook_page_id
             )
-
             params = json.dumps({
                 "access_token": page_access_token,
                 "subscribed_fields": FacebookService.WEBHOOK_SUBSCRIPTION_FIELDS
             })
-
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
+            print('Subscribed to page', facebook_page_id, res)
+
+            # setup nlp
+            url = '%s/me/nlp_configs' % (
+                FacebookService.FACEBOOK_GRAPH_API_URL,
+            )
+            params = json.dumps({
+                "access_token": page_access_token,
+                "custom_token": FacebookService.WIT_AI_TOKEN,
+                "model": "CUSTOM",
+                "nlp_enabled": "true"
+            })
+            nlp = requests.post(url, headers=headers, data=params)
+            res = nlp.json()
+            print('Added NLP to page', facebook_page_id, res)
+
+
+            # setup whitelisted domains
+            url = '%s/me/messenger_profile' % (
+                FacebookService.FACEBOOK_GRAPH_API_URL,
+            )
+            params = json.dumps({
+                "access_token": page_access_token,
+                "whitelisted_domains": [
+                    FacebookService.APP_URL,
+                ]
+            })
+            whitelist = requests.post(url, headers=headers, data=params)
+            res = whitelist.json()
+            print('Whitelisted', facebook_page_id, res)
+
 
             # save page in model
             name = page.get('name', '')
@@ -248,6 +324,21 @@ class FacebookService:
         params = json.dumps({
             "access_token": page.page_access_token,
             "recipient": recipient,
+            "message": message
+        })
+
+        return requests.post(url, headers=headers, data=params)
+
+    @staticmethod
+    def send_public_reply(page, post_id, comment_id, message):
+        headers = {'content-type': "application/json"}
+        url = '%s/%s_%s/comments' % (
+            FacebookService.FACEBOOK_GRAPH_API_URL,
+            post_id,
+            comment_id,
+        )
+        params = json.dumps({
+            "access_token": page.page_access_token,
             "message": message
         })
 
@@ -284,6 +375,10 @@ class FacebookService:
         res = webhook.json()
         return res
 
+    @staticmethod
+    def run_wit(text):
+        client = Wit(FacebookService.WIT_AI_TOKEN)
+        return client.message(text)
 
 class OrganizationService:
     def number_of_posts(organization_id, from_date, to_date):
@@ -293,8 +388,8 @@ class OrganizationService:
         ).count()
         return post_count
 
-    def number_of_active_posts(organization_id, from_date, to_date):
-        post_count = Post.objects.filter(
+    def number_of_active_signups(organization_id, from_date, to_date):
+        post_count = SignUp.objects.filter(
             user__organization=organization_id,
             created_at__date__range=(from_date, to_date),
             disabled=False
@@ -356,7 +451,7 @@ class OrganizationService:
         end_date = datetime.strptime(to_date, "%Y-%m-%d").date()
 
         results = {
-            'active_posts': OrganizationService.number_of_active_posts(
+            'active_signups': OrganizationService.number_of_active_signups(
                 organization_id, start_date, end_date),
             'posts': OrganizationService.number_of_posts(
                 organization_id, start_date, end_date),
@@ -368,6 +463,112 @@ class OrganizationService:
                 organization_id, start_date, to_date)
         }
         return results 
+
+
+class NationBuilderService:
+    NATIONBUILDER_BASE_URL = 'https://voluntree.nationbuilder.com/'
+    NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
+    NATIONBUILDER_APP_SECRET = getattr(settings, 'NATIONBUILDER_APP_SECRET', '')
+    REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+    NATIONBUILDER_PUSH_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/push'
+    NATIONBUILDER_REGISTER_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/%s/register'
+    
+    headers = {"Content-Type": "application/json"}
+
+    nation_slug = 'voluntree'
+
+    @staticmethod
+    def get_oauth_service(slug):
+        access_token_url = "https://" + slug + ".nationbuilder.com/oauth/token"
+        authorize_url = slug + ".nationbuilder.com/oauth/authorize"
+        return OAuth2Service(
+            client_id=NationBuilderService.NATIONBUILDER_APP_ID,
+            client_secret=NationBuilderService.NATIONBUILDER_APP_SECRET,
+            name='Voluntree',
+            authorize_url=authorize_url,
+            access_token_url=access_token_url,
+            base_url=slug + ".nationbuilder.com")
+
+    @staticmethod
+    def get_token(code, slug):
+        service = NationBuilderService.get_oauth_service(slug)
+        return service.get_access_token(
+            decoder=json.loads, data={
+                "code": code,
+                "redirect_uri": NationBuilderService.REDIRECT_URI,
+                "grant_type": "authorization_code"})
+
+    @staticmethod
+    def verify_oauth(code, state, user):
+        slug = signing.loads(state)
+        try:
+            token = NationBuilderService.get_token(code, slug)
+            expiry_token_date = datetime.now() + timedelta(days=59)
+            Integration.objects.update_or_create(
+                integration_type=Integration.NATION_BUILDER,
+                organization=user.organization,
+                defaults={
+                    'integration_data': slug,
+                    'integration_expiry_date': expiry_token_date,
+                    'integration_access_token': token,
+                })
+            return True
+        except KeyError:
+            return False
+
+    @staticmethod
+    def create_people(email, volunteer, post):
+        organization = post.page.organization
+        try:
+            integration = Integration.objects.get(
+                integration_type=Integration.NATION_BUILDER,
+                organization=organization)
+        except Integration.DoesNotExist:
+            integration = None
+
+        if integration is None:
+            return False
+
+        service = NationBuilderService.get_oauth_service(integration.integration_data)
+        session = service.get_session(integration.integration_access_token)
+        data = {
+            "person": {
+                "email": email,
+                "first_name": volunteer.first_name,
+                "last_name": volunteer.last_name,
+                "is_volunteer": True,
+            }
+        }
+        res = session.put(
+            NationBuilderService.NATIONBUILDER_PUSH_ENDPOINT,
+            headers=NationBuilderService.headers,
+            data=json.dumps(data))
+
+        is_success = False
+        if res.status_code == 200 or res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            volunteer.email = email
+            volunteer.save()
+
+            VolunteerThirdPartyIntegration.objects.update_or_create(
+                integration=integration,
+                volunteer=volunteer,
+                defaults={"data": id})
+            is_success = True
+        if res.status_code == 201:
+            id = res.json().get('person', {}).get('id')
+            register_endpoint = NationBuilderService.NATIONBUILDER_REGISTER_ENDPOINT % id
+            session.get(register_endpoint, headers=NationBuilderService.headers)
+
+        return is_success
+
+    @staticmethod
+    def get_oauth_url(slug):
+        state = signing.dumps(slug)
+        url = "%soauth/authorize" % NationBuilderService.NATIONBUILDER_BASE_URL
+        return "%s?response_type=code&client_id=%s&redirect_uri=%s&state=%s" % (
+            url, NationBuilderService.NATIONBUILDER_APP_ID,
+            NationBuilderService.REDIRECT_URI, state)
 
 
 # VolunteerService.send_verification_email( '3106639519402532', '105347197864298' ,'28f86e98-81f6-47ed-afd9-ac8efb64610f', "two@gmail.com" )

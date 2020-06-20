@@ -1,23 +1,37 @@
-import React, {useState, useMemo, useCallback, useEffect} from "react";
-import {Button, Card, Modal, Table, Input, Form, Space} from "antd";
-import {useHistory} from "react-router-dom";
-import {Link} from "react-router-dom";
-import { useFetch } from '../../../hooks';
+import React, {useCallback, useEffect, useMemo, useState} from "react";
+import {Button, Card, Form, Input, Modal, Space, Table, Tag, Typography} from "antd";
+import {Link, useHistory} from "react-router-dom";
+import {useFetch} from '../../../hooks';
+import {formatRelativeTime} from "../../../utils";
 
 const columns = [
   {title: 'Title', dataIndex: 'title'},
+  {title: 'Description', dataIndex: 'description'},
   {
-      title: 'Actions',
-      render: (text, record) => (
-          <Space size="middle">
-            <Link to={`/signups/${record.id}/edit`}>Edit</Link>
-          </Space>
-      ),
+    title: 'Created',
+    dataIndex: 'created_at',
+    render: (text, record) => (
+      <Typography.Text>{formatRelativeTime(record.created_at)}</Typography.Text>
+    )
+  },
+   {
+        title: 'Collecting Response',
+        render: (text, record) => (
+          <Tag color={record.disabled? "warning":"processing"} key="tag2">{record.disabled? "No":"Yes"}</Tag>
+        ),
+    },
+  {
+    title: 'Actions',
+    render: (text, record) => (
+        <Space size="middle">
+          <Link to={`/signups/${record.id}/`}>View</Link>
+        </Space>
+    ),
   },
 ];
 
 export default function SignUpListView() {
-  const [signUpsResponse,, setUrl] = useFetch(`/api/signups/?limit=25`);
+  const [signUpsResponse, , setUrl] = useFetch(`/api/signups/?limit=25`);
   const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
   const [visible, setVisible] = useState(false);
@@ -27,19 +41,19 @@ export default function SignUpListView() {
   const [form] = Form.useForm();
 
   const tableData = useMemo(() => {
-      if (!signUpsResponse) return [];
-      return signUpsResponse.results.map(r => ({...r, key: r.id}));
+    if (!signUpsResponse) return [];
+    return signUpsResponse.results.map(r => ({...r, key: r.id}));
   }, [signUpsResponse]);
 
   useEffect(() => {
-      if (!signUpsResponse) return;
-      setTotal(signUpsResponse.count);
+    if (!signUpsResponse) return;
+    setTotal(signUpsResponse.count);
   }, [signUpsResponse]);
 
   const onChangeTable = useCallback((pag) => {
-      setPagination(pag);
-      const offset = (pag.current - 1) * 25;
-      setUrl(`/api/signups/?limit=25&offset=${offset}`);
+    setPagination(pag);
+    const offset = (pag.current - 1) * 25;
+    setUrl(`/api/signups/?limit=25&offset=${offset}`);
   }, [setPagination, setUrl]);
 
 
@@ -51,20 +65,21 @@ export default function SignUpListView() {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Token ${localStorage.getItem('token')}`},
+        'Authorization': `Token ${localStorage.getItem('token')}`
+      },
       body: JSON.stringify(values)
     })
-    .then(response => {
-      status = response.status;
-      return response.json();
-    })
-    .then(result => {
-      setCreating(false);
-      if(status===201) history.push(`/signups/${result.id}/edit`);
-    })
-    .catch(err => {
-      console.log("err", err);
-    });
+      .then(response => {
+        status = response.status;
+        return response.json();
+      })
+      .then(result => {
+        setCreating(false);
+        if (status === 201) history.push(`/signups/${result.id}/edit`);
+      })
+      .catch(err => {
+        console.log("err", err);
+      });
 
     /*
     window.setTimeout(() => {
@@ -84,7 +99,7 @@ export default function SignUpListView() {
         <Button type="primary" onClick={() => setVisible(true)}>Create New Sign Up</Button>
       }>
         <Table columns={columns} dataSource={tableData} pagination={{...pagination, total}}
-                       onChange={onChangeTable}/>
+               onChange={onChangeTable}/>
       </Card>
       <Modal
         visible={visible}

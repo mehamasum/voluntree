@@ -3,12 +3,6 @@ def build_notification_message(notification):
         'text': notification.message
     }
 
-def build_confirmation_message(post):
-    msg = post.message_for_returning_volunteer
-    return {
-        'text': msg
-    }
-
 def build_comment_chip_message(post):
     return {
         "attachment": {

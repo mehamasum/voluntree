@@ -6,6 +6,9 @@ from django.db import models
 class Organization(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     name = models.CharField(max_length=100)
+    payment_info = models.TextField(max_length=1000, null=True)
+    volunteer_info = models.TextField(max_length=1000, null=True)
+    volunteer_verification = models.BooleanField(default=True)
 
 
 class User(AbstractUser):
@@ -22,6 +25,9 @@ class Page(models.Model):
     facebook_page_id = models.CharField(max_length=200)
     page_access_token = models.CharField(max_length=200)
     page_expiry_token_date = models.DateField(blank=True, null=True)
+
+    def __str__(self):
+        return self.name
 
 
 class Volunteer(models.Model):
@@ -52,13 +58,28 @@ class Integration(models.Model):
     integration_expiry_date = models.DateField(null=True, blank=True)
 
 
+class VolunteerThirdPartyIntegration(models.Model):
+    volunteer = models.ForeignKey(
+        Volunteer,
+        on_delete=models.CASCADE,
+        related_name='volunteer_third_party_integrations')
+    integration = models.ForeignKey(
+        Integration,
+        on_delete=models.CASCADE,
+        related_name='volunteer_third_party_integrations')
+    data = models.CharField(max_length=200)
+
+
 class SignUp(models.Model):
     title = models.CharField(max_length=200)
+    description = models.CharField(max_length=1000, null=True, blank=True)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    created_at = models.DateTimeField(auto_now_add=True)
     organization = models.ForeignKey(Organization, on_delete=models.CASCADE, related_name='signups')
+    disabled = models.BooleanField(default=False)
+
     def __str__(self):
-        datetimes = "\n".join(str(seg) for seg in self.date_times.all())
-        return "{0}".format(datetimes)
+        return self.title
 
 
 class DateTime(models.Model):
@@ -66,10 +87,10 @@ class DateTime(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     signup = models.ForeignKey(SignUp, related_name='date_times', on_delete=models.CASCADE)
+
     def __str__(self):
-        slots_info = "\n".join(str(seg) for seg in self.slots.all())
-        boundary = "-----------------------------------------------"
-        return "{}\nDate: {}\n\nstart time: {}\nend time: {}\n\n{}\n{}".format(boundary,self.date, self.start_time, self.end_time, slots_info, boundary)
+        time = str(self.start_time) + "-" + str(self.end_time)
+        return "Date: {} Time: {}".format(self.date, time)
 
 
 class Slot(models.Model):
@@ -77,8 +98,9 @@ class Slot(models.Model):
     required_volunteers = models.IntegerField()
     title = models.CharField(max_length=200)
     description = models.TextField()
+
     def __str__(self):
-        return "title: {}\nVolunteer Needs: {}\n{}\n".format(self.title, self.required_volunteers, self.description)
+        return self.title + " (" + str(self.required_volunteers) + ")"
 
 
 class Post(models.Model):
@@ -87,22 +109,32 @@ class Post(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='posts')
     status = models.TextField()
     facebook_post_id = models.CharField(max_length=200, blank=True, null=True)
-    message_for_new_volunteer = models.TextField()
-    message_for_returning_volunteer = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    disabled = models.BooleanField(default=False)
     signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='posts', null=True, blank=True)
+    append_signup_info = models.BooleanField(default=False)
+
+    def __str__(self):
+        return self.status
 
 class Interest(models.Model):
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests')
+    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='interests', null=True)
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='interests')
     interested = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
+    datetime = models.ForeignKey(DateTime, on_delete=models.CASCADE, related_name='interests', null=True)
+    slot = models.ForeignKey(Slot, on_delete=models.CASCADE, related_name='interests', null=True)
+
+    def __str__(self):
+        return str(self.slot)
 
 class Notification(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
-    post = models.ForeignKey(Post, on_delete=models.CASCADE, related_name='notifications')
+    signup = models.ForeignKey(SignUp, on_delete=models.CASCADE, related_name='notifications')
     message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.message)
 
 class Verification(models.Model):
     volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='verifications')

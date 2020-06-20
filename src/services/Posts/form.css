@@ -12,8 +12,6 @@
     flex-direction: column;
     justify-content: center;
     text-align: center;
-    border: 1px solid #eee;
-    border-radius: 8px;
 }
 .post-preview-img {
     margin: 10px auto;
