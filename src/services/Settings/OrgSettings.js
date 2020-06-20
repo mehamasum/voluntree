@@ -98,7 +98,7 @@ const OrgSettings = () => {
         name="volunteer_info"
         extra="This will help Voluntree to automatically reply to frequently asked questions"
       >
-        <Input.TextArea rows={2} placeholder="What are the requirements for a volunteer?"/>
+        <Input.TextArea rows={6} placeholder="What are the requirements for a volunteer?"/>
       </Form.Item>
 
       <Divider orientation="left">Payment Settings</Divider>
@@ -108,7 +108,7 @@ const OrgSettings = () => {
         name="payment_info"
         extra="This will help Voluntree to automatically reply to frequently asked questions"
       >
-        <Input.TextArea rows={5} placeholder="How can people make donations/payments?"/>
+        <Input.TextArea rows={6} placeholder="How can people make donations/payments?"/>
       </Form.Item>
 
       <Form.Item {...tailLayout}>
