@@ -339,6 +339,7 @@ def volunteer_signup_view(request, **kargs):
             return HttpResponseNotFound('No Post')
 
     page = Page.objects.get(facebook_page_id=page_id)
+    last_slot = None
 
     if request.method == 'POST':
         cleaned_data = request.POST
@@ -361,6 +362,7 @@ def volunteer_signup_view(request, **kargs):
 
                 if field_name in cleaned_data:
                     Interest.objects.get_or_create(**filters)
+                    last_slot = slot
                     count += 1
                 else:
                     try:
@@ -368,9 +370,16 @@ def volunteer_signup_view(request, **kargs):
                     except Interest.DoesNotExist:
                         pass
 
-        InteractionHandler.send_reply(psid, page_id, {
-            'text': "Cool, you signed up for %s slots" % count
-        })
+        if count == 0:
+            InteractionHandler.send_reply(psid, page_id, {
+                'text': "You unregistered from all the slots (y)"
+            })
+        elif count == 1:
+            InteractionHandler.send_calendar_confirmation(psid, page_id, last_slot.datetime, last_slot)
+        else:
+            InteractionHandler.send_reply(psid, page_id, {
+                'text': "Cool, you signed up for %s slots :)" % count
+            })
         return HttpResponseRedirect('/messenger/signup/done/')
     else:
         form = {'fields': []}

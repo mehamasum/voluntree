@@ -274,9 +274,7 @@ class InteractionHandler:
                 datetime = DateTime.objects.get(id=datetime_id)
                 slot = Slot.objects.get(id=slot_id)
                 Interest.objects.get_or_create(datetime=datetime, slot=slot, volunteer=volunteer)
-                InteractionHandler.send_reply(psid, page_id, {
-                    'text': "Cool, you signed up for this slots. You can sign up for more slots ;)"
-                })
+                InteractionHandler.send_calendar_confirmation(psid, page_id, datetime, slot)
                 InteractionHandler.reply_with_slot_picker(psid, page_id, post)
             else:
                 InteractionHandler.reply_with_slot_picker(psid, page_id, post)
@@ -497,3 +495,40 @@ class InteractionHandler:
             }
         }
         send_private_reply_on_comment.apply_async((comment_id, page_id, json.dumps(message),))
+
+
+    @staticmethod
+    def send_calendar_confirmation(psid, page_id, datetime, slot):
+        timezone_str = 'America/Los_Angeles'
+        title = slot.title
+        desc = slot.description
+        location = 'Location'
+        start_date = end_date = arrow.get(datetime.date).format('YYYY-MM-DD HH:mm:ss')
+        tail = 'e[0][date_start]=' + start_date + '&e[0][date_end]=' + end_date + '&e[0][timezone]=' + timezone_str + '&e[0][title]=' + title + '&e[0][description]=' + desc + '&e[0][location]=' + location + '&e[0][privacy]=private)'
+
+        InteractionHandler.send_reply(psid, page_id, {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": "Cool, you signed up for this slot! You can add this event to your personal calendar:",
+                    "buttons": [
+                        {
+                            "type": "web_url",
+                            "url": "http://addtocalendar.com/atc/google?f=m&%s" % tail,
+                            "title": "+Google Calendar",
+                        },
+                        {
+                            "type": "web_url",
+                            "url": "http://addtocalendar.com/atc/outlookonline?f=m&%s" % tail,
+                            "title": "+Outlook Calendar",
+                        },
+                        {
+                            "type": "web_url",
+                            "url": "http://addtocalendar.com/atc/ical?f=m&%s" % tail,
+                            "title": "+Apple Calendar",
+                        }
+                    ]
+                }
+            }
+        })
