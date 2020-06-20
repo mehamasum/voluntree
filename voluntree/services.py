@@ -148,6 +148,8 @@ class SignUpService:
                     available = slot.required_volunteers - filled
 
                     form_fields.append({
+                        'datetime_id': dt.id,
+                        'slot_id': slot.id,
                         'day_count': days,
                         'slot_count': slot_count,
                         'date': dt.date,

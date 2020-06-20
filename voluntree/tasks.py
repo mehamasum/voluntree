@@ -3,8 +3,7 @@ import logging
 from config.celery import app
 from .models import Post, Volunteer, Notification, Page, Interest
 from .services import FacebookService
-from .utils import (build_comment_chip_message,
-                    build_notification_message)
+from .utils import build_notification_message
 import redis
 import json
 from urllib.parse import urlparse
@@ -36,24 +35,12 @@ def preprocess_comment_for_ml(hook_payload):
 
 
 @app.task
-def send_private_reply_on_comment(data):
-    comment_id = data.get('value', {}).get('comment_id')
-    post_id = comment_id.split('_')[0]
-    try:
-        post = Post.objects.get(facebook_post_id=post_id)
-    except Post.DoesNotExist:
-        msg = (
-            "No post found in Voluntree System Associated with this comment %s"
-            % comment_id
-        )
-        logging.warning(msg)
-        return
-    page = post.page
+def send_private_reply_on_comment(comment_id, page_id, message):
     recipient = {'comment_id': comment_id}
-    message = build_comment_chip_message(post)
-    wellcome_msg = FacebookService.send_private_message(
-        page, recipient, message)
-    return wellcome_msg.json()
+    page = Page.objects.get(facebook_page_id=page_id)
+    res = FacebookService.send_private_message(
+        page, recipient, json.loads(message))
+    return res.json()
 
 @app.task
 def reply(psid, page_id, message):

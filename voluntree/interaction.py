@@ -9,12 +9,13 @@ from rest_framework import status
 from rest_framework.response import Response
 import arrow
 
-from voluntree.models import Post, Volunteer, SignUp
+from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment
 
 
 class Intents:
+    SIGN_UP_AS_VOLUNTEER = 'SIGN_UP_AS_VOLUNTEER'
     QUES_EVENT_INFO = 'QUES_EVENT_INFO'
     APPRECIATION = 'APPRECIATION'
     PAYMENT_INFO = 'PAYMENT_INFO'
@@ -68,11 +69,34 @@ class InteractionHandler:
         intent = InteractionHandler.first_intent(nlp)
         print('intent', intent)
 
-        if intent and intent['name'] == 'SIGN_UP_AS_VOLUNTEER' and intent['confidence'] > 0.8:
-            message = 'Thank you for your interest. We have sent you a private reply.'
-            print('public comment', message)
-            InteractionHandler.send_comment(page_id, post_id, comment_id, message)
-            send_private_reply_on_comment.apply_async((data,))
+        if intent and intent['name'] == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
+            if post.signup:
+                fields, signup = SignUpService.get_human_readable_version(post.signup.id)
+                print(fields)
+
+                slot_query = InteractionHandler.first_entity(nlp, 'custom_signup-slot:signup-slot')
+                day_query = InteractionHandler.first_entity(nlp, 'custom_signup-day:signup-day')
+
+                # todo: add specific time too
+                specific_time = InteractionHandler.first_entity(nlp, 'wit$datetime:datetime')
+
+                if day_query and slot_query:
+                    day_count = int(day_query['body'].lower().replace("day ", ""))
+                    slot_count = int(slot_query['body'].lower().replace("slot ", ""))
+                    match = [field for field in fields if
+                             field['day_count'] == day_count and field['slot_count'] == slot_count]
+                    if match and match[0]:
+                        datetime_id = match[0]['datetime_id']
+                        slot_id = match[0]['slot_id']
+                        InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id)
+                    else:
+                        InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
+                else:
+                    InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
+            else:
+                # todo: only onboarding
+                pass
+
         elif intent and intent['name'] == Intents.HOW_CAN_I_SIGNUP and intent['confidence'] > 0.8:
             message = 'Thank you for your interest. We have sent you a private reply.'
             print('public comment', message)
@@ -215,6 +239,13 @@ class InteractionHandler:
         page_id = payload[1]
         post_id = payload[2]
 
+        if len(payload) > 3:
+            datetime_id = payload[3]
+            slot_id = payload[4]
+        else:
+            datetime_id = None
+            slot_id = None
+
         if consent == 'NO':
             # TODO: ignore for now
             return Response(status.HTTP_200_OK)
@@ -224,10 +255,13 @@ class InteractionHandler:
             .get_or_create_volunteer(psid, page_id)
 
         post = Post.objects.get(facebook_post_id=post_id)
+        verification = post.page.organization.volunteer_verification
 
-        if created:
+        if created and verification:
             InteractionHandler.set_context(psid, page_id, {
                 'post_id': post_id,
+                'datetime_id': datetime_id,
+                'slot_id': slot_id,
                 'state': InteractionHandler.ASKED_FOR_EMAIL
             })
             InteractionHandler.send_reply(psid, page_id, {
@@ -235,7 +269,17 @@ class InteractionHandler:
             })
         else:
             InteractionHandler.reset_context(psid, page_id)
-            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            if datetime_id and slot_id:
+                # todo: optimize
+                datetime = DateTime.objects.get(id=datetime_id)
+                slot = Slot.objects.get(id=slot_id)
+                Interest.objects.get_or_create(datetime=datetime, slot=slot, volunteer=volunteer)
+                InteractionHandler.send_reply(psid, page_id, {
+                    'text': "Cool, you signed up for this slots. You can sign up for more slots ;)"
+                })
+                InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            else:
+                InteractionHandler.reply_with_slot_picker(psid, page_id, post)
 
         return Response(status.HTTP_200_OK)
 
@@ -400,7 +444,7 @@ class InteractionHandler:
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": "Pick slots to sign up",
+                    "text": "Pick slots to sign up clicking this button. You can also use it to to unselect slots later.",
                     "buttons": [
                         {
                             "type": "web_url",
@@ -419,3 +463,37 @@ class InteractionHandler:
                 }
             }
         })
+
+    @staticmethod
+    def ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id):
+        our_comment = 'Thank you for your interest. We have sent you a private reply.'
+        InteractionHandler.send_comment(page_id, post_id, comment_id, our_comment)
+
+        if datetime_id and slot_id:
+            yes = ("YES_%s_%s_%s_%s" % (page_id, post_id, datetime_id, slot_id))
+        else:
+            yes = ("YES_%s_%s" % (page_id, post_id))
+
+        message = {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": "Are you Interested in this event?",
+                    "buttons": [
+                        {
+                            "type": "postback",
+                            "title": "Yes, Lets do this!",
+                            "payload": yes
+                        },
+                        {
+                            "type": "postback",
+                            "title": "No, Not Interested",
+                            "payload": ("NO_%s_%s" % (
+                                page_id, post_id))
+                        },
+                    ]
+                }
+            }
+        }
+        send_private_reply_on_comment.apply_async((comment_id, page_id, json.dumps(message),))
