@@ -1,4 +1,5 @@
 import json
+import re
 
 from django.conf import settings
 from django.core.cache import cache
@@ -256,8 +257,14 @@ class InteractionHandler:
 
     @staticmethod
     def validate_otp(otp):
-        # if re.fullmatch('\d{6}', otp):
         if 99999 < otp <= 999999:
+            return True
+        else:
+            return False
+
+    @staticmethod
+    def validate_otp_str(otp):
+        if re.fullmatch('\d{6}', otp):
             return True
         else:
             return False
@@ -323,8 +330,25 @@ class InteractionHandler:
             })
             return Response(status.HTTP_200_OK)
 
-        elif InteractionHandler.validate_email(text) or (
-                email_entity and InteractionHandler.validate_email(email_entity['value']) and email_entity['confidence'] > 0.8):
+        elif InteractionHandler.validate_email(text):
+            email = text
+            context = InteractionHandler.get_context(psid, page_id)
+            if not context:
+                return InteractionHandler.handle_expired_session(psid, page_id)
+
+            post_instance = Post.objects.get(facebook_post_id=context['post_id'])
+            VolunteerService.send_verification_email(psid, page_id, post_instance.id, email)
+
+            InteractionHandler.set_context(psid, page_id, {
+                'post_id': context['post_id'],
+                'state': InteractionHandler.ASKED_FOR_PIN,
+                'email': email
+            })
+            InteractionHandler.send_reply(psid, page_id, {
+                'text': 'What is the OTP?'
+            })
+
+        elif email_entity and InteractionHandler.validate_email(email_entity['value']) and email_entity['confidence'] > 0.8:
             email = email_entity['value']
             context = InteractionHandler.get_context(psid, page_id)
             if not context:
@@ -342,8 +366,35 @@ class InteractionHandler:
                 'text': 'What is the OTP?'
             })
 
-        elif InteractionHandler.validate_otp(text) or (
-                otp_entity and InteractionHandler.validate_otp(otp_entity['value']) and otp_entity['confidence'] > 0.7):
+        elif InteractionHandler.validate_otp_str(text):
+            pin = text
+
+            context = InteractionHandler.get_context(psid, page_id)
+            if not context:
+                return InteractionHandler.handle_expired_session(psid, page_id)
+
+            post_id = context['post_id']
+            email = context['email']
+
+            res = VolunteerService.verify_volunteer(psid, page_id, email, int(pin))
+            print('got res', res)
+            if not res:
+                # TODO: handle wrong attempt
+                pass
+
+            volunteer = Volunteer.objects.get(facebook_user_id=psid, facebook_page_id=page_id)
+            post = Post.objects.get(facebook_post_id=post_id)
+
+            if NationBuilderService.create_people(email, volunteer, post):
+                InteractionHandler.send_reply(psid, page_id, {
+                    'text': 'Your email is verified. ' +
+                    'We have created an account for you in our volunteer management software.'
+                })
+
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            InteractionHandler.reset_context(psid, page_id)
+
+        elif otp_entity and InteractionHandler.validate_otp(otp_entity['value']) and otp_entity['confidence'] > 0.7:
             pin = otp_entity['value']
 
             context = InteractionHandler.get_context(psid, page_id)
