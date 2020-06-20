@@ -7,22 +7,22 @@ from .tasks import send_notification_on_interested_person, send_email
 def update_interests_volunteer_list(sender, instance, created, **kwargs):
     if created and instance.interested:
         # TODO interest is not tied to posts anymore
-        group_name = 'interested_%s' % str(instance.post.id)
-        slot_group_name = 'slot_%s' % str(instance.slot.id)
-
         channel_layer = layers.get_channel_layer()
 
-        async_to_sync(channel_layer.group_send)(
-            group_name,
-            {
-                'type': 'send_post_intereset_response',
-                'data': {
-                    'status': 'created',
-                    'id': instance.id
+        if instance.post:
+            group_name = 'interested_%s' % str(instance.post.id)
+            async_to_sync(channel_layer.group_send)(
+                group_name,
+                {
+                    'type': 'send_post_intereset_response',
+                    'data': {
+                        'status': 'created',
+                        'id': instance.id
+                    }
                 }
-            }
-        )
+            )
 
+        slot_group_name = 'slot_%s' % str(instance.slot.id)
         async_to_sync(channel_layer.group_send)(
             slot_group_name,
             {
