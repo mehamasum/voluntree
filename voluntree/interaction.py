@@ -118,14 +118,14 @@ class InteractionHandler:
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
                     match = [field for field in fields if
                              field['day_count'] == day_count and field['slot_count'] == slot_count]
-                    InteractionHandler.reply_about_day_and_slot(match)
+                    message = InteractionHandler.reply_about_day_and_slot(match)
 
                 elif specific_time and slot_query:
                     datetime_query = arrow.get(specific_time['value']).date()
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
                     match = [field for field in fields if
                              field['date'] == datetime_query and field['slot_count'] == slot_count]
-                    InteractionHandler.reply_about_day_and_slot(match)
+                    message = InteractionHandler.reply_about_day_and_slot(match)
 
                 elif day_query:
                     day_count = day_query['body'].lower().replace("day ", "")
@@ -155,10 +155,7 @@ class InteractionHandler:
 
                     separator = '-' * 50
                     newline_with_separator = separator + '\n'
-                    message = "We need volunteers across slots. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
-                        signup.title,
-                        signup.description,
-                        separator,
+                    message = "Thank you for your query. Here are the details:\n\n{}".format(
                         newline_with_separator.join(slot_strings),
                     )
                 print('public comment', message)
@@ -174,27 +171,28 @@ class InteractionHandler:
     def reply_about_day(matches, signup):
         if matches:
             slot_strings = []
-            for field in matches:
-                row = '[Day %d][Slot %d]\nDate: %s\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
-                    field['day_count'],
-                    field['slot_count'],
-                    field['date'],
-                    str(field['start_time']) + ' to ' + str(field['end_time']),
-                    field['title'],
-                    str(field['available']) + " of " + str(
-                        field['required_volunteers']) + " volunteers required",
-                    field['description'],
+            for match in matches:
+                row = '[Slot %d]\nTime: %s\n\nSlot: %s\nAvailability: %s\nDescription: %s\n' % (
+                    match['slot_count'],
+                    str(match['start_time']) + ' to ' + str(match['end_time']),
+                    match['title'],
+                    str(match['available']) + " of " + str(
+                        match['required_volunteers']) + " volunteers required",
+                    match['description'],
                 )
                 slot_strings.append(row)
 
+            message = "Thank you for your query. "
+
+            if len(slot_strings) > 1:
+                message += 'We need volunteers across slots. '
+
             separator = '-' * 50
             newline_with_separator = separator + '\n'
-            message = "We need volunteers across slots on the day. Here are the details:\n{}\n{}\n\nSlots:\n{}\n{}".format(
-                signup.title,
-                signup.description,
-                separator,
+            message += "Here are the details:\n{}".format(
                 newline_with_separator.join(slot_strings),
             )
+
         else:
             message = 'Sorry, no data found'
         return message
@@ -206,6 +204,7 @@ class InteractionHandler:
                 match[0]['required_volunteers']) + " volunteers required",
         else:
             message = 'Sorry, no data found'
+        return message
 
     @staticmethod
     def handle_new_postback(psid, page_id, postback):
