@@ -4,7 +4,6 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 export default function TimeModal(props) {
 
   const {visibleTimeModal, setVisibleTimeModal, signUpId, datetimes, setDatetimes, editable} = props;
-  console.log('editable', editable);
   const [dateTimeForm] = Form.useForm();
   const [errors, setErrors] = useState({
     date: false,
@@ -69,15 +68,6 @@ export default function TimeModal(props) {
     title="Pick Date and Time"
     onOk={dateTimeForm.submit}
     onCancel={handleTimeModalCancel}
-    footer={[
-      <Button key="back" onClick={handleTimeModalCancel}>
-        Return
-      </Button>,
-      <Button key="submit" type="primary" loading={savingDatetime} onClick={dateTimeForm.submit} htmlType="submit"
-              form="datetime">
-        Add Date & Time
-      </Button>,
-    ]}
   >
     <Form name="datetime" form={dateTimeForm} onFinish={handleTimeModalOk}>
       <Form.Item label="Date" name="date" validateStatus={errors.date && "error"}

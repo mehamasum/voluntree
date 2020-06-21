@@ -5,7 +5,6 @@ import Template from "../template";
 const PrivateRoute = props => {
   const { component: Component, path, withoutTemplate, ...rest } = props;
   const isAuthenticated = !!localStorage.getItem('token');
-
   const getPrivateView = (componentProps) => withoutTemplate ? <Component {...componentProps} /> : (
       <Template path={"/" + rest.location.pathname.split('/')[1]}>
           <Component {...componentProps} />

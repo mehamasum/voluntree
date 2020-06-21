@@ -299,7 +299,9 @@ class SlotViewSet(ModelViewSet):
 
     @action(detail=True)
     def volunteers(self, request, pk):
-        queryset = Volunteer.objects.filter(interests__slot=pk)
+        datetime = request.query_params.get('datetime')
+        volunteer_ids = Interest.objects.filter(slot=pk,datetime=datetime).values('volunteer')
+        queryset = Volunteer.objects.filter(id__in=volunteer_ids)
         serializer = VolunteerSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
 
