@@ -174,13 +174,11 @@
 
   window.extAsyncInit = function () {
     console.log('Messenger Extensions JS SDK is done loading');
-    window.setTimeout(function () {
-      MessengerExtensions.requestCloseBrowser(function success() {
+    MessengerExtensions.requestCloseBrowser(function success() {
         // webview closed
       }, function error(err) {
         console.error(err);
       });
-    }, 300);
   };
 </script>
 <div class="page-wrapper bg-blue main">

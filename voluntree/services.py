@@ -162,6 +162,48 @@ class SignUpService:
                     })
         return form_fields, signup
 
+    @staticmethod
+    def get_human_readable_version_personal(signup, volunteer):
+        # TODO: optimize
+        date_times = signup.date_times.all().order_by('date', 'start_time', 'end_time')
+
+        form_fields = []
+
+        iterator = groupby(date_times, lambda x: x.date)
+        days = 0
+        for group, grouped_date_times in iterator:
+            print(group, grouped_date_times)
+            days += 1
+
+            slot_count = 0
+            for dt in grouped_date_times:
+                slots = dt.slots.all()
+                for slot in slots:
+                    slot_count += 1
+                    interests = Interest.objects.filter(datetime=dt, slot=slot)
+                    filled = interests.count()
+                    available = slot.required_volunteers - filled
+                    interested = interests.filter(volunteer=volunteer)
+                    field_name = 'dt_%s:slot_%s' % (str(dt.id), str(slot.id))
+
+                    form_fields.append({
+                        'id': 'id_' + field_name,
+                        'name': field_name,
+                        'datetime_id': dt.id,
+                        'slot_id': slot.id,
+                        'day_count': days,
+                        'slot_count': slot_count,
+                        'date': dt.date,
+                        'start_time': dt.start_time,
+                        'end_time': dt.end_time,
+                        'title': slot.title,
+                        'available': available,
+                        'required_volunteers': slot.required_volunteers,
+                        'description': slot.description,
+                        'initial': True if interested else False
+                    })
+        return form_fields, signup
+
 
 class PostService:
     @staticmethod

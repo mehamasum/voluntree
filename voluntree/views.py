@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from .interaction import InteractionHandler
 from .services import (FacebookService, PostService, OrganizationService, SignUpService,
-                       NationBuilderService)
+                       NationBuilderService, SignUpService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
@@ -383,27 +383,8 @@ def volunteer_signup_view(request, **kargs):
             })
         return HttpResponseRedirect('/messenger/signup/done/')
     else:
-        form = {'fields': []}
-
-        for dt in date_times:
-            slots = dt.slots.all()
-
-            for slot in slots:
-                interests = Interest.objects.filter(datetime=dt, slot=slot)
-                filled = interests.count()
-                interested = interests.filter(volunteer=volunteer)
-                field_name = 'dt_%s:slot_%s' % (str(dt.id), str(slot.id))
-                field = {
-                    'id': 'id_' + field_name,
-                    'name': field_name,
-                    'date': dt.date,
-                    'start_time': dt.start_time,
-                    'end_time': dt.end_time,
-                    'slot': slot,
-                    'available': slot.required_volunteers - filled,
-                    'initial': True if interested else False
-                }
-                form['fields'].append(field)
+        fields, _ = SignUpService.get_human_readable_version_personal(signup, volunteer)
+        form = {'fields': fields}
 
     return render(request, 'messenger/signup.html', {
         'signup': signup,
