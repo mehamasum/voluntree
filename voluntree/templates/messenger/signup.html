@@ -8,6 +8,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
         integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/open-iconic/1.1.1/font/css/open-iconic-bootstrap.min.css" integrity="sha256-BJ/G+e+y7bQdrYkS2RBTyNfBHpA9IuGaPmf9htub5MQ=" crossorigin="anonymous" />
+
   <style>
     .page-wrapper {
       min-height: 100vh;
@@ -128,19 +130,38 @@
       color: #57b846;
     }
 
+    .readabledatetime {
+      display: flex;
+    }
+
     .datetime {
-      border-radius: 3px;
+      margin: 16px 0;
     }
 
     .date, .time {
-      background: #eee;
-      padding: 2px 5px;
-      white-space: nowrap;
+      background: #6c757d;
+      color: white;
+      padding: 5px 8px;
     }
 
-    .time {
-      background: #2c6ed5;
-      color: white;
+    .time-cnt {
+      background: #007bff;
+    }
+
+
+    .date-cnt {
+      border-top-left-radius: 3px;
+      border-bottom-left-radius: 3px;
+    }
+
+    .time-cnt {
+      border-top-right-radius: 3px;
+      border-bottom-right-radius: 3px;
+    }
+
+    .date-with-icon {
+      margin: 5px 0;
+      color: #6c757d;
     }
 
     .slot-info {
@@ -184,7 +205,7 @@
             <div class="col-sm-12">
 
               <div>
-                <h1>{{ signup.title }}</h1>
+                <h3>{{ signup.title }}</h3>
               </div>
 
               <i>By {{ page }}</i>
@@ -225,16 +246,21 @@
                           </div>
                         </td>
                         <td>
+                          <span class="readabledatetime">
+                            <span class="date date-cnt">Day {{ field.day_count }}</span><span
+                              class="time time-cnt">Slot {{ field.slot_count }}</span>
+                          </span>
                           <div class="datetime">
-                            <div class="date">{{ field.date }}</div>
-                            <div class="time">{{ field.start_time }} to {{ field.end_time }}</div>
+                            <div class="date-with-icon"><span class="oi oi-calendar"></span> {{ field.date }}</div>
+                            <div class="date-with-icon"><span class="oi oi-clock"></span> {{ field.start_time }} to {{ field.end_time }}</div>
                           </div>
                           <div class="slot-info">
-                            <p><strong>{{ field.slot.title }} ({{ field.slot.required_volunteers }})</strong></p>
-                            <p class="slot-desc">{{ field.slot.description }}</p>
-                            <small class="green">{{ field.available }} of {{ field.slot.required_volunteers }}
+                            <p class="text-primary"><strong>{{ field.title }}</strong></p>
+                            <p class="slot-desc text-secondary">{{ field.description }}</p>
+                            <small class="text-warning">{{ field.available }} of {{ field.required_volunteers }}
                               volunteers
-                              required</small>
+                              required
+                            </small>
                           </div>
                         </td>
 

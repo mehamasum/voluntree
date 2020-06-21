@@ -104,8 +104,8 @@ MIDDLEWARE = [
 X_FRAME_OPTIONS = 'ALLOW-FROM https://facebook.com/'
 CSP_FRAME_ANCESTORS = ("'self'", 'https://www.messenger.com', 'https://www.facebook.com')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
-CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com')
+CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com', 'https://cdnjs.cloudflare.com')
 
 ROOT_URLCONF = 'config.urls'
 
