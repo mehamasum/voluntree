@@ -12,7 +12,9 @@ import {
   SettingOutlined,
   TeamOutlined,
   UserOutlined,
-  FormOutlined
+  FormOutlined,
+  MoneyCollectOutlined,
+  SolutionOutlined
 } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
 import {useFetch} from "../hooks";
@@ -98,6 +100,12 @@ const Template = (props) => {
             </Menu.Item>
             <Menu.Item key="/volunteers" icon={<TeamOutlined/>}>
               <Link to="/volunteers">Volunteers</Link>
+            </Menu.Item>
+            <Menu.Item key="/donations" icon={<MoneyCollectOutlined />}>
+              <Link to="/donations">Donations</Link>
+            </Menu.Item>
+            <Menu.Item key="/donors" icon={<SolutionOutlined />}>
+              <Link to="/donors">Donors</Link>
             </Menu.Item>
             <Menu.Item key="/settings" icon={<SettingOutlined/>}>
               <Link to="/settings">Settings</Link>
