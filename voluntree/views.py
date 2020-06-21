@@ -237,6 +237,7 @@ class WebhookCallbackView(APIView):
                     print(psid, 'on', page_id, 'says', message)
 
                     if 'postback' in message:
+                        print(psid, 'on', page_id, 'postback', message['postback'])
                         InteractionHandler.handle_new_postback(psid, page_id, message['postback'])
                     if 'message' in message:
                         InteractionHandler.handle_text_message(psid, page_id, message['message'])
