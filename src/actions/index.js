@@ -8,7 +8,11 @@ export const postFetch = (fetchUrl, postData = {}) => {
       body: JSON.stringify(postData)
     };
     return fetch(fetchUrl, requestOptions)
-      .then(response => response.json())
+      .then(response => {
+        if(response.status != 204) { // status 204 for loggedout
+          return response.json();
+        }
+      })
 }
 
 
