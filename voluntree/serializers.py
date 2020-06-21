@@ -91,8 +91,8 @@ class SlotSerializer(serializers.ModelSerializer):
 class SignUpSerializer(serializers.ModelSerializer):
     class Meta:
         model = SignUp
-        fields = ('id', 'title', 'description', 'created_at', 'disabled')
-        read_only_fields = ('created_at', 'disabled',)
+        fields = ('id', 'title', 'description', 'created_at', 'disabled', 'facts')
+        read_only_fields = ('created_at', 'disabled')
 
     def create(self, validated_data):
         user = self.context.get('request').user
