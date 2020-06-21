@@ -235,31 +235,47 @@ class InteractionHandler:
     def handle_new_postback(psid, page_id, postback):
         # BOOL_PAGE_POST
         payload = postback['payload'].split("_")
-        consent = payload[0]
-        page_id = payload[1]
-        post_id = payload[2]
+        type = payload[0]
 
-        if len(payload) > 3:
-            datetime_id = payload[3]
-            slot_id = payload[4]
-        else:
+        if type == 'YES' or type == 'NO':
+            consent = type
+            page_id = payload[1]
+            post_id = payload[2]
+
+            if len(payload) > 3:
+                datetime_id = payload[3]
+                slot_id = payload[4]
+            else:
+                datetime_id = None
+                slot_id = None
+
+            if consent == 'NO':
+                # TODO: ignore for now
+                return Response(status.HTTP_200_OK)
+
+            InteractionHandler.handle_consent(psid, page_id, post_id, datetime_id, slot_id)
+
+        elif type == 'SIGNUP':
+            post_id = payload[1]
             datetime_id = None
             slot_id = None
+            InteractionHandler.handle_consent(psid, page_id, post_id, datetime_id, slot_id)
 
-        if consent == 'NO':
-            # TODO: ignore for now
-            return Response(status.HTTP_200_OK)
+        return Response(status.HTTP_200_OK)
 
+
+    @staticmethod
+    def handle_consent(psid, page_id, fb_post_id, datetime_id, slot_id):
         # TODO: handle already clicked
         volunteer, created = VolunteerService \
             .get_or_create_volunteer(psid, page_id)
 
-        post = Post.objects.get(facebook_post_id=post_id)
+        post = Post.objects.get(facebook_post_id=fb_post_id)
         verification = post.page.organization.volunteer_verification
 
         if created and verification:
             InteractionHandler.set_context(psid, page_id, {
-                'post_id': post_id,
+                'post_id': fb_post_id,
                 'datetime_id': datetime_id,
                 'slot_id': slot_id,
                 'state': InteractionHandler.ASKED_FOR_EMAIL
@@ -278,8 +294,6 @@ class InteractionHandler:
                 InteractionHandler.reply_with_slot_picker(psid, page_id, post)
             else:
                 InteractionHandler.reply_with_slot_picker(psid, page_id, post)
-
-        return Response(status.HTTP_200_OK)
 
     @staticmethod
     def first_entity(nlp, name):
@@ -341,8 +355,19 @@ class InteractionHandler:
         otp_entity = InteractionHandler.first_entity(nlp, 'otp')
         print('otp intent', otp_entity)
 
-        if intent and intent['value'] == 'SIGN_UP_AS_VOLUNTEER' and intent['confidence'] > 0.8:
+        if intent and intent['value'] == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
             print('sign up intent', intent)
+            signups = SignUp.objects.filter(disabled=False)
+
+            buttons = []
+            for signup in signups:
+                related_post = signup.posts.first()
+                if related_post:
+                    buttons.append({
+                        "type": "postback",
+                        "title": signup.title,
+                        "payload": 'SIGNUP_%s' % str(related_post.facebook_post_id)
+                    })
 
             # todo: design chips
             InteractionHandler.send_reply(psid, page_id, {
@@ -351,18 +376,7 @@ class InteractionHandler:
                     "payload": {
                         "template_type": "button",
                         "text": "Which event?",
-                        "buttons": [
-                            {
-                                "type": "postback",
-                                "title": "Event 1",
-                                "payload": 'SIGNUP_event_1'
-                            },
-                            {
-                                "type": "postback",
-                                "title": "Event 2",
-                                "payload": 'SIGNUP_event_2'
-                            },
-                        ]
+                        "buttons": buttons
                     }
                 }
             })
@@ -405,7 +419,7 @@ class InteractionHandler:
             'email': email
         })
         InteractionHandler.send_reply(psid, page_id, {
-            'text': 'What is the OTP?'
+            'text': 'You have sent an OTP to the email address you provided. What is the OTP?'
         })
 
     @staticmethod
