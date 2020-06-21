@@ -9,6 +9,10 @@ import json
 from urllib.parse import urlparse
 from .preprocess import sentence_to_embeding
 from mail_templated import send_mail
+
+from .model import DocumentRetrievalModel as DRM
+from .query import ProcessedQuestion as PQ
+
 import environ
 env = environ.Env()
 
@@ -84,3 +88,19 @@ def send_notification_on_interested_person(notification_id):
 @app.task
 def send_email(to_email, send_pin):
     send_mail('email/confirmation.tpl', {'code': send_pin}, "welcome@voluntree.com", [to_email])
+
+
+@app.task
+def find_answer(q, data):
+    paragraphs = data.split('\n')
+
+    drm = DRM(paragraphs, True, True)
+
+    # Process Question
+    pq = PQ(q, True, False, True)
+
+    # Get Response From Bot
+    res = drm.query(pq)
+    print('find answer', res)
+
+    return res
