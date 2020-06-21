@@ -29,7 +29,7 @@ class PostInterestConsumer(AsyncWebsocketConsumer):
 
 class SlotInterestConsumer(AsyncWebsocketConsumer):
     async def connect(self):
-        self.room_name = self.scope['url_route']['kwargs']['slot_id']
+        self.room_name = self.scope['url_route']['kwargs']['room_id']
         self.room_group_name = 'slot_%s' % self.room_name
         # Join room group
         await self.channel_layer.group_add(

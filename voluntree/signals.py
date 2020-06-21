@@ -22,7 +22,7 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
                 }
             )
 
-        slot_group_name = 'slot_%s' % str(instance.slot.id)
+        slot_group_name = 'slot_%s_%s' % (str(instance.slot.id), str(instance.datetime.id))
         async_to_sync(channel_layer.group_send)(
             slot_group_name,
             {

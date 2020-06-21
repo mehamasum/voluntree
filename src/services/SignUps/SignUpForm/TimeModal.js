@@ -4,7 +4,6 @@ import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 export default function TimeModal(props) {
 
   const {visibleTimeModal, setVisibleTimeModal, signUpId, datetimes, setDatetimes, editable} = props;
-  console.log('editable', editable);
   const [dateTimeForm] = Form.useForm();
   const [errors, setErrors] = useState({
     date: false,

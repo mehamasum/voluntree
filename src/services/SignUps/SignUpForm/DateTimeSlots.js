@@ -15,10 +15,8 @@ const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.
 const ActionButton = (props) => {
   const {setVisibleTimeModal, id} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  console.log('new Data', props);
   const deleteItemAction = () => {
     DeleteFetch(`/api/datetimes/${id}/`).then(() => {
-      console.log('successful');
       setShowDeleteModal(false);
     }).catch(err => {
       console.log('got error', err);
@@ -54,16 +52,20 @@ const PopulateAvatar = (props) => {
 
 const SlotItem = (props) => {
 
-  const {slot, editable} = props;
+  const {slot, editable, datetimeId} = props;
   const {id} = slot;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/`);
   const [newVolunteer, , setNewVolunteerDetailsUrl] = useFetch();
   const [isSocketClose, setIsSocketClose] = useState(false);
 
+  const [roomId, setRoomId]  = useState(`${id}_${datetimeId}`);
+  
+
   useEffect(() => {
+  
     const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
-    const endPoint = `${wsScheme}://${WEB_SOCKET_HOST}/ws/slots/${id}/interests`;
+    const endPoint = `${wsScheme}://${WEB_SOCKET_HOST}/ws/slots/${roomId}/interests`;
     const ws = new ReconnectingWebSocket(endPoint);
     ws.onerror = () => {
       setIsSocketClose(true);
@@ -84,7 +86,13 @@ const SlotItem = (props) => {
     return () => {
       ws && ws.close();
     }
-  }, [id, setNewVolunteerDetailsUrl, setIsSocketClose]);
+  }, [setIsSocketClose, setNewVolunteerDetailsUrl, roomId]);
+
+
+  useState(() => {
+    if(!id || !datetimeId) return;
+     setRoomId(`${id}_${datetimeId}`);
+  }, [id , datetimeId])
 
   useEffect(() => {
     if (!newVolunteer) return;
@@ -98,7 +106,6 @@ const SlotItem = (props) => {
 
   const deleteItemAction = () => {
     DeleteFetch(`/api/slots/${slot.id}/`).then(() => {
-      console.log('successful');
       setShowDeleteModal(false);
     }).catch(err => {
       console.log('got error', err);
@@ -150,7 +157,6 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
   const actionRow = {
     title: 'Actions',
     render: (text, record) => {
-      console.log('record', record);
       return <ActionButton
         setVisibleTimeModal={setVisibleTimeModal}
         datetimes={datetimes}
@@ -165,7 +171,7 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
     render: (text, record) => (
       <List
         dataSource={record.slots}
-        renderItem={slot => <SlotItem slot={slot} editable={editable}/>}
+        renderItem={slot => <SlotItem slot={slot} datetimeId={record.id} editable={editable}/>}
       />
     )
   };
@@ -181,7 +187,6 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
 export default function DateTimeSlots(props) {
   const {editable, setVisibleTimeModal, setVisibleSlotModal, datetimes} = props;
   const columns = useMemo(() => {
-    console.log('calling');
     return constructColumns(editable, setVisibleTimeModal, datetimes);
   }, [editable, setVisibleTimeModal, datetimes])
   return (
