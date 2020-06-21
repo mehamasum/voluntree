@@ -108,11 +108,17 @@ export default function SignUpListView() {
         onOk={form.submit}
         onCancel={handleCancel}
       >
-        <Form form={form} onFinish={handleOk}>
+        <Form form={form} onFinish={handleOk} labelCol={{span: 6}}>
           <Form.Item label="Title" name="title" rules={[{required: true}]}>
+            <Input
+              placeholder="Provide an accurate title to increase relevancy"
+            />
+          </Form.Item>
+
+          <Form.Item label="Description" name="description" rules={[{required: true}]}>
             <Input.TextArea
-              placeholder="What is the title for your form?"
-              autoSize={{minRows: 2, maxRows: 5}}/>
+              placeholder="Provide a clear, well-defined and easy-to-understand description"
+              autoSize={{minRows: 3, maxRows: 5}}/>
           </Form.Item>
         </Form>
       </Modal>

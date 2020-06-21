@@ -7,6 +7,7 @@ import _ from 'lodash';
 
 import DateTimeSlots from './DateTimeSlots';
 import TimeModal from './TimeModal';
+import Magic from "../../../components/Magic";
 
 const generateColor = makeColorGenerator();
 
@@ -112,16 +113,29 @@ export default function SignUpForm(props) {
 
             {signUpResponse &&
             (
-              <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} layout="vertical">
-                <Form.Item label="Title" name="title" rules={[{required: editable}]}>
-                  <Input.TextArea rows={2} disabled={!editable} placeholder="What is the title for your form?"/>
+              <Form name="signup" initialValues={signUpResponse} onFinish={handleUpdateSignUp} labelCol={{span: 4}}>
+                <Form.Item label="Title" name="title" rules={[{required: true}]}>
+                  <Input
+                    placeholder="Provide an accurate title to increase relevancy"
+                  />
                 </Form.Item>
 
-                <Form.Item label="Description" name="description" rules={[{required: false}]}>
-                  <Input.TextArea rows={4} disabled={!editable} placeholder="What is the purpose of your form?"/>
+                <Form.Item label="Description" name="description" rules={[{required: true}]}>
+                  <Input.TextArea
+                    placeholder="Provide a clear, well-defined and easy-to-understand description"
+                    autoSize={{minRows: 3, maxRows: 5}}/>
                 </Form.Item>
 
-                <Form.Item>
+                <Form.Item label="Facts" name="facts" rules={[{required: false}]}
+                           extra={<> <Magic/>This will help Voluntree to automatically reply to frequently asked
+                             questions </>}
+                >
+                  <Input.TextArea
+                    placeholder="Provide some facts about the signup that Voluntree AI can learn"
+                    autoSize={{minRows: 5, maxRows: 10}}/>
+                </Form.Item>
+
+                <Form.Item wrapperCol={{offset: 4}}>
                   <Button type="primary" htmlType="submit" loading={savingSignup}>
                     Save
                   </Button>
