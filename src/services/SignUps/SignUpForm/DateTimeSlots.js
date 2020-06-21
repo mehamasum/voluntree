@@ -55,7 +55,7 @@ const SlotItem = (props) => {
   const {slot, editable, datetimeId} = props;
   const {id} = slot;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/`);
+  const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/?datetime=${datetimeId}`);
   const [newVolunteer, , setNewVolunteerDetailsUrl] = useFetch();
   const [isSocketClose, setIsSocketClose] = useState(false);
 
