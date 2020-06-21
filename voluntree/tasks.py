@@ -10,8 +10,8 @@ from urllib.parse import urlparse
 from .preprocess import sentence_to_embeding
 from mail_templated import send_mail
 
-from .model import DocumentRetrievalModel as DRM
-from .query import ProcessedQuestion as PQ
+from .drm import DocumentRetrievalModel as DRM
+from .question import ProcessedQuestion as PQ
 
 import environ
 env = environ.Env()
