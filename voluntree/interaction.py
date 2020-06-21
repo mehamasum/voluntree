@@ -11,7 +11,7 @@ import arrow
 
 from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
-from voluntree.tasks import send_private_reply_on_comment, reply, comment
+from voluntree.tasks import send_private_reply_on_comment, reply, comment, find_answer
 
 
 class Intents:
@@ -102,25 +102,31 @@ class InteractionHandler:
             print('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
             send_private_reply_on_comment.apply_async((data,))
-        elif intent and intent['name'] == Intents.QUES_EVENT_INFO and intent['confidence'] > 0.8:
+        elif intent and intent['name'] == Intents.QUES_EVENT_INFO and intent['confidence'] > 0.6:
             if post.signup:
-                message = post.signup.description
+                message = find_answer(comment_text, post.signup.facts)
+                if not message:
+                    message = post.signup.description
                 print('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.APPRECIATION and intent['confidence'] > 0.8:
             message = 'Thank you'
             print('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
-        elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.8:
+        elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.6:
             payment_info = post.page.organization.payment_info
             if payment_info:
-                message = 'Here is how you can send donations\n%s' % payment_info
+                message = find_answer(comment_text, payment_info)
+                if not message:
+                    message = 'Here is how you can send donations\n%s' % payment_info
                 print('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
-        elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.8:
+        elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.6:
             volunteer_info = post.page.organization.volunteer_info
             if volunteer_info:
-                message = 'Here are the requirements\n%s' % volunteer_info
+                message = find_answer(comment_text, volunteer_info)
+                if not message:
+                    message = 'Here are the requirements\n%s' % volunteer_info
                 print('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.VACANCIES_ON_SLOT and intent['confidence'] > 0.8:
