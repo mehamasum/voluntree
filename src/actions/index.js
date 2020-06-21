@@ -11,7 +11,7 @@ export const postFetch = (fetchUrl, postData = {}) => {
       .then(response => {
         if(response.status != 204) { // status 204 for loggedout
           return response.json();
-        }
+        } else return Promise.resolve();
       })
 }
 

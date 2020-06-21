@@ -16,7 +16,7 @@ export default function SignUpForm(props) {
   const [signUpResponse] = useFetch(`/api/signups/${id}/`);
   const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
   const [datetimes, setDatetimes] = useState([]);
-  const [dateTimeForm] = Form.useForm();
+  const [slotForm] = Form.useForm();
   const [errors, setErrors] = useState({
     date: false,
     time: false
@@ -196,7 +196,7 @@ export default function SignUpForm(props) {
       <Modal
         visible={visibleSlotModal}
         title="Create a new slot"
-        onOk={handleSlotModalOk}
+        onOk={slotForm.submit}
         onCancel={handleSlotModalCancel}
       >
         <Form
@@ -209,6 +209,7 @@ export default function SignUpForm(props) {
             xs: {span: 24},
             sm: {span: 16},
           }}
+          form={slotForm}
           onFinish={onSlotCreateSubmit}
         >
           <Form.Item
