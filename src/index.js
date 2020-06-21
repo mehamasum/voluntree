@@ -18,6 +18,8 @@ import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
 import VolunteerListView from './services/Volunteers/VolunteerListView';
 
+import Upcoming from './components/Upcoming';
+
 import SignUpList from "./services/SignUps/List";
 import SignUpView from "./services/SignUps/View";
 import SignUpEdit from "./services/SignUps/Edit";
@@ -44,6 +46,9 @@ const App = (props) => {
           <PrivateRoute exact path="/signups/:id/" component={SignUpView} />
           <PrivateRoute exact path="/signups/:id/edit/" component={SignUpEdit} />
 
+
+          <PrivateRoute exact path="/donations" component={Upcoming} />
+          <PrivateRoute exact path="/donors" component={Upcoming} />
 
           <PrivateRoute exact path="/volunteers" component={VolunteerListView} />
           <Route render={() => <Result status="404" title="404" subTitle="Sorry, the page you visited does not exist." />} />
