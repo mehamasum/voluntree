@@ -198,15 +198,6 @@ export default function SignUpForm(props) {
         title="Create a new slot"
         onOk={handleSlotModalOk}
         onCancel={handleSlotModalCancel}
-        footer={[
-          <Button key="back" onClick={handleSlotModalCancel}>
-            Return
-          </Button>,
-          <Button key="submit" type="primary" loading={savingSlot} onClick={handleSlotModalOk} htmlType="submit"
-                  form="slot">
-            Add Slot
-          </Button>,
-        ]}
       >
         <Form
           name="slot"
