@@ -2,6 +2,7 @@ import './form.css';
 import post from '../../assets/post.png';
 import React, {useState} from 'react';
 import {Button, Checkbox, Col, Form, Input, Row, Select, Typography} from 'antd';
+import Magic from "../../components/Magic";
 
 const {Option} = Select;
 
@@ -34,7 +35,7 @@ const PostForm = props => {
             <Form.Item
               name="signup"
               label="Select Signup"
-              extra="This will help Voluntree to automatically reply to frequently asked questions"
+              extra={<> <Magic/>This will help Voluntree to automatically reply to frequently asked questions </>}
             >
               <Select placeholder="Select a signup if you want to collect sign up" allowClear onChange={onSignupSelect}>
                 {signups.map(signup => {

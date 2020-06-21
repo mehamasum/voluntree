@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from "react";
 import {Button, Checkbox, Divider, Form, Input, Select, Spin} from 'antd';
 import useFetch from "use-http";
+import Magic from "../../components/Magic";
 
 const layout = {
   labelCol: {
@@ -96,7 +97,7 @@ const OrgSettings = () => {
       <Form.Item
         label="Requirements"
         name="volunteer_info"
-        extra="This will help Voluntree to automatically reply to frequently asked questions"
+        extra={<> <Magic/>This will help Voluntree to automatically reply to frequently asked questions </>}
       >
         <Input.TextArea rows={6} placeholder="What are the requirements for a volunteer?"/>
       </Form.Item>
@@ -106,7 +107,7 @@ const OrgSettings = () => {
       <Form.Item
         label="Payment Info"
         name="payment_info"
-        extra="This will help Voluntree to automatically reply to frequently asked questions"
+        extra={<> <Magic/>This will help Voluntree to automatically reply to frequently asked questions </>}
       >
         <Input.TextArea rows={6} placeholder="How can people make donations/payments?"/>
       </Form.Item>
