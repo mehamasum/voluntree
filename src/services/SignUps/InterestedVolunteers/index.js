@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Avatar, Button, List, Typography} from 'antd';
+import {Avatar, Button, Form, Input, List, Modal, Rate, Typography} from 'antd';
 import {useFetch} from '../../../hooks';
 import InfiniteScroll from 'react-infinite-scroller';
 import _ from 'lodash';
@@ -14,6 +14,9 @@ const InterestedVolunteers = props => {
   const [interest_details_response,] = useFetch();
   const [listData, setListData] = useState([]);
   const [nextUrl, setNextUrl] = useState(null);
+  const [showModal, setShowModal] = useState(false);
+  const [form] = Form.useForm();
+
   const [numberOfVolunteer, setNumberOfVolunteer] = useState(0);
 
 
@@ -28,6 +31,14 @@ const InterestedVolunteers = props => {
     setListData(prevList => [interest_details_response, ...prevList]);
     setNumberOfVolunteer(prevNumberOfVolunteer => prevNumberOfVolunteer + 1);
   }, [interest_details_response]);
+
+  function handleCancel() {
+    setShowModal(false);
+  }
+
+  function onSubmit(values) {
+    console.log(values);
+  }
 
   return (
     <div className="infinite-container">
@@ -44,19 +55,46 @@ const InterestedVolunteers = props => {
           renderItem={item => (
             <List.Item actions={
               [
-                <Link to={`/volunteers/${item.volunteer.id}`}>Profile</Link>,
-                <Button type="link">Rate</Button>,
+                <Button type="link" onClick={() => setShowModal(true)}>Rate</Button>,
                 <Button type="link" danger>Ban</Button>,
               ]}>
               <div>
-                <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;
+                <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;&nbsp;&nbsp;
                 <Typography.Text>
-                  {item.volunteer.first_name} {item.volunteer.last_name}
+                  <Link
+                    to={`/volunteers/${item.volunteer.id}`}>{item.volunteer.first_name} {item.volunteer.last_name}</Link>
                 </Typography.Text>
               </div>
             </List.Item>)}
         />
       </InfiniteScroll>
+      <Modal
+        title="Rate Volunteer Performance"
+        visible={showModal}
+        onOk={form.submit}
+        onCancel={handleCancel}
+      >
+        <Form
+          labelCol={{
+            xs: {span: 24},
+            sm: {span: 6},
+          }}
+          form={form}
+          onFinish={onSubmit}
+        >
+          <Form.Item name="rating" label="Rate" rules={[{required: true, message: 'Please select rating'}]}>
+            <Rate/>
+          </Form.Item>
+
+          <Form.Item
+            label="Remark"
+            name="remark"
+            rules={[{required: true, message: 'Please add a remark'}]}
+          >
+            <Input.TextArea rows={2}/>
+          </Form.Item>
+        </Form>
+      </Modal>
     </div>
   );
 };

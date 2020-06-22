@@ -2,78 +2,54 @@ import React from "react";
 import {useParams} from "react-router";
 import {Avatar, Card, Descriptions, Rate, Space, Spin, Table, Tag} from "antd";
 import useFetch from "use-http";
+import {Link} from "react-router-dom";
 
 const columns = [
   {
     title: 'Sign Up',
-    dataIndex: 'name',
-    key: 'name',
-    render: text => <a>{text}</a>,
+    dataIndex: 'signup',
+    key: 'signup',
+    render: text => <Link>{text}</Link>,
   },
   {
     title: 'Rating',
-    dataIndex: 'age',
-    key: 'age',
+    dataIndex: 'rating',
+    key: 'rating',
     render: text => <Rate disabled defaultValue={text} />
   },
   {
     title: 'Rated by',
-    dataIndex: 'address',
-    key: 'address',
+    dataIndex: 'user',
+    key: 'user',
   },
   {
-    title: 'Tags',
-    key: 'tags',
-    dataIndex: 'tags',
-    render: tags => (
-      <>
-        {tags.map(tag => {
-          let color = tag.length > 5 ? 'geekblue' : 'green';
-          if (tag === 'loser') {
-            color = 'volcano';
-          }
-          return (
-            <Tag color={color} key={tag}>
-              {tag.toUpperCase()}
-            </Tag>
-          );
-        })}
-      </>
-    ),
-  },
-  {
-    title: 'Remarks',
-    key: 'action',
-    render: (text, record) => (
-      <Space size="middle">
-        <a>Invite {record.name}</a>
-        <a>Delete</a>
-      </Space>
-    ),
+    title: 'Remark',
+    dataIndex: 'remark',
+    key: 'remark',
   },
 ];
 
 const data = [
   {
     key: '1',
-    name: 'John Brown',
-    age: 3,
-    address: 'New York No. 1 Lake Park',
-    tags: ['nice', 'developer'],
+    signup: 'signup',
+    rating: 3,
+    user: 'New York No. 1 Lake Park',
+    remark: 'nice',
   },
   {
     key: '2',
-    name: 'Jim Green',
-    age: 2,
-    address: 'London No. 1 Lake Park',
-    tags: ['loser'],
+    signup: 'signup',
+    rating: 3,
+    user: 'New York No. 1 Lake Park',
+    remark: 'nice',
   },
   {
     key: '3',
-    name: 'Joe Black',
-    age: 5,
-    address: 'Sidney No. 1 Lake Park',
-    tags: ['cool', 'teacher'],
+    signup: 'signup',
+    rating: 3,
+    user: 'New York No. 1 Lake Park',
+    remark: 'nice',
   },
 ];
 
