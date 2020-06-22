@@ -1,0 +1,11 @@
+.infinite-container {
+    overflow: auto;
+    max-height: 300px;
+}
+
+.demo-loading-container {
+    position: absolute;
+    bottom: 40px;
+    width: 100%;
+    text-align: center;
+}

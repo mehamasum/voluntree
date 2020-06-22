@@ -4,6 +4,7 @@ import {Link, useParams} from "react-router-dom";
 import SendUpdatesView from './SendUpdatesView';
 import useFetch from 'use-http';
 import SignUpForm from '../SignUpForm';
+import InterestedVolunteers from "../InterestedVolunteers";
 
 const {TabPane} = Tabs;
 
@@ -62,6 +63,9 @@ export default function SignUpView(props) {
           </TabPane>
           <TabPane tab="Sent Updates" key="2">
             <SendUpdatesView signUpId={id}/>
+          </TabPane>
+          <TabPane tab="Volunteers" key="3">
+            <InterestedVolunteers id={id}/>
           </TabPane>
         </Tabs>
       </Card>

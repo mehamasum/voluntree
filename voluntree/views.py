@@ -286,6 +286,19 @@ class SignUpViewSet(ModelViewSet):
         serializer = NotificationSerializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=True)
+    def interests(self, request, pk):
+        paginator = CreationTimeBasedPagination()
+        queryset = Interest.objects.filter(slot__date_times__in=self.get_object().date_times.all()).distinct()
+
+        page = paginator.paginate_queryset(queryset, self.request, view=self)
+        if page is not None:
+            serializer = InterestGeterializer(page, many=True)
+            return paginator.get_paginated_response(serializer.data)
+
+        serializer = InterestGeterializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class VolunteerViewSet(ModelViewSet):
     queryset = Volunteer.objects.all()

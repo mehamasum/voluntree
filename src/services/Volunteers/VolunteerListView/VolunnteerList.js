@@ -2,6 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import {Avatar, Button, Spin, Table, Typography} from 'antd';
 import {MessengerIcon, NationBuilderIcon} from '../../../assets/icons';
 import useFetch, { Provider } from 'use-http';
+import {Link} from "react-router-dom";
 
 
 const columns = [
@@ -17,7 +18,7 @@ const columns = [
     )
   },
   {
-    title: 'Actions',
+    title: 'Links',
     render: (text, record) => (
       <div className="action">
         <a
@@ -40,11 +41,17 @@ const columns = [
               rel="noopener noreferrer">
               <Button type="default" className="messenger-btn">
                 <NationBuilderIcon/>
-                View Profile
+                NationBuilder Profile
               </Button>
             </a>);
         })}
       </div>
+    )
+  },
+  {
+    title: 'Actions',
+    render: (text, record) => (
+      <Link to={`/volunteers/${record.id}`}>Details</Link>
     )
   },
 ];

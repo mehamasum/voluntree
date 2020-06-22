@@ -17,6 +17,7 @@ import PostEditView from './services/Posts/PostEditView';
 import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
 import VolunteerListView from './services/Volunteers/VolunteerListView';
+import VolunteerDetailsView from './services/Volunteers/VolunteerDetailsView';
 
 import Upcoming from './components/Upcoming';
 
@@ -51,6 +52,8 @@ const App = (props) => {
           <PrivateRoute exact path="/donors" component={Upcoming} />
 
           <PrivateRoute exact path="/volunteers" component={VolunteerListView} />
+          <PrivateRoute exact path="/volunteers/:id" component={VolunteerDetailsView} />
+
           <Route render={() => <Result status="404" title="404" subTitle="Sorry, the page you visited does not exist." />} />
         </Switch>
       </Router>
