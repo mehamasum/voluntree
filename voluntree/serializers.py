@@ -2,7 +2,7 @@ from datetime import datetime
 from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
                      Organization, Slot, SignUp, DateTime, Integration,
-                     VolunteerThirdPartyIntegration)
+                     VolunteerThirdPartyIntegration, Rating)
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -118,3 +118,9 @@ class IntegrationSerializer(serializers.ModelSerializer):
         model = Integration
         fields = ('id', 'integration_expiry_date', 'integration_type',
                   'is_expired')
+
+
+class RatingSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rating
+        fields = ('volunteer', 'user', 'remark', 'rating', 'signup')

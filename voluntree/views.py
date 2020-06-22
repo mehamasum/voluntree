@@ -11,14 +11,15 @@ from .services import (FacebookService, PostService, OrganizationService, SignUp
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer,
-                          IntegrationSerializer)
+                          IntegrationSerializer, RatingSerializer)
 from .models import (Post, Interest, Volunteer, Notification, Organization,
-                     Slot, DateTime, SignUp, Page, Integration)
+                     Slot, DateTime, SignUp, Page, Integration, Rating)
 from .paginations import CreationTimeBasedPagination
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
 from django.conf import settings
 from django.views.decorators.csrf import csrf_exempt
+from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
 
@@ -304,6 +305,45 @@ class VolunteerViewSet(ModelViewSet):
     queryset = Volunteer.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = VolunteerSerializer
+
+    @action(detail=True, methods=['post'])
+    def rate(self, request, pk):
+        data = {
+            'user': request.user.id,
+            **request.data
+        }
+        try:
+            instance = Rating.objects.get(signup=request.data.get('signup'), volunteer=pk)
+            serializer = RatingSerializer(instance, data=data)
+        except ObjectDoesNotExist:
+            serializer = RatingSerializer(data=data)
+        
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+
+        return Response(serializer.data)
+
+    @action(detail=True)
+    def rating(self, request, pk):
+        
+        signup = request.query_params.get('signup')
+        try:
+            queryset = Rating.objects.get(signup=signup, volunteer=pk)
+            serializer = RatingSerializer(queryset)
+            return Response(serializer.data)
+        except ObjectDoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+    
+    @action(detail=True)
+    def rating_list(self, request, pk):
+        queryset = Rating.objects.filter(volunteer=pk)
+        serializer = RatingSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+    
+
+
+       
     
 class SlotViewSet(ModelViewSet):
     queryset = Slot.objects.all()

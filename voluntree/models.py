@@ -144,3 +144,11 @@ class Verification(models.Model):
     is_verified = models.BooleanField(default=False)
     referred_post = models.ForeignKey(Post, related_name='verifications', null=True, blank=True, on_delete=models.SET_NULL)
     email = models.CharField(max_length=200, null=True, blank=True)
+
+
+class Rating(models.Model):
+    volunteer = models.ForeignKey(Volunteer, on_delete=models.CASCADE, related_name='ratings')
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='ratings', null=True, blank=True)
+    rating = models.IntegerField(default=0)
+    remark = models.TextField(null=True, blank=True)
+    signup = models.ForeignKey(SignUp, related_name='ratings', on_delete=models.CASCADE)

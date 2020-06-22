@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import {useParams} from "react-router";
 import {Avatar, Card, Descriptions, Rate, Space, Spin, Table, Tag} from "antd";
 import useFetch from "use-http";
+import {getFetch} from '../../../actions';
 import {Link} from "react-router-dom";
 
 const columns = [
@@ -56,6 +57,8 @@ const data = [
 
 export default function (props) {
   const {id} = useParams();
+  const [ratingList, setRatingList] = useState([]);
+  const [averageRating, setAverageRating] = useState(0);
   const {loading, error, data: volunteer = null} = useFetch(`/api/volunteers/${id}/`, {
     headers: {
       'Authorization': `Token ${localStorage.getItem('token')}`,
@@ -63,6 +66,23 @@ export default function (props) {
     }
   }, []);
 
+  useEffect(() => {
+    getFetch(`/api/volunteers/${id}/rating_list/`).then(result=>{
+      setRatingList(result);
+      let totalRating = 0;
+      result.forEach(element => {
+        totalRating += element.rating;
+      });
+      console.log('totalRating', totalRating, 'length', result.length);
+      if( result.length ) {
+        setAverageRating(totalRating / result.length );
+      }
+     
+    })
+  }, [])
+
+  
+  console.log('ratingList', ratingList);
   if (loading) return <Spin/>;
   if (error) return 'Error';
   return (
@@ -83,14 +103,14 @@ export default function (props) {
 
         <br/><br/>
         <Descriptions title="Performance Info">
-          <Descriptions.Item label="Avg. Rating"><Rate disabled defaultValue={3} /></Descriptions.Item>
+          <Descriptions.Item label="Avg. Rating"><Rate disabled defaultValue={averageRating} /></Descriptions.Item>
         </Descriptions>
       </Card>
 
       <br/>
 
       <Card title="Activities">
-        <Table columns={columns} dataSource={data}/>
+        <Table columns={columns} dataSource={ratingList}/>
       </Card>
     </>
   );
