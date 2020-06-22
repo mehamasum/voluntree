@@ -281,6 +281,7 @@ CELERY_TIMEZONE = TIME_ZONE
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = env.str('EMAIL_SMTP_HOST', default='localhost')
+EMAIL_USE_TLS = env.str('EMAIL_USE_TLS', default=False)
 EMAIL_HOST_USER = env.str('EMAIL_SMTP_USER', default='')
 EMAIL_HOST_PASSWORD = env.str('EMAIL_SMTP_PASSWORD', default='')
 EMAIL_PORT = env.int('EMAIL_SMTP_PORT', default=1025)
