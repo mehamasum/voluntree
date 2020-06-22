@@ -1,9 +1,9 @@
 {% extends "mail_templated/base.tpl" %}
 
 {% block subject %}
-Hello Dear,
+OTP for email verification
 {% endblock %}
 
 {% block body %}
-Your confirmation code is {{code}} for Voluntree. 
+Your One Time Password (OTP) is {{code}} for Voluntree.
 {% endblock %}

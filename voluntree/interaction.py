@@ -432,7 +432,7 @@ class InteractionHandler:
             'email': email
         })
         InteractionHandler.send_reply(psid, page_id, {
-            'text': 'You have sent an OTP to the email address you provided. What is the OTP?'
+            'text': 'We have sent an OTP to the email address you provided. What is the OTP?'
         })
 
     @staticmethod
