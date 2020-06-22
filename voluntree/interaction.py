@@ -88,6 +88,7 @@ class InteractionHandler:
                     if match and match[0]:
                         datetime_id = match[0]['datetime_id']
                         slot_id = match[0]['slot_id']
+                        print("Day and slot match for direct signup from comment", datetime_id, slot_id)
                         InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id)
                     else:
                         InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
@@ -291,15 +292,19 @@ class InteractionHandler:
             })
         else:
             InteractionHandler.reset_context(psid, page_id)
-            if datetime_id and slot_id:
-                # todo: optimize
-                datetime = DateTime.objects.get(id=datetime_id)
-                slot = Slot.objects.get(id=slot_id)
-                Interest.objects.get_or_create(datetime=datetime, slot=slot, volunteer=volunteer)
-                InteractionHandler.send_calendar_confirmation(psid, page_id, datetime, slot)
-                InteractionHandler.reply_with_slot_picker(psid, page_id, post)
-            else:
-                InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            InteractionHandler.reply_with_slot_picker_or_add_interest(psid, page_id, post, volunteer, datetime_id, slot_id)
+
+    @staticmethod
+    def reply_with_slot_picker_or_add_interest(psid, page_id, post, volunteer, datetime_id, slot_id):
+        if datetime_id and slot_id:
+            # todo: optimize
+            datetime = DateTime.objects.get(id=datetime_id)
+            slot = Slot.objects.get(id=slot_id)
+            Interest.objects.get_or_create(datetime=datetime, slot=slot, volunteer=volunteer)
+            InteractionHandler.send_calendar_confirmation(psid, page_id, datetime, slot)
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+        else:
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
 
     @staticmethod
     def first_entity(nlp, name):
@@ -421,6 +426,8 @@ class InteractionHandler:
 
         InteractionHandler.set_context(psid, page_id, {
             'post_id': context['post_id'],
+            'datetime_id': context['datetime_id'] if 'datetime_id' in context else None,
+            'slot_id': context['slot_id'] if 'slot_id' in context else None,
             'state': InteractionHandler.ASKED_FOR_PIN,
             'email': email
         })
@@ -436,6 +443,8 @@ class InteractionHandler:
 
         post_id = context['post_id']
         email = context['email']
+        datetime_id = context['datetime_id'] if 'datetime_id' in context else None
+        slot_id = context['slot_id'] if 'slot_id' in context else None
 
         res = VolunteerService.verify_volunteer(psid, page_id, email, int(pin))
         print('got res', res)
@@ -452,7 +461,7 @@ class InteractionHandler:
                         'We have created an account for you in our volunteer management software.'
             })
 
-        InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+        InteractionHandler.reply_with_slot_picker_or_add_interest(psid, page_id, post, volunteer, datetime_id, slot_id)
         InteractionHandler.reset_context(psid, page_id)
 
     @staticmethod
