@@ -2,6 +2,15 @@ from channels import layers
 from asgiref.sync import async_to_sync
 
 from .tasks import send_notification_on_interested_person, send_email
+from voluntree.models import Rating
+
+
+def create_rating_from_interest(interest):
+    if interest.post:
+        rating, created = Rating.objects.get_or_create(
+            signup=interest.post.signup,
+            volunteer=interest.volunteer
+        )
 
 
 def update_interests_volunteer_list(sender, instance, created, **kwargs):
@@ -10,6 +19,7 @@ def update_interests_volunteer_list(sender, instance, created, **kwargs):
         channel_layer = layers.get_channel_layer()
 
         if instance.post:
+            create_rating_from_interest(instance)
             group_name = 'interested_%s' % str(instance.post.id)
             async_to_sync(channel_layer.group_send)(
                 group_name,

@@ -16,6 +16,23 @@ export const postFetch = (fetchUrl, postData = {}) => {
 }
 
 
+export const getFetch = (fetchUrl) => {
+  const abortController = new AbortController();
+  const signal = abortController.signal;
+
+  return  fetch(fetchUrl, {
+    signal: signal,
+    headers: {'Authorization': `Token ${localStorage.getItem('token')}` }
+    })
+    .then(response => {
+      if(response.status != 204) { // status 204 for loggedout
+        return response.json();
+      } else return Promise.resolve();
+    })
+}
+
+
+
 export const DeleteFetch = (fetchUrl) => {
   const requestOptions = {
     method: 'DELETE',
