@@ -121,6 +121,12 @@ class IntegrationSerializer(serializers.ModelSerializer):
 
 
 class RatingSerializer(serializers.ModelSerializer):
+    signup = SignUpSerializer(read_only=True)
+    rated_by = serializers.SerializerMethodField()
+    
     class Meta:
         model = Rating
-        fields = ('volunteer', 'user', 'remark', 'rating', 'signup')
+        fields = ('volunteer', 'user', 'remark', 'rating', 'signup', 'rated_by')
+    
+    def get_rated_by(self, obj):
+        return obj.user.organization.name if obj.user else ''

@@ -10,7 +10,7 @@ const columns = [
     title: 'Sign Up',
     dataIndex: 'signup',
     key: 'signup',
-    render: text => <Link>{text}</Link>,
+    render: (text, record) => <Link to={`/signups/${record.signup.id}/`}>{record.signup.title}</Link>,
   },
   {
     title: 'Rating',
@@ -20,8 +20,8 @@ const columns = [
   },
   {
     title: 'Rated by',
-    dataIndex: 'user',
-    key: 'user',
+    dataIndex: 'rated_by',
+    key: 'rated_by',
   },
   {
     title: 'Remark',
@@ -30,29 +30,6 @@ const columns = [
   },
 ];
 
-const data = [
-  {
-    key: '1',
-    signup: 'signup',
-    rating: 3,
-    user: 'New York No. 1 Lake Park',
-    remark: 'nice',
-  },
-  {
-    key: '2',
-    signup: 'signup',
-    rating: 3,
-    user: 'New York No. 1 Lake Park',
-    remark: 'nice',
-  },
-  {
-    key: '3',
-    signup: 'signup',
-    rating: 3,
-    user: 'New York No. 1 Lake Park',
-    remark: 'nice',
-  },
-];
 
 
 export default function (props) {
@@ -70,12 +47,17 @@ export default function (props) {
     getFetch(`/api/volunteers/${id}/rating_list/`).then(result=>{
       setRatingList(result);
       let totalRating = 0;
+      let totalEntry = 0;
       result.forEach(element => {
-        totalRating += element.rating;
+        if(element.rating) { // already rated in this event 
+          totalRating += element.rating;
+          totalEntry += 1;
+        }
+       
       });
-      console.log('totalRating', totalRating, 'length', result.length);
+
       if( result.length ) {
-        setAverageRating(totalRating / result.length );
+        setAverageRating(totalRating / totalEntry);
       }
      
     })
@@ -102,8 +84,8 @@ export default function (props) {
         </Descriptions>
 
         <br/><br/>
-        <Descriptions title="Performance Info">
-          <Descriptions.Item label="Avg. Rating"><Rate disabled defaultValue={averageRating} /></Descriptions.Item>
+        <Descriptions title="Performance Info" >
+          <Descriptions.Item label="Avg. Rating" key={`${averageRating}_item`}><Rate disabled defaultValue={averageRating} /></Descriptions.Item>
         </Descriptions>
       </Card>
 
