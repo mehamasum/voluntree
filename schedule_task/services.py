@@ -24,5 +24,7 @@ class FacebookWebHookService:
         for post in Post.objects.all():
             comments = FacebookWebHookService \
                 .fetch_post_comments(post).get('data', [])
-            new_comments = new_comments + comments
+            can_reply_comments = list(
+                filter(lambda c: c['can_reply_privately'] is True, comments))
+            new_comments = new_comments + can_reply_comments
         return [make_comment_webhook_response_format(c) for c in new_comments]
