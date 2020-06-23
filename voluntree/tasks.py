@@ -77,13 +77,13 @@ def ask_for_pin(volunteer_id):
 def send_notification_on_interested_person(notification_id):
     notification = Notification.objects.get(id=notification_id)
     signup = notification.signup
-    interests = Interest.objects.all().filter(slot__date_times__signup=signup)
-    for interest in interests:
-        volunteer = interest.volunteer
+    volunteer_list = Interest.objects.all().filter(slot__date_times__signup=signup).values_list('volunteer_id', flat=True).distinct()
+    volunteers = Volunteer.objects.filter(id__in=volunteer_list)
+    for volunteer in volunteers:
+        page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
         recipient = {'id': volunteer.facebook_user_id}
         message = build_notification_message(notification)
-        FacebookService.send_private_message(
-            interest.post.page, recipient, message)
+        FacebookService.send_private_message(page, recipient, message)
 
 @app.task
 def send_email(to_email, send_pin):
