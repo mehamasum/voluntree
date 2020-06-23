@@ -5,5 +5,7 @@ OTP for email verification
 {% endblock %}
 
 {% block body %}
-Your One Time Password (OTP) is {{code}} for Voluntree.
+Your One Time Password (OTP) is: <strong>{{code}}</strong>
+
+<i>Powered by Voluntree</i>
 {% endblock %}

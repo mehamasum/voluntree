@@ -386,7 +386,7 @@ class InteractionHandler:
                     "type": "template",
                     "payload": {
                         "template_type": "button",
-                        "text": "Which event?",
+                        "text": "We are glad to hear that. Which event would you like to sign up for?",
                         "buttons": buttons
                     }
                 }
@@ -506,7 +506,7 @@ class InteractionHandler:
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": "Are you Interested in this event?",
+                    "text": "We think you are interested to sign up as volunteer. Want to continue?",
                     "buttons": [
                         {
                             "type": "postback",
