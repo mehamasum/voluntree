@@ -8,10 +8,24 @@ from django.core.validators import validate_email
 from rest_framework import status
 from rest_framework.response import Response
 import arrow
+import pytz
+import datetime
 
 from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment, find_answer
+
+
+def to_user_timezone(date, timezone=settings.TIME_ZONE):
+    return date.replace(tzinfo=pytz.timezone(settings.TIME_ZONE)).astimezone(pytz.timezone(timezone))
+
+
+def to_system_timezone(date, timezone=settings.TIME_ZONE):
+    return date.replace(tzinfo=pytz.timezone(timezone)).astimezone(pytz.timezone(settings.TIME_ZONE))
+
+
+def now_timezone():
+    return datetime.datetime.now().replace(tzinfo=pytz.timezone(settings.TIME_ZONE)).astimezone(pytz.timezone(settings.TIME_ZONE))
 
 
 class Intents:
@@ -72,26 +86,40 @@ class InteractionHandler:
         if intent and intent['name'] == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
             if post.signup:
                 fields, signup = SignUpService.get_human_readable_version(post.signup.id)
-                print(fields)
 
                 slot_query = InteractionHandler.first_entity(nlp, 'custom_signup-slot:signup-slot')
                 day_query = InteractionHandler.first_entity(nlp, 'custom_signup-day:signup-day')
 
-                # todo: add specific time too
                 specific_time = InteractionHandler.first_entity(nlp, 'wit$datetime:datetime')
 
                 if day_query and slot_query:
                     day_count = int(day_query['body'].lower().replace("day ", ""))
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
+                    print('got both day and slot in cmnt', day_count, slot_count)
                     match = [field for field in fields if
                              field['day_count'] == day_count and field['slot_count'] == slot_count]
-                    if match and match[0]:
-                        datetime_id = match[0]['datetime_id']
-                        slot_id = match[0]['slot_id']
-                        print("Day and slot match for direct signup from comment", datetime_id, slot_id)
-                        InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id)
-                    else:
-                        InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
+                    InteractionHandler.reconfirm_about_day_and_slot(match, page_id, post_id, comment_id)
+
+                elif specific_time and slot_query:
+                    datetime_query = arrow.get(specific_time['value']).astimezone(pytz.timezone(settings.TIME_ZONE)).date()
+                    slot_count = int(slot_query['body'].lower().replace("slot ", ""))
+                    print('got specific day and slot in cmnt', datetime_query, slot_count)
+                    match = [field for field in fields if
+                             field['date'] == datetime_query and field['slot_count'] == slot_count]
+                    InteractionHandler.reconfirm_about_day_and_slot(match, page_id, post_id, comment_id)
+
+                elif day_query:
+                    day_count = day_query['body'].lower().replace("day ", "")
+                    matches = [field for field in fields if field['day_count'] == day_count]
+                    # todo: need to have the slot id too
+                    InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
+
+                elif specific_time:
+                    datetime_query = arrow.get(specific_time['value']).date()
+                    matches = [field for field in fields if field['date'] == datetime_query]
+                    # todo: need to have the slot id too
+                    InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
+
                 else:
                     InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
             else:
@@ -197,6 +225,17 @@ class InteractionHandler:
             # TODO: skip for now
             pass
         return Response(status.HTTP_200_OK)
+
+
+    @staticmethod
+    def reconfirm_about_day_and_slot(matches, page_id, post_id, comment_id):
+        if matches and matches[0]:
+            datetime_id = matches[0]['datetime_id']
+            slot_id = matches[0]['slot_id']
+            print("Day and slot match for direct signup from comment", datetime_id, slot_id)
+            InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id)
+        else:
+            InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
 
 
     @staticmethod
