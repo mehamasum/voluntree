@@ -103,7 +103,7 @@ class InteractionHandler:
                     InteractionHandler.reconfirm_about_day_and_slot(match, page_id, post_id, comment_id)
 
                 elif specific_time and slot_query:
-                    datetime_query = arrow.get(specific_time['value']).astimezone(pytz.timezone(settings.TIME_ZONE)).date()
+                    datetime_query = arrow.get(specific_time['value']).date()
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
                     print('got specific day and slot in cmnt', datetime_query, slot_count)
                     match = [field for field in fields if
