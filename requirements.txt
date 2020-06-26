@@ -39,6 +39,7 @@ django-filters==0.2.1
 django-mail-templated==2.6.5
 django-redis==4.11.0
 django-templated-mail==1.1.1
+django-timezone-field==4.0
 djangorestframework==3.11.0
 djoser==2.0.3
 gears-cli==0.1.0

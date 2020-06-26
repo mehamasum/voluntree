@@ -3,6 +3,16 @@ from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
                      Organization, Slot, SignUp, DateTime, Integration,
                      VolunteerThirdPartyIntegration, Rating)
+import six
+from timezone_field import TimeZoneField as TimeZoneField_
+
+
+class TimeZoneField(serializers.ChoiceField):
+    def __init__(self, **kwargs):
+        super().__init__(TimeZoneField_.CHOICES + [(None, "")], **kwargs)
+
+    def to_representation(self, value):
+        return six.text_type(super().to_representation(value))
 
 
 class PageSerializer(serializers.ModelSerializer):
@@ -77,9 +87,11 @@ class NotificationSerializer(serializers.ModelSerializer):
 
 
 class OrganizationSerializer(serializers.ModelSerializer):
+    timezone = TimeZoneField()
+
     class Meta:
         model = Organization
-        fields = ('id', 'name', 'payment_info', 'volunteer_info', 'volunteer_verification')
+        fields = ('id', 'name', 'payment_info', 'volunteer_info', 'volunteer_verification', 'timezone')
 
 
 class SlotSerializer(serializers.ModelSerializer):

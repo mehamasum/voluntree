@@ -77,7 +77,9 @@ class InteractionHandler:
         print('Webhook callback handle comment', data)
         page_id = post.page.facebook_page_id
 
-        nlp = FacebookService.run_wit(comment_text)
+        nlp = FacebookService.run_wit(comment_text, {
+            'timezone': str(post.page.organization.timezone)
+        })
         print('wit', nlp)
 
         intent = InteractionHandler.first_intent(nlp)

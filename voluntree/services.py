@@ -420,9 +420,9 @@ class FacebookService:
         return res
 
     @staticmethod
-    def run_wit(text):
+    def run_wit(text, context=None):
         client = Wit(FacebookService.WIT_AI_TOKEN)
-        return client.message(text)
+        return client.message(text, context=context)
 
 class OrganizationService:
     def number_of_posts(organization_id, from_date, to_date):
