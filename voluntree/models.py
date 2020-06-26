@@ -1,6 +1,7 @@
 import uuid
 from django.contrib.auth.models import AbstractUser
 from django.db import models
+from timezone_field import TimeZoneField
 
 
 class Organization(models.Model):
@@ -9,6 +10,7 @@ class Organization(models.Model):
     payment_info = models.TextField(max_length=1000, null=True)
     volunteer_info = models.TextField(max_length=3000, null=True)
     volunteer_verification = models.BooleanField(default=True)
+    timezone = TimeZoneField(default='America/Los_Angeles')
 
 
 class User(AbstractUser):

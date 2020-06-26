@@ -1,7 +1,12 @@
 import React, {useEffect, useState} from "react";
-import {Button, Checkbox, Divider, Form, Input, Select, Spin} from 'antd';
+import {Button, Checkbox, Divider, Form, Input, Select, Spin, message} from 'antd';
 import useFetch from "use-http";
 import Magic from "../../components/Magic";
+import {TIMEZONES} from "../../utils";
+
+const onSuccess = () => {
+  message.success('Settings are saved');
+};
 
 const layout = {
   labelCol: {
@@ -40,6 +45,7 @@ const OrgSettings = () => {
     patch(`/${org.id}/`, values).then(res => {
       setOrg(org => ({...org, res}));
       setSaving(false);
+      onSuccess();
     });
   };
 
@@ -56,7 +62,6 @@ const OrgSettings = () => {
       initialValues={{
         ...org,
         language: 'en',
-        timezone: 'America/Los_Angeles'
       }}
       onFinish={onFinish}
       onFinishFailed={onFinishFailed}
@@ -77,8 +82,8 @@ const OrgSettings = () => {
         name="timezone"
         label="Timezone"
       >
-        <Select>
-          <Select.Option value="America/Los_Angeles">Los Angeles (Pacific)</Select.Option>
+        <Select showSearch>
+          {TIMEZONES.map(tz => <Select.Option value={tz}>{tz}</Select.Option>)}
         </Select>
       </Form.Item>
 
