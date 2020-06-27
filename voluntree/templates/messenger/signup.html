@@ -185,11 +185,14 @@
   window.extAsyncInit = function () {
     console.log('Messenger Extensions JS SDK is done loading');
     MessengerExtensions.getContext('{{ FACEBOOK_APP_ID }}',
-      function success(thread_context) {
-        console.log(thread_context);
+      function success(context) {
+        console.log(context);
+        if(context.psid !== {{ psid }}) {
+          console.log('Unauthorized');
+        }
       },
       function error(err) {
-        console.error(err);
+        console.error('SDK err', err);
       }
     );
   };

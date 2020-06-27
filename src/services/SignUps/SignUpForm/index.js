@@ -1,15 +1,15 @@
 import React, {useEffect, useState} from "react";
-import {Button, Card, Descriptions, Form, Input, Modal, Select, Typography} from "antd";
+import {Button, Card, Descriptions, Drawer, Form, Input, Modal, Select, Typography} from "antd";
 import {useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
-import {formatDate, formatTime, makeColorGenerator} from "../../../utils";
+import {formatDate, formatTime} from "../../../utils";
 import _ from 'lodash';
 
 import DateTimeSlots from './DateTimeSlots';
 import TimeModal from './TimeModal';
 import Magic from "../../../components/Magic";
+import {EyeOutlined} from "@ant-design/icons";
 
-const generateColor = makeColorGenerator();
 
 export default function SignUpForm(props) {
   const {id} = useParams();
@@ -17,15 +17,10 @@ export default function SignUpForm(props) {
   const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
   const [datetimes, setDatetimes] = useState([]);
   const [slotForm] = Form.useForm();
-  const [errors, setErrors] = useState({
-    date: false,
-    time: false
-  });
 
   const [visibleTimeModal, setVisibleTimeModal] = useState(false);
-
   const [visibleSlotModal, setVisibleSlotModal] = useState(false);
-  const [savingDatetime, setSavingDatetime] = useState(false);
+  const [visiblePreview, setVisiblePreview] = useState(false);
   const [savingSlot, setSavingSlot] = useState(false);
   const [savingSignup, setSavingSignup] = useState(false);
   const {editable} = props;
@@ -35,13 +30,6 @@ export default function SignUpForm(props) {
     setDatetimes(dateTimesResponse);
   }, [dateTimesResponse]);
 
-
-  const onSubmitSignUp = values => {
-  };
-
-  const handleSlotModalOk = () => {
-
-  }
 
   const handleSlotModalCancel = () => {
     setVisibleSlotModal(false);
@@ -107,9 +95,10 @@ export default function SignUpForm(props) {
 
   return (
     <div>
+      <Card title="About" extra={<Button icon={<EyeOutlined />} onClick={() => setVisiblePreview(true)}>Preview Slot Picker</Button>}>
       {
         editable ?
-          <Card title="Sign Up">
+          <div>
 
             {signUpResponse &&
             (
@@ -143,35 +132,36 @@ export default function SignUpForm(props) {
               </Form>)
 
             }
-          </Card>
+          </div>
 
           :
           <div>
             <Descriptions>
               <Descriptions.Item label="Title">
-                <Typography.Paragraph>
                   {signUpResponse && signUpResponse.title}
-                </Typography.Paragraph>
               </Descriptions.Item>
             </Descriptions>
             <Descriptions>
               <Descriptions.Item label="Description">
-                <Typography.Paragraph>
                   {signUpResponse && signUpResponse.description}
-                </Typography.Paragraph>
               </Descriptions.Item>
             </Descriptions>
             <Descriptions>
               <Descriptions.Item label="Created">
-                <Typography.Paragraph>
                   {signUpResponse && formatDate(signUpResponse.created_at)}
-                </Typography.Paragraph>
+              </Descriptions.Item>
+            </Descriptions>
+            <Descriptions>
+              <Descriptions.Item label={<>Facts <Magic/></>}>
+                  {signUpResponse && signUpResponse.facts}
               </Descriptions.Item>
             </Descriptions>
           </div>
 
 
       }
+      </Card>
+
       <br/>
 
       <DateTimeSlots
@@ -252,6 +242,25 @@ export default function SignUpForm(props) {
           </Form.Item>
         </Form>
       </Modal>
+      <Drawer
+          width={400}
+          placement="right"
+          onClose={() => setVisiblePreview(false)}
+          destroyOnClose
+          visible={visiblePreview}
+        >
+        <div className="preview-container">
+          <Typography.Text>Preview</Typography.Text>
+          <iframe
+            className="preview-frame"
+            src={`/messenger/signup-preview/${id}/`}
+            frameBorder="no"
+            title="Slot Picker Preview"
+            width="100%"
+            height="100%"
+          />
+        </div>
+      </Drawer>
     </div>
   );
 }

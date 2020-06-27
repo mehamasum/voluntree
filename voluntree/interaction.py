@@ -516,12 +516,12 @@ class InteractionHandler:
                     "buttons": [
                         {
                             "type": "web_url",
-                            "url": "%s/messenger/%s/signup/%s/%s/?post_id=%s" % (
+                            "url": "%s/messenger/%s/signup/%s/?post_id=%s&psid=%s" % (
                                 getattr(settings, 'APP_URL'),
                                 page_id,
                                 str(post.signup.id),
+                                str(post.id),
                                 psid,
-                                str(post.id)
                             ),
                             "title": "Select Slots",
                             "webview_height_ratio": "tall",
