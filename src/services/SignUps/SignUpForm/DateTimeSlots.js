@@ -13,11 +13,13 @@ const generateColor = makeColorGenerator();
 const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.host;
 
 const ActionButton = (props) => {
-  const {setVisibleTimeModal, id} = props;
+  const {setVisibleTimeModal, id, setdateTimeResponseUrl, signUpId} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteItemAction = () => {
+    setdateTimeResponseUrl(null);
     DeleteFetch(`/api/datetimes/${id}/`).then(() => {
       setShowDeleteModal(false);
+      setdateTimeResponseUrl(`/api/signups/${signUpId}/date_times/`);
     }).catch(err => {
       console.log('got error', err);
     })
@@ -52,7 +54,7 @@ const PopulateAvatar = (props) => {
 
 const SlotItem = (props) => {
 
-  const {slot, editable, datetimeId} = props;
+  const {slot, editable, datetimeId, setdateTimeResponseUrl, signUpId} = props;
   const {id} = slot;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/?datetime=${datetimeId}`);
@@ -105,8 +107,10 @@ const SlotItem = (props) => {
   }, [volunteerList]);
 
   const deleteItemAction = () => {
+    setdateTimeResponseUrl(null);
     DeleteFetch(`/api/slots/${slot.id}/`).then(() => {
       setShowDeleteModal(false);
+      setdateTimeResponseUrl(`/api/signups/${signUpId}/date_times/`);
     }).catch(err => {
       console.log('got error', err);
     })
@@ -139,7 +143,7 @@ const SlotItem = (props) => {
   </List.Item>
 }
 
-const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
+const constructColumns = (editable, setVisibleTimeModal, datetimes, setdateTimeResponseUrl, signUpId) => {
   const dateRow = {
     title: 'Date',
     width: 100,
@@ -161,6 +165,8 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
         setVisibleTimeModal={setVisibleTimeModal}
         datetimes={datetimes}
         id={record.id}
+        setdateTimeResponseUrl={setdateTimeResponseUrl}
+        signUpId={signUpId}
       />
 
     },
@@ -171,7 +177,7 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
     render: (text, record) => (
       <List
         dataSource={record.slots}
-        renderItem={slot => <SlotItem slot={slot} datetimeId={record.id} editable={editable}/>}
+        renderItem={slot => <SlotItem slot={slot} datetimeId={record.id} editable={editable} setdateTimeResponseUrl={setdateTimeResponseUrl} signUpId={signUpId}/>}
       />
     )
   };
@@ -185,9 +191,9 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes) => {
 }
 
 export default function DateTimeSlots(props) {
-  const {editable, setVisibleTimeModal, setVisibleSlotModal, datetimes} = props;
+  const {signUpId, editable, setVisibleTimeModal, setVisibleSlotModal, datetimes, setdateTimeResponseUrl} = props;
   const columns = useMemo(() => {
-    return constructColumns(editable, setVisibleTimeModal, datetimes);
+    return constructColumns(editable, setVisibleTimeModal, datetimes, setdateTimeResponseUrl, signUpId);
   }, [editable, setVisibleTimeModal, datetimes])
   return (
     <Card title="Date-Time and Slots" extra={editable && <Space>

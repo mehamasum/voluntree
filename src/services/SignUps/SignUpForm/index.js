@@ -14,7 +14,7 @@ import {EyeOutlined} from "@ant-design/icons";
 export default function SignUpForm(props) {
   const {id} = useParams();
   const [signUpResponse] = useFetch(`/api/signups/${id}/`);
-  const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
+  const [dateTimesResponse, , setdateTimeResponseUrl] = useFetch(`/api/signups/${id}/date_times/`);
   const [datetimes, setDatetimes] = useState([]);
   const [slotForm] = Form.useForm();
 
@@ -172,6 +172,7 @@ export default function SignUpForm(props) {
         signUpId={id}
         visibleTimeModal={visibleTimeModal}
         setDatetimes={setDatetimes}
+        setdateTimeResponseUrl={setdateTimeResponseUrl}
       />
 
 

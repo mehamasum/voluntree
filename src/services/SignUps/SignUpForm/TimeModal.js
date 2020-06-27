@@ -50,6 +50,7 @@ export default function TimeModal(props) {
           ]);
           setVisibleTimeModal(false);
           setSavingDatetime(false);
+          dateTimeForm.resetFields();
 
         })
         .catch(err => {
