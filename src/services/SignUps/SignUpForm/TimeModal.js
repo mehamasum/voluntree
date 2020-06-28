@@ -3,8 +3,7 @@ import {Button, DatePicker, Form, Modal, TimePicker,} from "antd";
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 export default function TimeModal(props) {
 
-  const {visibleTimeModal, setVisibleTimeModal, signUpId, datetimes, setDatetimes, editable} = props;
-  const [dateTimeForm] = Form.useForm();
+  const {visibleTimeModal, setVisibleTimeModal, signUpId, datetimes, setDatetimes, editable, dateTimeForm} = props;
   const [errors, setErrors] = useState({
     date: false,
     time: false

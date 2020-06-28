@@ -1,6 +1,6 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {Avatar, Button, Card, List, Space, Table, Tag, Tooltip, Typography} from "antd";
-
+import moment from 'moment';
 import {useFetch} from '../../../hooks';
 import {formatDate, formatTime, getInvertColor, makeColorGenerator} from "../../../utils";
 import {DeleteOutlined, EditOutlined} from '@ant-design/icons';
@@ -13,7 +13,13 @@ const generateColor = makeColorGenerator();
 const WEB_SOCKET_HOST = process.env.REACT_APP_WEBSOCKET_HOST || window.location.host;
 
 const ActionButton = (props) => {
-  const {setVisibleTimeModal, id, setdateTimeResponseUrl, signUpId} = props;
+  const {
+    setVisibleTimeModal,
+    id,
+    setdateTimeResponseUrl,
+    signUpId,
+    datetimes,
+    dateTimeForm} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteItemAction = () => {
     setdateTimeResponseUrl(null);
@@ -25,11 +31,21 @@ const ActionButton = (props) => {
     })
   }
 
+  const onUpdateClick = () => {
+    dateTimeForm.setFieldsValue(
+      {
+        date: moment(datetimes.date, "YYYY-MM-DD"),
+        time: [moment(datetimes.start_time, "HH:mm:ss"), moment(datetimes.end_time, "HH:mm:ss")]
+      }
+    )
+    setVisibleTimeModal(true);
+  }
+
   const onCancle = () => {
     setShowDeleteModal(false);
   }
   return <Space>
-    <Button icon={<EditOutlined/>} onClick={() => setVisibleTimeModal(true)}/>
+    <Button icon={<EditOutlined/>} onClick={onUpdateClick}/>
     <Button icon={<DeleteOutlined/>} onClick={() => setShowDeleteModal(true)}/>
     <DeleteModal
       deleteItemAction={deleteItemAction}
@@ -54,7 +70,15 @@ const PopulateAvatar = (props) => {
 
 const SlotItem = (props) => {
 
-  const {slot, editable, datetimeId, setdateTimeResponseUrl, signUpId} = props;
+  const {
+    slot,
+    editable,
+    datetimeId,
+    setdateTimeResponseUrl,
+    signUpId,
+    slotForm,
+    setVisibleSlotModal} = props;
+
   const {id} = slot;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [volunteerList, setVolunteerList] = useFetch(`/api/slots/${id}/volunteers/?datetime=${datetimeId}`);
@@ -121,7 +145,18 @@ const SlotItem = (props) => {
     setShowDeleteModal(false);
   }
 
-  return <List.Item actions={editable ? [<Button icon={<EditOutlined/>}/>,
+  const onUpdateClick = () => {
+    
+    slotForm.setFieldsValue({
+      title: slot.title,
+      required_volunteers: slot.required_volunteers,
+      description: slot.description,
+      date_times: slot.date_times
+    });
+    setVisibleSlotModal(true);
+  }
+
+  return <List.Item actions={editable ? [<Button icon={<EditOutlined/>} onClick={onUpdateClick}/>,
     <Button icon={<DeleteOutlined/>} onClick={() => setShowDeleteModal(true)}/>] : []}>
     <List.Item.Meta
       title={<Tag color={generateColor(slot.id)}>
@@ -143,7 +178,17 @@ const SlotItem = (props) => {
   </List.Item>
 }
 
-const constructColumns = (editable, setVisibleTimeModal, datetimes, setdateTimeResponseUrl, signUpId) => {
+const constructColumns = props => {
+  const {
+    signUpId,
+    editable,
+    setVisibleTimeModal,
+    setVisibleSlotModal,
+    datetimes,
+    setdateTimeResponseUrl,
+    slotForm, 
+    dateTimeForm} = props;
+
   const dateRow = {
     title: 'Date',
     width: 100,
@@ -161,12 +206,14 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes, setdateTimeR
   const actionRow = {
     title: 'Actions',
     render: (text, record) => {
+      console.log('record in action', record);
       return <ActionButton
         setVisibleTimeModal={setVisibleTimeModal}
-        datetimes={datetimes}
+        datetimes={record}
         id={record.id}
         setdateTimeResponseUrl={setdateTimeResponseUrl}
         signUpId={signUpId}
+        dateTimeForm={dateTimeForm}
       />
 
     },
@@ -177,7 +224,17 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes, setdateTimeR
     render: (text, record) => (
       <List
         dataSource={record.slots}
-        renderItem={slot => <SlotItem slot={slot} datetimeId={record.id} editable={editable} setdateTimeResponseUrl={setdateTimeResponseUrl} signUpId={signUpId}/>}
+        renderItem={slot => {
+         return <SlotItem 
+                  slot={slot}
+                  datetimeId={record.id}
+                  editable={editable}
+                  setdateTimeResponseUrl={setdateTimeResponseUrl}
+                  signUpId={signUpId} 
+                  slotForm={slotForm}
+                  setVisibleSlotModal={setVisibleSlotModal}
+                />
+        }}
       />
     )
   };
@@ -191,9 +248,15 @@ const constructColumns = (editable, setVisibleTimeModal, datetimes, setdateTimeR
 }
 
 export default function DateTimeSlots(props) {
-  const {signUpId, editable, setVisibleTimeModal, setVisibleSlotModal, datetimes, setdateTimeResponseUrl} = props;
+  const {
+    editable,
+    setVisibleTimeModal,
+    setVisibleSlotModal,
+    datetimes,
+    } = props;
+
   const columns = useMemo(() => {
-    return constructColumns(editable, setVisibleTimeModal, datetimes, setdateTimeResponseUrl, signUpId);
+    return constructColumns(props);
   }, [editable, setVisibleTimeModal, datetimes])
   return (
     <Card title="Date-Time and Slots" extra={editable && <Space>

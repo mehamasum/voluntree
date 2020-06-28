@@ -17,6 +17,11 @@ export default function SignUpForm(props) {
   const [dateTimesResponse, , setdateTimeResponseUrl] = useFetch(`/api/signups/${id}/date_times/`);
   const [datetimes, setDatetimes] = useState([]);
   const [slotForm] = Form.useForm();
+  const [dateTimeForm] = Form.useForm();
+  const [errors, setErrors] = useState({
+    date: false,
+    time: false
+  });
 
   const [visibleTimeModal, setVisibleTimeModal] = useState(false);
   const [visibleSlotModal, setVisibleSlotModal] = useState(false);
@@ -33,6 +38,7 @@ export default function SignUpForm(props) {
 
   const handleSlotModalCancel = () => {
     setVisibleSlotModal(false);
+    slotForm.resetFields();
   }
 
   const onSlotCreateSubmit = fieldsValue => {
@@ -62,6 +68,7 @@ export default function SignUpForm(props) {
           ]
         })
         setDatetimes(clonedDateTimes);
+        slotForm.resetFields();
       })
       .catch(err => {
         console.log("err", err);
@@ -173,6 +180,8 @@ export default function SignUpForm(props) {
         visibleTimeModal={visibleTimeModal}
         setDatetimes={setDatetimes}
         setdateTimeResponseUrl={setdateTimeResponseUrl}
+        slotForm={slotForm}
+        dateTimeForm={dateTimeForm}
       />
 
 
@@ -182,6 +191,7 @@ export default function SignUpForm(props) {
         setVisibleTimeModal={setVisibleTimeModal}
         datetimes={datetimes}
         setDatetimes={setDatetimes}
+        dateTimeForm={dateTimeForm}
       />
 
       <Modal
