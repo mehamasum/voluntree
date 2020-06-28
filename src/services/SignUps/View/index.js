@@ -5,6 +5,7 @@ import SendUpdatesView from './SendUpdatesView';
 import useFetch from 'use-http';
 import SignUpForm from '../SignUpForm';
 import InterestedVolunteers from "../InterestedVolunteers";
+import PostListView from "../../Posts/PostListView";
 
 const {TabPane} = Tabs;
 
@@ -53,7 +54,7 @@ export default function SignUpView(props) {
                 <Button danger>Stop Collecting Response</Button>
               </Popconfirm>}
             <Button type="primary">
-              <Link to={`/signups/${props.match.params.id}/edit`}>Edit</Link>
+              <Link to={`/signups/${id}/edit`}>Edit</Link>
             </Button>
           </Space>}>
 
@@ -61,10 +62,13 @@ export default function SignUpView(props) {
           <TabPane tab="Details" key="1">
             <SignUpForm editable={false}/>
           </TabPane>
-          <TabPane tab="Sent Updates" key="2">
+           <TabPane tab="Posts" key="2">
+            <PostListView fetchUrl={`/api/signups/${id}/posts/?limit=25&offset=`}/>
+          </TabPane>
+          <TabPane tab="Sent Updates" key="3">
             <SendUpdatesView signUpId={id}/>
           </TabPane>
-          <TabPane tab="Volunteers" key="3">
+          <TabPane tab="Volunteers" key="4">
             <InterestedVolunteers id={id}/>
           </TabPane>
         </Tabs>

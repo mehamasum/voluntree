@@ -300,6 +300,17 @@ class SignUpViewSet(ModelViewSet):
         serializer = InterestGeterializer(queryset, many=True)
         return Response(serializer.data)
 
+    @action(detail=True)
+    def posts(self, request, pk):
+        queryset = Post.objects.filter(signup_id=pk).order_by('-created_at')
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = PostSerializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        serializer = PostSerializer(queryset, many=True)
+        return Response(serializer.data)
+
 
 class VolunteerViewSet(ModelViewSet):
     queryset = Volunteer.objects.all()
