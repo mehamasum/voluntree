@@ -18,6 +18,7 @@ import PostDetailsView from './services/Posts/PostDetailsView';
 import PostListView from './services/Posts/PostListView';
 import VolunteerListView from './services/Volunteers/VolunteerListView';
 import VolunteerDetailsView from './services/Volunteers/VolunteerDetailsView';
+import {FetchProvider} from './providers';
 
 import Upcoming from './components/Upcoming';
 
@@ -25,8 +26,13 @@ import SignUpList from "./services/SignUps/List";
 import SignUpView from "./services/SignUps/View";
 import SignUpEdit from "./services/SignUps/Edit";
 
+import FundraiserListView from './services/Fundraisers/FundraiserListView';
+import FundraiserDetailsView from './services/Fundraisers/FundraiserDetailsView';
+import FundraiserCreateView from './services/Fundraisers/FundraiserCreateView';
+
 const App = (props) => {
   return (
+    <FetchProvider>
       <Router>
         <Switch>
           <Route exact path="/login">
@@ -47,6 +53,10 @@ const App = (props) => {
           <PrivateRoute exact path="/signups/:id/" component={SignUpView} />
           <PrivateRoute exact path="/signups/:id/edit/" component={SignUpEdit} />
 
+          <PrivateRoute exact path="/fundraisers/" component={FundraiserListView} />
+          <PrivateRoute exact path="/fundraisers/create/" component={FundraiserCreateView} />
+          <PrivateRoute exact path="/fundraisers/:id/" component={FundraiserDetailsView} />
+
 
           <PrivateRoute exact path="/donations" component={Upcoming} />
           <PrivateRoute exact path="/donors" component={Upcoming} />
@@ -57,6 +67,7 @@ const App = (props) => {
           <Route render={() => <Result status="404" title="404" subTitle="Sorry, the page you visited does not exist." />} />
         </Switch>
       </Router>
+    </FetchProvider>
   );
 };
 
