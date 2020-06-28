@@ -40,6 +40,8 @@ SECRET_KEY = env.str('DJANGO_SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env.bool('DJANGO_DEBUG', default=True)
 
+APP_URL = env.str('APP_URL', default='')
+
 ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS').split(',')
 USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
 
@@ -108,6 +110,7 @@ CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
 CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com', 'https://cdnjs.cloudflare.com')
 CSP_IMG_SRC = ("'self'", "https:",)
+CSP_CONNECT_SRC = ("'self'", "ws://localhost:8000",)
 
 ROOT_URLCONF = 'config.urls'
 
@@ -252,7 +255,6 @@ STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 API_BROWSER_HEADER = 'Voluntree'
 
 
-APP_URL = env.str('APP_URL', default='')
 FACEBOOK_GRAPH_API_VERSION = env.str('FACEBOOK_GRAPH_API_VERSION', default='v7.0')
 FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
 FACEBOOK_APP_SECRET = env.str('FACEBOOK_APP_SECRET', default='')

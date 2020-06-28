@@ -368,7 +368,10 @@ class DateTimeViewSet(ModelViewSet):
 
 @csrf_exempt
 def volunteer_signup_view(request, **kargs):
-    psid = kargs['ps_id']
+    psid = request.GET.get('psid', None)
+    if not psid:
+        return HttpResponseNotFound('No PSID')
+
     page_id = kargs['page_id']
     signup_id = kargs['signup_id']
 
@@ -447,6 +450,22 @@ def volunteer_signup_view(request, **kargs):
         'signup': signup,
         'page': page.name,
         'form': form,
+        'psid': psid,
+        'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
+    })
+
+@csrf_exempt
+def volunteer_signup_preview(request, **kargs):
+    signup_id = kargs['signup_id']
+    signup = SignUp.objects.get(id=signup_id)
+    fields, _ = SignUpService.get_human_readable_version_personal(signup, None)
+    form = {'fields': fields}
+
+    return render(request, 'messenger/signup.html', {
+        'signup': signup,
+        'page': 'Your Page Name',
+        'form': form,
+        'psid': None,
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
     })
 
