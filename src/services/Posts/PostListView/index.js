@@ -62,8 +62,9 @@ const columns = [
   },
 ];
 
-const PostListView = () => {
-  const [posts_response, , setUrl] = useFetch('/api/posts/?limit=25&offset=0');
+const PostListView = (props) => {
+  const fetchUrl = props.fetchUrl || '/api/posts/?limit=25&offset=';
+  const [posts_response, , setUrl] = useFetch(`${fetchUrl}0`);
   const [pagination, setPagination] = useState({current: 1, pageSize: 25, showSizeChanger: false});
   const [total, setTotal] = useState(0);
 
@@ -75,8 +76,8 @@ const PostListView = () => {
   const onChangeTable = useCallback((pag) => {
     setPagination(pag);
     const offset = (pag.current - 1) * 25;
-    setUrl(`/api/posts/?limit=25&offset=${offset}`);
-  }, [setPagination, setUrl]);
+    setUrl(`${fetchUrl}${offset}`);
+  }, [fetchUrl, setPagination, setUrl]);
 
   useEffect(() => {
     if (!posts_response) return;
