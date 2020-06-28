@@ -3,7 +3,17 @@ import {Button, DatePicker, Form, Modal, TimePicker,} from "antd";
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 export default function TimeModal(props) {
 
-  const {visibleTimeModal, setVisibleTimeModal, signUpId, datetimes, setDatetimes, editable, dateTimeForm} = props;
+  const {
+    visibleTimeModal,
+    setVisibleTimeModal,
+    signUpId,
+    datetimes,
+    setDatetimes,
+    editable,
+    dateTimeForm,
+    updateDatetimeUrl,
+    setUpdateDatetimeUrl
+    } = props;
   const [errors, setErrors] = useState({
     date: false,
     time: false
@@ -12,8 +22,8 @@ export default function TimeModal(props) {
 
   const handleTimeModalOk = (values, url = null, method = null) => {
     const {date, time} = values;
-    const fetchUrl = `/api/datetimes/` || url;
-    const fetchMethod = 'POST' || method;
+    const fetchUrl = url || `/api/datetimes/`;
+    const fetchMethod =  method || 'POST';
     if (!date || !time) {
       setErrors(errors => ({
         date: !date,
@@ -43,6 +53,7 @@ export default function TimeModal(props) {
           return response.json();
         })
         .then(result => {
+          // this causing the error
           setDatetimes([
             ...datetimes,
             result
@@ -69,7 +80,12 @@ export default function TimeModal(props) {
     onOk={dateTimeForm.submit}
     onCancel={handleTimeModalCancel}
   >
-    <Form name="datetime" form={dateTimeForm} onFinish={handleTimeModalOk}>
+    <Form
+      name="datetime"
+      form={dateTimeForm}
+      onFinish={(values) => {
+                  return handleTimeModalOk(values, updateDatetimeUrl, updateDatetimeUrl ? "PUT" : null)}
+    }>
       <Form.Item label="Date" name="date" validateStatus={errors.date && "error"}
                  help={errors.date && "Please select the correct date"}>
         <DatePicker/>

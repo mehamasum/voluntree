@@ -19,7 +19,8 @@ const ActionButton = (props) => {
     setdateTimeResponseUrl,
     signUpId,
     datetimes,
-    dateTimeForm} = props;
+    dateTimeForm, 
+    setUpdateDatetimeUrl} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteItemAction = () => {
     setdateTimeResponseUrl(null);
@@ -38,6 +39,7 @@ const ActionButton = (props) => {
         time: [moment(datetimes.start_time, "HH:mm:ss"), moment(datetimes.end_time, "HH:mm:ss")]
       }
     )
+    setUpdateDatetimeUrl(`/api/datetimes/${id}/`);
     setVisibleTimeModal(true);
   }
 
@@ -187,7 +189,8 @@ const constructColumns = props => {
     datetimes,
     setdateTimeResponseUrl,
     slotForm, 
-    dateTimeForm} = props;
+    dateTimeForm,
+    setUpdateDatetimeUrl} = props;
 
   const dateRow = {
     title: 'Date',
@@ -214,6 +217,7 @@ const constructColumns = props => {
         setdateTimeResponseUrl={setdateTimeResponseUrl}
         signUpId={signUpId}
         dateTimeForm={dateTimeForm}
+        setUpdateDatetimeUrl={setUpdateDatetimeUrl}
       />
 
     },

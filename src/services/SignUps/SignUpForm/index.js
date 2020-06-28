@@ -18,6 +18,7 @@ export default function SignUpForm(props) {
   const [datetimes, setDatetimes] = useState([]);
   const [slotForm] = Form.useForm();
   const [dateTimeForm] = Form.useForm();
+  const [updateDatetimeUrl, setUpdateDatetimeUrl] = useState(null);
   const [errors, setErrors] = useState({
     date: false,
     time: false
@@ -182,6 +183,7 @@ export default function SignUpForm(props) {
         setdateTimeResponseUrl={setdateTimeResponseUrl}
         slotForm={slotForm}
         dateTimeForm={dateTimeForm}
+        setUpdateDatetimeUrl={setUpdateDatetimeUrl}
       />
 
 
@@ -192,6 +194,8 @@ export default function SignUpForm(props) {
         datetimes={datetimes}
         setDatetimes={setDatetimes}
         dateTimeForm={dateTimeForm}
+        updateDatetimeUrl={updateDatetimeUrl}
+        setUpdateDatetimeUrl={setUpdateDatetimeUrl}
       />
 
       <Modal
