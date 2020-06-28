@@ -19,6 +19,7 @@ export default function SignUpForm(props) {
   const [slotForm] = Form.useForm();
   const [dateTimeForm] = Form.useForm();
   const [updateDatetimeUrl, setUpdateDatetimeUrl] = useState(null);
+  const [updateSlotUrl, setUpdateSlotUrl] = useState(null);
   const [errors, setErrors] = useState({
     date: false,
     time: false
@@ -42,10 +43,11 @@ export default function SignUpForm(props) {
     slotForm.resetFields();
   }
 
-  const onSlotCreateSubmit = fieldsValue => {
+  const onSlotModalOk = (fieldsValue, url = null, method = null) => {
     setSavingSlot(true);
-    fetch(`/api/slots/`, {
-      method: 'POST',
+    setdateTimeResponseUrl(null);
+    fetch( url || `/api/slots/`, {
+      method: method || 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${localStorage.getItem('token')}`
@@ -56,19 +58,10 @@ export default function SignUpForm(props) {
         return response.json();
       })
       .then(result => {
+        setdateTimeResponseUrl(`/api/signups/${id}/date_times/`);
         setVisibleSlotModal(false);
         setSavingSlot(false);
-
-        const clonedDateTimes = _.clone(datetimes);
-        const ids = _.map(_.filter(datetimes, datetime => _.includes(result.date_times, datetime.id)), 'id');
-        _.forEach(ids, id => {
-          const index = _.findIndex(clonedDateTimes, ['id', id]);
-          clonedDateTimes[index].slots = [
-            ...clonedDateTimes[index].slots,
-            result
-          ]
-        })
-        setDatetimes(clonedDateTimes);
+        setUpdateSlotUrl(null);
         slotForm.resetFields();
       })
       .catch(err => {
@@ -184,6 +177,7 @@ export default function SignUpForm(props) {
         slotForm={slotForm}
         dateTimeForm={dateTimeForm}
         setUpdateDatetimeUrl={setUpdateDatetimeUrl}
+        setUpdateSlotUrl={setUpdateSlotUrl}
       />
 
 
@@ -196,6 +190,7 @@ export default function SignUpForm(props) {
         dateTimeForm={dateTimeForm}
         updateDatetimeUrl={updateDatetimeUrl}
         setUpdateDatetimeUrl={setUpdateDatetimeUrl}
+        setdateTimeResponseUrl={setdateTimeResponseUrl}
       />
 
       <Modal
@@ -215,7 +210,9 @@ export default function SignUpForm(props) {
             sm: {span: 16},
           }}
           form={slotForm}
-          onFinish={onSlotCreateSubmit}
+          onFinish={(values) => {
+            return onSlotModalOk(values, updateSlotUrl, updateSlotUrl ? "PUT" : null);
+          }}
         >
           <Form.Item
             label="Title"

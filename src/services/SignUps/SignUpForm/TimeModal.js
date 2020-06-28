@@ -12,7 +12,8 @@ export default function TimeModal(props) {
     editable,
     dateTimeForm,
     updateDatetimeUrl,
-    setUpdateDatetimeUrl
+    setUpdateDatetimeUrl,
+    setdateTimeResponseUrl
     } = props;
   const [errors, setErrors] = useState({
     date: false,
@@ -41,6 +42,7 @@ export default function TimeModal(props) {
         end_time: time[1].format("HH:mm:ss"),
       };
       setSavingDatetime(true);
+      setdateTimeResponseUrl(null);
       fetch(fetchUrl, {
         method: fetchMethod,
         headers: {
@@ -53,11 +55,7 @@ export default function TimeModal(props) {
           return response.json();
         })
         .then(result => {
-          // this causing the error
-          setDatetimes([
-            ...datetimes,
-            result
-          ]);
+          setdateTimeResponseUrl(`/api/signups/${signUpId}/date_times/`);
           setVisibleTimeModal(false);
           setSavingDatetime(false);
           dateTimeForm.resetFields();

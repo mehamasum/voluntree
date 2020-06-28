@@ -77,6 +77,7 @@ const SlotItem = (props) => {
     editable,
     datetimeId,
     setdateTimeResponseUrl,
+    setUpdateSlotUrl,
     signUpId,
     slotForm,
     setVisibleSlotModal} = props;
@@ -156,6 +157,7 @@ const SlotItem = (props) => {
       date_times: slot.date_times
     });
     setVisibleSlotModal(true);
+    setUpdateSlotUrl(`/api/slots/${slot.id}/`);
   }
 
   return <List.Item actions={editable ? [<Button icon={<EditOutlined/>} onClick={onUpdateClick}/>,
@@ -190,7 +192,8 @@ const constructColumns = props => {
     setdateTimeResponseUrl,
     slotForm, 
     dateTimeForm,
-    setUpdateDatetimeUrl} = props;
+    setUpdateDatetimeUrl,
+    setUpdateSlotUrl} = props;
 
   const dateRow = {
     title: 'Date',
@@ -237,6 +240,7 @@ const constructColumns = props => {
                   signUpId={signUpId} 
                   slotForm={slotForm}
                   setVisibleSlotModal={setVisibleSlotModal}
+                  setUpdateSlotUrl={setUpdateSlotUrl}
                 />
         }}
       />
