@@ -14,9 +14,16 @@ import {EyeOutlined} from "@ant-design/icons";
 export default function SignUpForm(props) {
   const {id} = useParams();
   const [signUpResponse] = useFetch(`/api/signups/${id}/`);
-  const [dateTimesResponse] = useFetch(`/api/signups/${id}/date_times/`);
+  const [dateTimesResponse, , setdateTimeResponseUrl] = useFetch(`/api/signups/${id}/date_times/`);
   const [datetimes, setDatetimes] = useState([]);
   const [slotForm] = Form.useForm();
+  const [dateTimeForm] = Form.useForm();
+  const [updateDatetimeUrl, setUpdateDatetimeUrl] = useState(null);
+  const [updateSlotUrl, setUpdateSlotUrl] = useState(null);
+  const [errors, setErrors] = useState({
+    date: false,
+    time: false
+  });
 
   const [visibleTimeModal, setVisibleTimeModal] = useState(false);
   const [visibleSlotModal, setVisibleSlotModal] = useState(false);
@@ -33,12 +40,14 @@ export default function SignUpForm(props) {
 
   const handleSlotModalCancel = () => {
     setVisibleSlotModal(false);
+    slotForm.resetFields();
   }
 
-  const onSlotCreateSubmit = fieldsValue => {
+  const onSlotModalOk = (fieldsValue, url = null, method = null) => {
     setSavingSlot(true);
-    fetch(`/api/slots/`, {
-      method: 'POST',
+    setdateTimeResponseUrl(null);
+    fetch( url || `/api/slots/`, {
+      method: method || 'POST',
       headers: {
         'Content-Type': 'application/json',
         'Authorization': `Token ${localStorage.getItem('token')}`
@@ -49,19 +58,11 @@ export default function SignUpForm(props) {
         return response.json();
       })
       .then(result => {
+        setdateTimeResponseUrl(`/api/signups/${id}/date_times/`);
         setVisibleSlotModal(false);
         setSavingSlot(false);
-
-        const clonedDateTimes = _.clone(datetimes);
-        const ids = _.map(_.filter(datetimes, datetime => _.includes(result.date_times, datetime.id)), 'id');
-        _.forEach(ids, id => {
-          const index = _.findIndex(clonedDateTimes, ['id', id]);
-          clonedDateTimes[index].slots = [
-            ...clonedDateTimes[index].slots,
-            result
-          ]
-        })
-        setDatetimes(clonedDateTimes);
+        setUpdateSlotUrl(null);
+        slotForm.resetFields();
       })
       .catch(err => {
         console.log("err", err);
@@ -172,6 +173,11 @@ export default function SignUpForm(props) {
         signUpId={id}
         visibleTimeModal={visibleTimeModal}
         setDatetimes={setDatetimes}
+        setdateTimeResponseUrl={setdateTimeResponseUrl}
+        slotForm={slotForm}
+        dateTimeForm={dateTimeForm}
+        setUpdateDatetimeUrl={setUpdateDatetimeUrl}
+        setUpdateSlotUrl={setUpdateSlotUrl}
       />
 
 
@@ -181,6 +187,10 @@ export default function SignUpForm(props) {
         setVisibleTimeModal={setVisibleTimeModal}
         datetimes={datetimes}
         setDatetimes={setDatetimes}
+        dateTimeForm={dateTimeForm}
+        updateDatetimeUrl={updateDatetimeUrl}
+        setUpdateDatetimeUrl={setUpdateDatetimeUrl}
+        setdateTimeResponseUrl={setdateTimeResponseUrl}
       />
 
       <Modal
@@ -200,7 +210,9 @@ export default function SignUpForm(props) {
             sm: {span: 16},
           }}
           form={slotForm}
-          onFinish={onSlotCreateSubmit}
+          onFinish={(values) => {
+            return onSlotModalOk(values, updateSlotUrl, updateSlotUrl ? "PUT" : null);
+          }}
         >
           <Form.Item
             label="Title"
