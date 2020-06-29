@@ -24,7 +24,7 @@ from .router import DefaultRouterWithAPIViews as DefaultRouter
 
 from voluntree.urls import register_urls as register_voluntree_urls
 from voluntree.views import (WebhookCallbackView, SetupWebhookCallbackView, volunteer_signup_view,
-                             signup_confirmation_view, volunteer_signup_preview)
+                             signup_confirmation_view, volunteer_signup_preview, share_activity)
 
 schema_urls = get_schema_view(title=settings.API_BROWSER_HEADER, public=True)
 doc_urls = include_docs_urls(title=settings.API_BROWSER_HEADER)
@@ -42,6 +42,7 @@ urlpatterns = [
     path('messenger/<page_id>/signup/<int:signup_id>/', volunteer_signup_view),
     path('messenger/signup-preview/<int:signup_id>/', volunteer_signup_preview),
     path('messenger/signup/done/', signup_confirmation_view),
+    path('share/register/<int:signup_id>/<volunteer_id>/', share_activity),
 ]
 
 router = DefaultRouter()

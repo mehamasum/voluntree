@@ -447,11 +447,9 @@ def volunteer_signup_view(request, **kargs):
                 'text': "You unregistered from all the slots (y)"
             })
         elif count == 1:
-            InteractionHandler.send_calendar_confirmation(psid, page_id, last_dt, last_slot)
+            InteractionHandler.send_calendar_confirmation(psid, page_id, last_dt, last_slot, volunteer, signup)
         else:
-            InteractionHandler.send_reply(psid, page_id, {
-                'text': "Cool, you signed up for %s slots :)" % count
-            })
+            InteractionHandler.send_wo_calendar_confirmation(psid, page_id, count, volunteer, signup)
         return HttpResponseRedirect('/messenger/signup/done/')
     else:
         fields, _ = SignUpService.get_human_readable_version_personal(signup, volunteer)
@@ -478,6 +476,42 @@ def volunteer_signup_preview(request, **kargs):
         'form': form,
         'psid': None,
         'FACEBOOK_APP_ID': getattr(settings, 'FACEBOOK_APP_ID')
+    })
+
+@csrf_exempt
+def share_activity(request, **kargs):
+    signup_id = kargs['signup_id']
+    volunteer_id = kargs['volunteer_id']
+
+    try:
+        signup = SignUp.objects.get(id=signup_id)
+    except SignUp.DoesNotExist:
+        return HttpResponseNotFound('No Signup')
+
+    try:
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
+    except Volunteer.DoesNotExist:
+        return HttpResponseNotFound('No volunteer')
+
+    fields, _ = SignUpService.get_human_readable_version_personal(signup, volunteer)
+
+    title = '%s has signed up for %s' % (
+        volunteer.first_name,
+        signup.title
+    )
+    image = 'https://pixabay.com/images/id-2055010'
+    description = '%s is looking for volunteers for their event. You can sign up too!' % signup.organization.name
+
+    return render(request, 'share/registered.html', {
+        'title': title,
+        'description': description,
+        'image': image,
+        'signup': signup,
+        'volunteer': volunteer,
+        'organization': signup.organization,
+        'url': settings.APP_URL,
+        'page': page
     })
 
 @csrf_exempt
