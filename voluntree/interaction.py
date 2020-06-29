@@ -342,10 +342,10 @@ class InteractionHandler:
             datetime = DateTime.objects.get(id=datetime_id)
             slot = Slot.objects.get(id=slot_id)
             Interest.objects.get_or_create(datetime=datetime, slot=slot, volunteer=volunteer)
-            InteractionHandler.send_calendar_confirmation(psid, page_id, datetime, slot)
-            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            InteractionHandler.send_calendar_confirmation(psid, page_id, datetime, slot, volunteer, datetime.signup)
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post, first=False)
         else:
-            InteractionHandler.reply_with_slot_picker(psid, page_id, post)
+            InteractionHandler.reply_with_slot_picker(psid, page_id, post, first=True)
 
     @staticmethod
     def first_entity(nlp, name):
@@ -398,7 +398,10 @@ class InteractionHandler:
         text = message['text']
         nlp = message['nlp']
 
-        intent = InteractionHandler.first_entity(nlp, 'intent')
+        intent = InteractionHandler.first_intent(nlp) or InteractionHandler.first_entity(nlp, 'intent')
+        intent_type = None
+        if intent:
+            intent_type = intent['name'] if 'name' in intent else intent['value']
         print('intent', intent)
 
         email_entity = InteractionHandler.first_entity(nlp, 'email')
@@ -407,7 +410,7 @@ class InteractionHandler:
         otp_entity = InteractionHandler.first_entity(nlp, 'otp')
         print('otp intent', otp_entity)
 
-        if intent and intent['value'] == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
+        if intent_type and intent_type == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
             print('sign up intent', intent)
             signups = SignUp.objects.filter(disabled=False)
 
@@ -506,13 +509,16 @@ class InteractionHandler:
         InteractionHandler.reset_context(psid, page_id)
 
     @staticmethod
-    def reply_with_slot_picker(psid, page_id, post):
+    def reply_with_slot_picker(psid, page_id, post, first=False):
+        msg = 'You can use this button to unregister.'
+        if first:
+            msg = 'Pick slots to sign up for. ' + msg
         InteractionHandler.send_reply(psid, page_id, {
             "attachment": {
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": "Pick slots to sign up clicking this button. You can also use it to to unselect slots later.",
+                    "text": msg,
                     "buttons": [
                         {
                             "type": "web_url",
@@ -568,7 +574,7 @@ class InteractionHandler:
 
 
     @staticmethod
-    def send_calendar_confirmation(psid, page_id, datetime, slot):
+    def send_calendar_confirmation(psid, page_id, datetime, slot, volunteer, signup):
         timezone_str = 'America/Los_Angeles'
         title = slot.title
         desc = slot.description
@@ -581,7 +587,7 @@ class InteractionHandler:
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": "Cool, you signed up for this slot! You can add this event to your personal calendar:",
+                    "text": "You signed up for this slot! You can add this event to your personal calendar:",
                     "buttons": [
                         {
                             "type": "web_url",
@@ -601,4 +607,19 @@ class InteractionHandler:
                     ]
                 }
             }
+        })
+        InteractionHandler.send_sharable_link(psid, page_id, volunteer, signup)
+
+    @staticmethod
+    def send_wo_calendar_confirmation(psid, page_id, count, volunteer, signup):
+        InteractionHandler.send_reply(psid, page_id, {
+            'text': "You signed up for %s slots :)" % count
+        })
+        InteractionHandler.send_sharable_link(psid, page_id, volunteer, signup)
+
+    @staticmethod
+    def send_sharable_link(psid, page_id, volunteer, signup):
+        link = '%s/share/register/%s/%s/' % (settings.APP_URL, str(signup.id), str(volunteer.id))
+        InteractionHandler.send_reply(psid, page_id, {
+            "text": "You can share that you signed up with your friends by sharing this link: %s" % link
         })
