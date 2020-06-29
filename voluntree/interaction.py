@@ -512,7 +512,7 @@ class InteractionHandler:
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": "Pick slots to sign up clicking this button. You can also use it to to unselect slots later.",
+                    "text": "Pick slots to sign up clicking this button. You can also use it to unselect slots later.",
                     "buttons": [
                         {
                             "type": "web_url",
