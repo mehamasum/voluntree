@@ -328,8 +328,12 @@ class InteractionHandler:
                 'slot_id': slot_id,
                 'state': InteractionHandler.ASKED_FOR_EMAIL
             })
+            nb_integration = NationBuilderService.get_integration(post.page.organization)
+            prompt_email_msg = 'Please give us your email address.'
+            if nb_integration:
+                prompt_email_msg += ' We will use it to create an account for you in our volunteer management software.'
             InteractionHandler.send_reply(psid, page_id, {
-                'text': 'What is your email?'
+                'text': prompt_email_msg
             })
         else:
             InteractionHandler.reset_context(psid, page_id)

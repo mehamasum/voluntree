@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from "react";
-import {Button, Checkbox, Divider, Form, Input, Select, Spin, message} from 'antd';
+import {Button, Checkbox, Divider, Form, Input, message, Select, Spin} from 'antd';
 import useFetch from "use-http";
 import Magic from "../../components/Magic";
 import {TIMEZONES} from "../../utils";
@@ -53,7 +53,7 @@ const OrgSettings = () => {
     console.log('Failed:', errorInfo);
   };
 
-  if(!org) return <Spin/>;
+  if (!org) return <Spin/>;
 
   return (
     <Form
@@ -93,7 +93,8 @@ const OrgSettings = () => {
         {...tailLayout}
         name="volunteer_verification"
         valuePropName="checked"
-        extra="If checked, Voluntree will verify the email address of each volunteer when they sign up"
+        extra={<>If checked, Voluntree will verify the email address of each volunteer when they sign up.<br/>
+          Note that, email verification must be ON to create volunteer account in your integrations.</>}
       >
         <Checkbox>Verify email at sign up</Checkbox>
       </Form.Item>
