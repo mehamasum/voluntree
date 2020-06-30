@@ -218,6 +218,7 @@ class PostService:
 
 
 class FacebookService:
+    CONFIRMED_EVENT_UPDATE = "CONFIRMED_EVENT_UPDATE"
     FACEBOOK_GRAPH_BASE_URL = 'https://graph.facebook.com/'
     FACEBOOK_GRAPH_API_VERSION = getattr(settings, 'FACEBOOK_GRAPH_API_VERSION')
     FACEBOOK_GRAPH_API_URL = FACEBOOK_GRAPH_BASE_URL + FACEBOOK_GRAPH_API_VERSION
@@ -369,6 +370,22 @@ class FacebookService:
             "access_token": page.page_access_token,
             "recipient": recipient,
             "message": message
+        })
+
+        return requests.post(url, headers=headers, data=params)
+
+    @staticmethod
+    def send_tag_message(page, recipient, message, tag):
+        # send_tag_message(page, {"id": "psid"}, {"text": "msg"}, "CONFIRMED_EVENT_UPDATE")
+
+        headers = {'content-type': "application/json"}
+        url = 'https://graph.facebook.com/v7.0/me/messages'
+        params = json.dumps({
+            "access_token": page.page_access_token,
+            "recipient": recipient,
+            "message": message,
+            "messaging_type": "MESSAGE_TAG",
+            "tag": tag
         })
 
         return requests.post(url, headers=headers, data=params)
