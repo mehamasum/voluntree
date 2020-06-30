@@ -328,8 +328,12 @@ class InteractionHandler:
                 'slot_id': slot_id,
                 'state': InteractionHandler.ASKED_FOR_EMAIL
             })
+            nb_integration = NationBuilderService.get_integration(post.page.organization)
+            prompt_email_msg = 'Please give us your email address.'
+            if nb_integration:
+                prompt_email_msg += ' We will use it to create an account for you in our volunteer management software.'
             InteractionHandler.send_reply(psid, page_id, {
-                'text': 'What is your email?'
+                'text': prompt_email_msg
             })
         else:
             InteractionHandler.reset_context(psid, page_id)
@@ -510,9 +514,10 @@ class InteractionHandler:
 
     @staticmethod
     def reply_with_slot_picker(psid, page_id, post, first=False):
-        msg = 'You can use this button to unregister.'
         if first:
-            msg = 'Pick slots to sign up for. ' + msg
+            msg = 'Please pick slots by clicking on this button. You can also use it to unregister later if you wish.'
+        else:
+            msg = 'You can use this button to unregister if you wish.'
         InteractionHandler.send_reply(psid, page_id, {
             "attachment": {
                 "type": "template",

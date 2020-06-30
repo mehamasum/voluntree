@@ -578,14 +578,18 @@ class NationBuilderService:
             return False
 
     @staticmethod
-    def create_people(email, volunteer, post):
-        organization = post.page.organization
+    def get_integration(organization):
         try:
-            integration = Integration.objects.get(
+            return Integration.objects.get(
                 integration_type=Integration.NATION_BUILDER,
                 organization=organization)
         except Integration.DoesNotExist:
-            integration = None
+            return None
+
+    @staticmethod
+    def create_people(email, volunteer, post):
+        organization = post.page.organization
+        integration = NationBuilderService.get_integration(organization)
 
         if integration is None:
             return False
