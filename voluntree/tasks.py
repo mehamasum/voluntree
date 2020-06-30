@@ -83,7 +83,8 @@ def send_notification_on_interested_person(notification_id):
         page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
         recipient = {'id': volunteer.facebook_user_id}
         message = build_notification_message(notification)
-        FacebookService.send_private_message(page, recipient, message)
+        FacebookService.send_tag_message(
+            page, recipient, message, FacebookService.CONFIRMED_EVENT_UPDATE)
 
 @app.task
 def send_email(to_email, send_pin):
