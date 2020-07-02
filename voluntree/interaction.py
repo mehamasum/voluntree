@@ -10,6 +10,7 @@ from rest_framework.response import Response
 import arrow
 import pytz
 import datetime
+from urllib.parse import quote
 
 from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
@@ -626,5 +627,21 @@ class InteractionHandler:
     def send_sharable_link(psid, page_id, volunteer, signup):
         link = '%s/share/register/%s/%s/' % (settings.APP_URL, str(signup.id), str(volunteer.id))
         InteractionHandler.send_reply(psid, page_id, {
-            "text": "You can share that you signed up with your friends by sharing this link: %s" % link
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": 'You can share that you signed up with your friends <3',
+                    "buttons": [
+                        {
+                            "type": "web_url",
+                            "url": "https://www.facebook.com/dialog/share?app_id=%s&display=page&href=%s" % (
+                                FacebookService.FACEBOOK_APP_ID,
+                                quote(link)
+                            ),
+                            "title": "Share You Signed Up",
+                        }
+                    ]
+                }
+            }
         })
