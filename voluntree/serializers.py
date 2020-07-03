@@ -65,7 +65,7 @@ class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
         fields = ('id', 'facebook_user_id', 'facebook_page_id', 'first_name',
-                  'last_name', 'profile_pic', 'integrations')
+                  'last_name', 'profile_pic', 'integrations', 'email')
 
 
 class InterestGeterializer(serializers.ModelSerializer):
