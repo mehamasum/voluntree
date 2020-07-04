@@ -1,2 +1,2 @@
-FROM redislabs/redismod:edge
+FROM redislabs/redis
 
