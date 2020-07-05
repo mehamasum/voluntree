@@ -19,6 +19,7 @@ export default function SignUpForm(props) {
   const [slotForm] = Form.useForm();
   const [dateTimeForm] = Form.useForm();
   const [updateDatetimeUrl, setUpdateDatetimeUrl] = useState(null);
+  const [showMultipleTimeAddSlot, setShowMultipleTimeAddSlot] = useState(false);
   const [updateSlotUrl, setUpdateSlotUrl] = useState(null);
   const [errors, setErrors] = useState({
     date: false,
@@ -178,6 +179,8 @@ export default function SignUpForm(props) {
         dateTimeForm={dateTimeForm}
         setUpdateDatetimeUrl={setUpdateDatetimeUrl}
         setUpdateSlotUrl={setUpdateSlotUrl}
+        showMultipleTimeAddSlot={showMultipleTimeAddSlot}
+        setShowMultipleTimeAddSlot={setShowMultipleTimeAddSlot}
       />
 
 
@@ -191,6 +194,9 @@ export default function SignUpForm(props) {
         updateDatetimeUrl={updateDatetimeUrl}
         setUpdateDatetimeUrl={setUpdateDatetimeUrl}
         setdateTimeResponseUrl={setdateTimeResponseUrl}
+        showMultipleTimeAddSlot={showMultipleTimeAddSlot}
+        showMultipleTimeAddSlot={showMultipleTimeAddSlot}
+        setShowMultipleTimeAddSlot={setShowMultipleTimeAddSlot}
       />
 
       <Modal

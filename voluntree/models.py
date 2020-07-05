@@ -86,6 +86,7 @@ class SignUp(models.Model):
 
 
 class DateTime(models.Model):
+    times = None
     date = models.DateField()
     start_time = models.TimeField()
     end_time = models.TimeField()
