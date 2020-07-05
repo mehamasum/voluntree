@@ -11,7 +11,7 @@ from .services import (FacebookService, PostService, OrganizationService, SignUp
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer,
-                          IntegrationSerializer, RatingSerializer)
+                          IntegrationSerializer, RatingSerializer, DurationListSerializer)
 from .models import (Post, Interest, Volunteer, Notification, Organization,
                      Slot, DateTime, SignUp, Page, Integration, Rating)
 from .paginations import CreationTimeBasedPagination
@@ -375,6 +375,27 @@ class DateTimeViewSet(ModelViewSet):
     queryset = DateTime.objects.all()
     permission_classes = (IsAuthenticated, )
     serializer_class = DateTimeSetializer
+
+    def create(self, request, *args, **kwargs):
+        times = request.data.get('times', None)
+        duration_serializer = DurationListSerializer(data=times)
+        duration_serializer.is_valid(raise_exception=True)
+        signup = request.data['signup']
+        date = request.data['date']
+        response = []
+        for time in times:
+            data = {
+                'signup': signup,
+                'date': date,
+                'start_time': time['start_time'],
+                'end_time': time['end_time']
+            }
+            serializer = self.get_serializer(data=data)
+            serializer.is_valid(raise_exception=True)
+            self.perform_create(serializer)
+            response.append(serializer.data)
+
+        return Response(response, status=status.HTTP_201_CREATED)
 
 
 @csrf_exempt

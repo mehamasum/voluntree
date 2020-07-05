@@ -113,11 +113,33 @@ class SignUpSerializer(serializers.ModelSerializer):
             user=user, organization=organization, **validated_data)
 
 
+
+class DurationSerializer(serializers.Serializer):
+    start_time = serializers.TimeField()
+    end_time = serializers.TimeField()
+
+    def validate(self, data):
+        """
+        Check that start is before end.
+        """
+        if data['start_time'] > data['end_time']:
+            raise serializers.ValidationError("endtime must be occur before start")
+        return data
+
+class DurationListSerializer(serializers.ListSerializer):
+    child = DurationSerializer()
+
+
 class DateTimeSetializer(serializers.ModelSerializer):
     slots = SlotSerializer(many=True, read_only=True)
+   
     class Meta:
         model = DateTime
         fields = ('id', 'date', 'start_time', 'end_time', 'signup', 'slots')
+
+
+    
+
 
 
 class IntegrationSerializer(serializers.ModelSerializer):

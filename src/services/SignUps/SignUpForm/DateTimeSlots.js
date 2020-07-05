@@ -20,6 +20,7 @@ const ActionButton = (props) => {
     signUpId,
     datetimes,
     dateTimeForm, 
+    setShowMultipleTimeAddSlot,
     setUpdateDatetimeUrl} = props;
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const deleteItemAction = () => {
@@ -36,10 +37,11 @@ const ActionButton = (props) => {
     dateTimeForm.setFieldsValue(
       {
         date: moment(datetimes.date, "YYYY-MM-DD"),
-        time: [moment(datetimes.start_time, "HH:mm:ss"), moment(datetimes.end_time, "HH:mm:ss")]
+        time_0: [moment(datetimes.start_time, "HH:mm:ss"), moment(datetimes.end_time, "HH:mm:ss")]
       }
     )
     setUpdateDatetimeUrl(`/api/datetimes/${id}/`);
+    setShowMultipleTimeAddSlot(false);
     setVisibleTimeModal(true);
   }
 
@@ -193,7 +195,8 @@ const constructColumns = props => {
     slotForm, 
     dateTimeForm,
     setUpdateDatetimeUrl,
-    setUpdateSlotUrl} = props;
+    setUpdateSlotUrl,
+    setShowMultipleTimeAddSlot} = props;
 
   const dateRow = {
     title: 'Date',
@@ -221,6 +224,7 @@ const constructColumns = props => {
         signUpId={signUpId}
         dateTimeForm={dateTimeForm}
         setUpdateDatetimeUrl={setUpdateDatetimeUrl}
+        setShowMultipleTimeAddSlot={setShowMultipleTimeAddSlot}
       />
 
     },
@@ -260,15 +264,21 @@ export default function DateTimeSlots(props) {
     editable,
     setVisibleTimeModal,
     setVisibleSlotModal,
+    setShowMultipleTimeAddSlot,
     datetimes,
     } = props;
 
   const columns = useMemo(() => {
     return constructColumns(props);
   }, [editable, setVisibleTimeModal, datetimes])
+
+  const onAddDateAndTimeClick = () => {
+    setVisibleTimeModal(true);
+    setShowMultipleTimeAddSlot(true);
+  }
   return (
     <Card title="Date-Time and Slots" extra={editable && <Space>
-      <Button type="primary" onClick={() => setVisibleTimeModal(true)}>Add Date & Time</Button>
+      <Button type="primary" onClick={onAddDateAndTimeClick}>Add Date & Time</Button>
       <Button type="primary" onClick={() => setVisibleSlotModal(true)} disabled={!datetimes}>Add Slot</Button>
     </Space>}>
       <Table columns={columns} dataSource={datetimes.map((d, i) => ({key: i, ...d}))}/>
