@@ -34,7 +34,6 @@ const columns = [
 
 export default function (props) {
   const {id} = useParams();
-  const [ratingList, setRatingList] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const {loading, error, data: volunteer = null} = useFetch(`/api/volunteers/${id}/`, {
     headers: {
@@ -42,31 +41,18 @@ export default function (props) {
       'Content-Type': 'application/json'
     }
   }, []);
+  const {data: ratingList = []} = useFetch(`/api/volunteers/${id}/rating_list/`, {
+    headers: {
+      'Authorization': `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    },
+    onNewData: (curr, newd) => newd.map((d, indx) => ({...d, key: indx}))
+  }, []);
 
-  useEffect(() => {
-    getFetch(`/api/volunteers/${id}/rating_list/`).then(result=>{
-      setRatingList(result);
-      let totalRating = 0;
-      let totalEntry = 0;
-      result.forEach(element => {
-        if(element.rating) { // already rated in this event 
-          totalRating += element.rating;
-          totalEntry += 1;
-        }
-       
-      });
-
-      if( result.length ) {
-        setAverageRating(totalRating / totalEntry);
-      }
-     
-    })
-  }, [])
-
-  
   console.log('ratingList', ratingList);
   if (loading) return <Spin/>;
   if (error) return 'Error';
+  console.log("volunteer", volunteer);
   return (
     <>
       <Card title="Volunteer Profile">
@@ -84,8 +70,19 @@ export default function (props) {
         </Descriptions>
 
         <br/><br/>
-        <Descriptions title="Performance Info" >
-          <Descriptions.Item label="Avg. Rating" key={`${averageRating}_item`}><Rate disabled defaultValue={averageRating} /></Descriptions.Item>
+        <Descriptions title="Ratings" colon={false}>
+          <Descriptions.Item label="Avg" span={3}>
+            <Rate disabled defaultValue={volunteer.avg_rating} />
+          </Descriptions.Item>
+          {volunteer && [5,4,3,2,1].map(rat => {
+            const rating = volunteer.rating_summary.find(r => r.rating === rat) || {rating: rat, total: 0};
+            return (
+              <Descriptions.Item label={`${rating.rating}`} key={rat} span={3}>
+                <Rate disabled defaultValue={rating.rating} />
+                <span>{` (${rating.total})`}</span>
+              </Descriptions.Item>
+            );
+          })}
         </Descriptions>
       </Card>
 

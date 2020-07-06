@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.db.models import Count, Sum
 from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
                      Organization, Slot, SignUp, DateTime, Integration,
@@ -58,6 +59,8 @@ class VolunteerThirdPartyIntegrationSerializer(serializers.ModelSerializer):
 
 
 class VolunteerSerializer(serializers.ModelSerializer):
+    rating_summary = serializers.SerializerMethodField()
+    avg_rating = serializers.SerializerMethodField()
     integrations = VolunteerThirdPartyIntegrationSerializer(
         source='volunteer_third_party_integrations',
         many=True, read_only=True)
@@ -65,7 +68,19 @@ class VolunteerSerializer(serializers.ModelSerializer):
     class Meta:
         model = Volunteer
         fields = ('id', 'facebook_user_id', 'facebook_page_id', 'first_name',
-                  'last_name', 'profile_pic', 'integrations', 'email')
+                  'last_name', 'profile_pic', 'integrations', 'email',
+                  'rating_summary', 'avg_rating')
+
+    def get_rating_summary(self, valunteer):
+        return valunteer.ratings.values('rating').annotate(
+            total=Count('id')).order_by('-rating')
+
+    def get_avg_rating(self, volunteer):
+        total_rating = volunteer.ratings.aggregate(total=Sum('rating')).get('total')
+        total = volunteer.ratings.count()
+        if total:
+            return total_rating/total
+        return 0
 
 
 class InterestGeterializer(serializers.ModelSerializer):
