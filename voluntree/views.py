@@ -276,14 +276,6 @@ class SignUpViewSet(ModelViewSet):
         serializer = self.serializer_class(signup, context={'request': request})
         return Response(serializer.data)
 
-    @action(detail=True, methods=['post'])
-    def complete(self, request, pk):
-        signup = self.get_object()
-        signup.completed = True
-        signup.save()
-        serializer = self.serializer_class(signup, context={'request': request})
-        return Response(serializer.data)
-
     @action(detail=True)
     def notifications(self, request, pk):
         queryset = self.get_object().notifications.all().order_by('-created_at')
