@@ -330,7 +330,10 @@ class VolunteerViewSet(ModelViewSet):
             serializer = RatingSerializer(data=data)
         
         serializer.is_valid(raise_exception=True)
-        serializer.save()
+        rating = serializer.save()
+
+        res = InteractionHandler.send_sharable_certificate(rating.volunteer, rating.signup)
+        print(res.json())
 
         return Response(serializer.data)
 
@@ -525,6 +528,42 @@ def share_activity(request, **kargs):
     description = '%s is looking for volunteers for their event. You can sign up too!' % signup.organization.name
 
     return render(request, 'share/registered.html', {
+        'title': title,
+        'description': description,
+        'image': image,
+        'signup': signup,
+        'volunteer': volunteer,
+        'organization': signup.organization,
+        'url': settings.APP_URL,
+        'page': page
+    })
+
+@csrf_exempt
+def share_certificate(request, **kargs):
+    signup_id = kargs['signup_id']
+    volunteer_id = kargs['volunteer_id']
+
+    try:
+        signup = SignUp.objects.get(id=signup_id)
+    except SignUp.DoesNotExist:
+        return HttpResponseNotFound('No Signup')
+
+    try:
+        volunteer = Volunteer.objects.get(id=volunteer_id)
+        page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
+    except Volunteer.DoesNotExist:
+        return HttpResponseNotFound('No volunteer')
+
+    fields, _ = SignUpService.get_human_readable_version_personal(signup, volunteer)
+
+    title = '%s has volunteered in %s' % (
+        volunteer.first_name,
+        signup.title
+    )
+    image = 'https://pixabay.com/images/id-2055010'
+    description = '%s is looking for volunteers for similar events. You can sign up too!' % signup.organization.name
+
+    return render(request, 'share/volunteered.html', {
         'title': title,
         'description': description,
         'image': image,

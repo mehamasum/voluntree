@@ -12,7 +12,7 @@ import pytz
 import datetime
 from urllib.parse import quote
 
-from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot
+from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot, Page
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment, find_answer
 
@@ -631,7 +631,7 @@ class InteractionHandler:
                 "type": "template",
                 "payload": {
                     "template_type": "button",
-                    "text": 'You can share that you signed up with your friends <3',
+                    "text": 'You can share that you signed up with your friends <3\n\n%s' % link,
                     "buttons": [
                         {
                             "type": "web_url",
@@ -645,3 +645,29 @@ class InteractionHandler:
                 }
             }
         })
+
+    @staticmethod
+    def send_sharable_certificate(volunteer, signup):
+        link = '%s/share/volunteer/%s/%s/' % (settings.APP_URL, str(signup.id), str(volunteer.id))
+        recipient = {'id': volunteer.facebook_user_id}
+        message = {
+            "attachment": {
+                "type": "template",
+                "payload": {
+                    "template_type": "button",
+                    "text": 'Your certificate is ready! You can share it with your friends <3\n\n%s' % link,
+                    "buttons": [
+                        {
+                            "type": "web_url",
+                            "url": "https://www.facebook.com/dialog/share?app_id=%s&display=page&href=%s" % (
+                                FacebookService.FACEBOOK_APP_ID,
+                                quote(link)
+                            ),
+                            "title": "Share You Volunteered",
+                        }
+                    ]
+                }
+            }
+        }
+        page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
+        return FacebookService.send_tag_message(page, recipient, message, FacebookService.CONFIRMED_EVENT_UPDATE)
