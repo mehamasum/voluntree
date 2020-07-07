@@ -109,7 +109,7 @@ CSP_FRAME_ANCESTORS = ("'self'", 'https://www.messenger.com', 'https://www.faceb
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
 CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://stackpath.bootstrapcdn.com")
 CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com', 'https://cdnjs.cloudflare.com')
-CSP_IMG_SRC = ("'self'", "https:",)
+CSP_IMG_SRC = ("'self'", "https:", "data:")
 CSP_CONNECT_SRC = ("'self'", "ws://localhost:8000",)
 
 ROOT_URLCONF = 'config.urls'

@@ -41,7 +41,22 @@
       color: #9E9E9E;
     }
 
+    .avatar {
+      vertical-align: middle;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      object-fit: cover;
+      margin: 18px 0;
+    }
+
     @media only screen and (max-width: 700px) {
+      .avatar {
+        width: 100px;
+        height: 100px;
+        margin: 15px;
+      }
+
       /* ----- Base styles ----- */
       .full-width-container {
         padding: 0 !important;
@@ -103,12 +118,12 @@
 
       /* ----- Hero subheader ----- */
       .hero-subheader__title {
-        padding: 80px 15px 15px 15px !important;
+        padding: 15px !important;
         font-size: 35px !important;
       }
 
       .hero-subheader__content {
-        padding: 0 15px 90px 15px !important;
+        padding: 15px !important;
       }
 
       /* ----- Title block ----- */
@@ -206,7 +221,13 @@
             <table class="container hero-subheader" border="0" cellpadding="0" cellspacing="0" width="620"
                    style="width: 620px;">
               <tr>
-                <td class="hero-subheader__title" style="font-size: 43px; font-weight: bold; padding: 80px 0 15px 0;"
+                <td>
+                  <img src="{{ volunteer.profile_pic }}" alt="Avatar" class="avatar">
+                </td>
+              </tr>
+
+              <tr>
+                <td class="hero-subheader__title" style="font-size: 43px; font-weight: bold; padding: 15px 0 15px 0;"
                     align="left">
                   {{ volunteer.first_name }} has signed up for <i>{{ signup.title }}</i>
                 </td>
@@ -280,7 +301,7 @@
 
                     <tr>
                       <td style="color: #d5d5d5; text-align: center; font-size: 15px; padding: 10px 0 60px 0; line-height: 22px;">
-                        Copyright &copy; 2020 <a href="http://slicejack.com/" target="_blank"
+                        Copyright &copy; 2020 <a href="#" target="_blank"
                                                  style="text-decoration: none; border-bottom: 1px solid #d5d5d5; color: #d5d5d5;">Voluntree</a>.
                         All rights reserved.
                         <br/>
