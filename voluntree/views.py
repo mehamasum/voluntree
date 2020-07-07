@@ -535,12 +535,12 @@ def share_certificate(request, **kargs):
 
     fields, _ = SignUpService.get_human_readable_version_personal(signup, volunteer)
 
-    title = '%s has signed up for %s' % (
+    title = '%s has volunteered in %s' % (
         volunteer.first_name,
         signup.title
     )
     image = 'https://pixabay.com/images/id-2055010'
-    description = '%s is looking for volunteers for their event. You can sign up too!' % signup.organization.name
+    description = '%s is looking for volunteers for similar events. You can sign up too!' % signup.organization.name
 
     return render(request, 'share/volunteered.html', {
         'title': title,
