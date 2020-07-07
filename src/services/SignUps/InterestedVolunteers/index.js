@@ -93,6 +93,11 @@ const InterestedVolunteers = props => {
                     to={`/volunteers/${item.volunteer.id}`}>{item.volunteer.first_name} {item.volunteer.last_name}</Link>
                 </Typography.Text>
               </div>
+              <div>
+                <Typography.Text>
+                  Avg Rating: {(item.volunteer.rating_sum/item.volunteer.total_rating).toFixed(1)}
+                </Typography.Text>
+              </div>
             </List.Item>)}
         />
       </InfiniteScroll>

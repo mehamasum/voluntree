@@ -60,7 +60,8 @@ class VolunteerThirdPartyIntegrationSerializer(serializers.ModelSerializer):
 
 class VolunteerSerializer(serializers.ModelSerializer):
     rating_summary = serializers.SerializerMethodField()
-    avg_rating = serializers.SerializerMethodField()
+    total_rating = serializers.SerializerMethodField()
+    rating_sum = serializers.SerializerMethodField()
     integrations = VolunteerThirdPartyIntegrationSerializer(
         source='volunteer_third_party_integrations',
         many=True, read_only=True)
@@ -69,18 +70,19 @@ class VolunteerSerializer(serializers.ModelSerializer):
         model = Volunteer
         fields = ('id', 'facebook_user_id', 'facebook_page_id', 'first_name',
                   'last_name', 'profile_pic', 'integrations', 'email',
-                  'rating_summary', 'avg_rating')
+                  'rating_summary', 'total_rating', 'rating_sum')
 
     def get_rating_summary(self, valunteer):
         return valunteer.ratings.values('rating').annotate(
             total=Count('id')).order_by('-rating')
 
-    def get_avg_rating(self, volunteer):
-        total_rating = volunteer.ratings.aggregate(total=Sum('rating')).get('total')
+    def get_total_rating(self, volunteer):
         total = volunteer.ratings.count()
-        if total:
-            return total_rating/total
-        return 0
+        return total
+
+    def get_rating_sum(self, volunteer):
+        rating_sum = volunteer.ratings.aggregate(total=Sum('rating')).get('total')
+        return rating_sum
 
 
 class InterestGeterializer(serializers.ModelSerializer):

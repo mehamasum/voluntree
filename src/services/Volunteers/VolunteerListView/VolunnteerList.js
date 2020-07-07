@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Avatar, Button, Spin, Table, Typography} from 'antd';
+import {Avatar, Button, Spin, Table, Typography, Rate} from 'antd';
 import {MessengerIcon, NationBuilderIcon} from '../../../assets/icons';
 import useFetch, { Provider } from 'use-http';
 import {Link} from "react-router-dom";
@@ -15,6 +15,12 @@ const columns = [
           {record.first_name} {record.last_name}
         </Typography.Text>
       </div>
+    )
+  },
+  {
+    title: 'Rating',
+    render: (text, record) => (
+      <Rate disabled defaultValue={record.rating_sum/record.total_rating} />
     )
   },
   {
