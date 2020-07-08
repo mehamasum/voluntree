@@ -1,13 +1,13 @@
 import React from "react";
 import './index.css';
-import {Rate} from "antd";
+import {Col, Rate, Row} from "antd";
 import {numberWithCommas} from "../../utils";
 
 export default function RatingBreakdown(props) {
   const {avg = 0, total = 0, count = [0, 0, 0, 0, 0]} = props;
   return (
-    <div className="rating-container">
-      <div className="rating-inner">
+    <Row gutter={[16, 16]}>
+      <Col xs={{ span: 24, offset: 0 }} lg={{ span: 6, offset: 6 }}>
         <div className="rating">
           <span className="rating-num">{avg.toFixed(1)}</span>
           <div className="rating-stars">
@@ -17,7 +17,8 @@ export default function RatingBreakdown(props) {
             {`${numberWithCommas(total)} total`}
           </div>
         </div>
-
+      </Col>
+      <Col xs={{ span: 24, offset: 0 }} lg={{ span: 11 }}>
         <div className="histo">
           <div className="five histo-rate">
             <span className="histo-star">★ 5 </span>
@@ -68,7 +69,7 @@ export default function RatingBreakdown(props) {
         </span>
           </div>
         </div>
-      </div>
-    </div>
-  )
+      </Col>
+    </Row>
+  );
 }
