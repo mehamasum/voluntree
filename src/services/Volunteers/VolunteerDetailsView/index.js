@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {useParams} from "react-router";
 import {Avatar, Card, Descriptions, Rate, Space, Spin, Table, Tag} from "antd";
 import useFetch from "use-http";
 import {getFetch} from '../../../actions';
 import {Link} from "react-router-dom";
+import Ratings from './Raings';
+import RatingBreakdown from '../../../components/RatingBreakdown';
 
 const columns = [
   {
@@ -19,7 +21,7 @@ const columns = [
     render: text => <Rate disabled defaultValue={text} />
   },
   {
-    title: 'Rated by',
+    title: 'Given by',
     dataIndex: 'rated_by',
     key: 'rated_by',
   },
@@ -34,7 +36,6 @@ const columns = [
 
 export default function (props) {
   const {id} = useParams();
-  const [ratingList, setRatingList] = useState([]);
   const [averageRating, setAverageRating] = useState(0);
   const {loading, error, data: volunteer = null} = useFetch(`/api/volunteers/${id}/`, {
     headers: {
@@ -42,31 +43,26 @@ export default function (props) {
       'Content-Type': 'application/json'
     }
   }, []);
+  const {data: ratingList = []} = useFetch(`/api/volunteers/${id}/rating_list/`, {
+    headers: {
+      'Authorization': `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    },
+    onNewData: (curr, newd) => newd.map((d, indx) => ({...d, key: indx}))
+  }, []);
 
-  useEffect(() => {
-    getFetch(`/api/volunteers/${id}/rating_list/`).then(result=>{
-      setRatingList(result);
-      let totalRating = 0;
-      let totalEntry = 0;
-      result.forEach(element => {
-        if(element.rating) { // already rated in this event 
-          totalRating += element.rating;
-          totalEntry += 1;
-        }
-       
-      });
-
-      if( result.length ) {
-        setAverageRating(totalRating / totalEntry);
-      }
-     
+  const ratingData = useMemo(() => {
+    if(!volunteer) return [];
+    return [5, 4, 3, 2, 1].map(rat => {
+        const rating = volunteer.rating_summary.find(r => r.rating === rat) || {rating: 0, total: 0};
+        return rating.total;
     })
-  }, [])
 
-  
-  console.log('ratingList', ratingList);
+  }, [volunteer]);
+
   if (loading) return <Spin/>;
   if (error) return 'Error';
+
   return (
     <>
       <Card title="Volunteer Profile">
@@ -84,9 +80,13 @@ export default function (props) {
         </Descriptions>
 
         <br/><br/>
-        <Descriptions title="Performance Info" >
-          <Descriptions.Item label="Avg. Rating" key={`${averageRating}_item`}><Rate disabled defaultValue={averageRating} /></Descriptions.Item>
-        </Descriptions>
+        <Descriptions title="Ratings" colon={false}></Descriptions>
+
+          <RatingBreakdown
+            avg={volunteer.total_rating ? volunteer.rating_sum/volunteer.total_rating : 0}
+            total={volunteer.total_rating}
+            count={ratingData}/>
+
       </Card>
 
       <br/>

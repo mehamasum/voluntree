@@ -106,10 +106,12 @@ class PostViewSet(ModelViewSet):
 
     @action(detail=True)
     def interests(self,request, pk):
+        post = self.get_object()
         paginator = CreationTimeBasedPagination()
         queryset = Interest.objects.filter(post=pk, interested=True)
         queryset = paginator.paginate_queryset(queryset, self.request, view=self)
-        serializer = InterestGeterializer(queryset, many=True)
+        serializer = InterestGeterializer(
+            queryset, many=True, context={'signup': post.signup})
         paginated_response = paginator.get_paginated_response(serializer.data)
         return paginated_response
 
@@ -289,16 +291,14 @@ class SignUpViewSet(ModelViewSet):
 
     @action(detail=True)
     def interests(self, request, pk):
+        signup = self.get_object()
         paginator = CreationTimeBasedPagination()
         queryset = Interest.objects.filter(slot__date_times__in=self.get_object().date_times.all()).distinct()
 
         page = paginator.paginate_queryset(queryset, self.request, view=self)
-        if page is not None:
-            serializer = InterestGeterializer(page, many=True)
-            return paginator.get_paginated_response(serializer.data)
-
-        serializer = InterestGeterializer(queryset, many=True)
-        return Response(serializer.data)
+        serializer = InterestGeterializer(
+            page, many=True, context={'signup': signup})
+        return paginator.get_paginated_response(serializer.data)
 
     @action(detail=True)
     def posts(self, request, pk):

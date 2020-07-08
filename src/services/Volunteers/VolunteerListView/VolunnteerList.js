@@ -1,5 +1,5 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {Avatar, Button, Spin, Table, Typography} from 'antd';
+import {Avatar, Button, Spin, Table, Typography, Rate} from 'antd';
 import {MessengerIcon, NationBuilderIcon} from '../../../assets/icons';
 import useFetch, { Provider } from 'use-http';
 import {Link} from "react-router-dom";
@@ -18,6 +18,12 @@ const columns = [
     )
   },
   {
+    title: 'Avg. Rating',
+    render: (text, record) => (
+      <Rate disabled defaultValue={record.rating_sum/record.total_rating} />
+    )
+  },
+  {
     title: 'Links',
     render: (text, record) => (
       <div className="action">
@@ -32,7 +38,6 @@ const columns = [
         </a>
         {record.integrations.map((integration, indx) => {
           if(integration.integration_type !== 'NATION_BUILDER') return <React.Fragment/>;
-          console.log("integration", integration);
           return (
             <a
               key={indx}
