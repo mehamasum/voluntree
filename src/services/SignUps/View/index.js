@@ -39,8 +39,8 @@ export default function SignUpView(props) {
         title={
           <Space>
             Sign Up Details
-            <Tag color={signup.disabled ? "warning" : "processing"}
-                 key="tag2">{signup.disabled ? "Stopped Collecting Response" : "Collecting Response"}</Tag>
+            {signup.disabled && <Tag color={signup.disabled ? "warning" : "processing"}
+                 key="tag2">{signup.disabled ? "Stopped Collecting Response" : "Collecting Response"}</Tag>}
           </Space>
         }
         extra={

@@ -1,14 +1,15 @@
 import React from "react";
 import './index.css';
-import {Col, Rate, Row} from "antd";
+import {Col, Rate, Row, Typography} from "antd";
 import {numberWithCommas} from "../../utils";
 
 export default function RatingBreakdown(props) {
   const {avg = 0, total = 0, count = [0, 0, 0, 0, 0]} = props;
   return (
-    <Row gutter={[16, 16]}>
-      <Col xs={{ span: 24, offset: 0 }} lg={{ span: 6, offset: 6 }}>
+    <Row>
+      <Col span={12}>
         <div className="rating">
+          <Typography>Avg. Rating</Typography>
           <span className="rating-num">{avg.toFixed(1)}</span>
           <div className="rating-stars">
             <Rate disabled defaultValue={avg}/>
@@ -18,7 +19,7 @@ export default function RatingBreakdown(props) {
           </div>
         </div>
       </Col>
-      <Col xs={{ span: 24, offset: 0 }} lg={{ span: 11 }}>
+      <Col span={12}>
         <div className="histo">
           <div className="five histo-rate">
             <span className="histo-star">★ 5 </span>
