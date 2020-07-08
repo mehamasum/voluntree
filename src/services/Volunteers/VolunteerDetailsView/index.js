@@ -1,9 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {useParams} from "react-router";
 import {Avatar, Card, Descriptions, Rate, Space, Spin, Table, Tag} from "antd";
 import useFetch from "use-http";
 import {getFetch} from '../../../actions';
 import {Link} from "react-router-dom";
+import Ratings from './Raings';
 
 const columns = [
   {
@@ -49,10 +50,27 @@ export default function (props) {
     onNewData: (curr, newd) => newd.map((d, indx) => ({...d, key: indx}))
   }, []);
 
-  console.log('ratingList', ratingList);
+  const ratingData = useMemo(() => {
+    if(!volunteer) return [];
+    return [
+      {rating: 5, color: '#4CAF50'},
+      {rating: 4, color: '#2196F3'},
+      {rating: 3, color: '#00bcd4'},
+      {rating: 2, color: '#ff9800'},
+      {rating: 1, color: '#f44336'}].map(rat => {
+        const rating = volunteer.rating_summary.find(r => r.rating === rat.rating) || {rating: rat.rating, total: 0};
+        return {percent: volunteer.total_rating ?  (rating.total/volunteer.total_rating*100) : 0, ...rat, ...rating};
+    })
+
+  }, [volunteer]);
+
+  console.log('ratingList', ratingData);
   if (loading) return <Spin/>;
   if (error) return 'Error';
   console.log("volunteer", volunteer);
+
+
+  console.log("rating", ratingData);
   return (
     <>
       <Card title="Volunteer Profile">
@@ -70,20 +88,12 @@ export default function (props) {
         </Descriptions>
 
         <br/><br/>
-        <Descriptions title="Ratings" colon={false}>
-          <Descriptions.Item label="Avg" span={3}>
-            <Rate disabled defaultValue={volunteer.avg_rating} />
-          </Descriptions.Item>
-          {volunteer && [5,4,3,2,1].map(rat => {
-            const rating = volunteer.rating_summary.find(r => r.rating === rat) || {rating: rat, total: 0};
-            return (
-              <Descriptions.Item label={`${rating.rating}`} key={rat} span={3}>
-                <Rate disabled defaultValue={rating.rating} />
-                <span>{` (${rating.total})`}</span>
-              </Descriptions.Item>
-            );
-          })}
-        </Descriptions>
+        <Descriptions title="Ratings" colon={false}></Descriptions>
+        <Ratings
+          ratingData={ratingData}
+          avg_rating={volunteer.rating_sum/volunteer.total_rating}
+          total_rating={volunteer.total_rating}/>
+
       </Card>
 
       <br/>
