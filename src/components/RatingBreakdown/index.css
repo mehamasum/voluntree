@@ -15,8 +15,7 @@
 
 .rating {
     float: left;
-    width: 45%;
-    margin-right: 5%;
+    width: 100%;
     text-align: center;
 }
 
@@ -42,8 +41,7 @@
 }
 
 .histo {
-    float: left;
-    width: 50%;
+    width: 100%;
     font-size: 13px;
 }
 
