@@ -98,6 +98,11 @@ const InterestedVolunteers = props => {
                   Avg Rating: {(item.volunteer.rating_sum/item.volunteer.total_rating).toFixed(1)}
                 </Typography.Text>
               </div>
+              <div>
+                <Typography.Text>
+                  Signup Rating: {(item.rating).toFixed(1)}
+                </Typography.Text>
+              </div>
             </List.Item>)}
         />
       </InfiniteScroll>

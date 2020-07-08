@@ -21,7 +21,7 @@ const columns = [
     render: text => <Rate disabled defaultValue={text} />
   },
   {
-    title: 'Rated by',
+    title: 'Given by',
     dataIndex: 'rated_by',
     key: 'rated_by',
   },
@@ -53,34 +53,16 @@ export default function (props) {
 
   const ratingData = useMemo(() => {
     if(!volunteer) return [];
-    return [
-      {rating: 5, color: '#4CAF50'},
-      {rating: 4, color: '#2196F3'},
-      {rating: 3, color: '#00bcd4'},
-      {rating: 2, color: '#ff9800'},
-      {rating: 1, color: '#f44336'}].map(rat => {
-        const rating = volunteer.rating_summary.find(r => r.rating === rat.rating) || {rating: rat.rating, total: 0};
-        return {percent: volunteer.total_rating ?  (rating.total/volunteer.total_rating*100) : 0, ...rat, ...rating};
-    })
-
-  }, [volunteer]);
-
-  const ratingData2 = useMemo(() => {
-    if(!volunteer) return [];
     return [5, 4, 3, 2, 1].map(rat => {
         const rating = volunteer.rating_summary.find(r => r.rating === rat) || {rating: 0, total: 0};
-        return rating.rating;
+        return rating.total;
     })
 
   }, [volunteer]);
 
-  console.log('ratingList', ratingData);
   if (loading) return <Spin/>;
   if (error) return 'Error';
-  console.log("volunteer", volunteer);
 
-
-  console.log("rating", ratingData2);
   return (
     <>
       <Card title="Volunteer Profile">
@@ -103,7 +85,7 @@ export default function (props) {
           <RatingBreakdown
             avg={volunteer.total_rating ? volunteer.rating_sum/volunteer.total_rating : 0}
             total={volunteer.total_rating}
-            count={ratingData2}/>
+            count={ratingData}/>
 
       </Card>
 

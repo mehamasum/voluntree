@@ -18,7 +18,7 @@ const columns = [
     )
   },
   {
-    title: 'Rating',
+    title: 'Avg. Rating',
     render: (text, record) => (
       <Rate disabled defaultValue={record.rating_sum/record.total_rating} />
     )
@@ -38,7 +38,6 @@ const columns = [
         </a>
         {record.integrations.map((integration, indx) => {
           if(integration.integration_type !== 'NATION_BUILDER') return <React.Fragment/>;
-          console.log("integration", integration);
           return (
             <a
               key={indx}

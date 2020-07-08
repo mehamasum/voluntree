@@ -1,4 +1,5 @@
 from datetime import datetime
+from django.db.models.functions import Coalesce
 from django.db.models import Count, Sum
 from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
@@ -87,9 +88,21 @@ class VolunteerSerializer(serializers.ModelSerializer):
 
 class InterestGeterializer(serializers.ModelSerializer):
     volunteer = VolunteerSerializer(read_only=True)
+    rating = serializers.SerializerMethodField()
+
     class Meta:
         model = Interest
-        fields = ('id', 'post', 'volunteer', 'interested', 'created_at', 'datetime', 'slot')
+        fields = ('id', 'post', 'volunteer', 'interested', 'created_at',
+                  'datetime', 'slot', 'rating')
+
+    def get_rating(self, interest):
+        volunteer = interest.volunteer
+        signup = self.context.get('signup')
+        total = Rating.objects.filter(volunteer=volunteer, signup=signup).count()
+        sum = Rating.objects.filter(volunteer=volunteer, signup=signup).aggregate(sum=Coalesce(Sum('rating'), 0)).get('sum')
+        if total:
+            return sum/total
+        return 0
 
 
 class NotificationSerializer(serializers.ModelSerializer):
@@ -180,4 +193,4 @@ class RatingSerializer(serializers.ModelSerializer):
         fields = ('volunteer', 'user', 'remark', 'rating', 'signup', 'rated_by')
     
     def get_rated_by(self, obj):
-        return obj.user.organization.name if obj.user else ''
+        return obj.user.username if obj.user else ''
