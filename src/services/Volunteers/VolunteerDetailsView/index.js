@@ -5,6 +5,7 @@ import useFetch from "use-http";
 import {getFetch} from '../../../actions';
 import {Link} from "react-router-dom";
 import Ratings from './Raings';
+import RatingBreakdown from '../../../components/RatingBreakdown';
 
 const columns = [
   {
@@ -64,13 +65,22 @@ export default function (props) {
 
   }, [volunteer]);
 
+  const ratingData2 = useMemo(() => {
+    if(!volunteer) return [];
+    return [5, 4, 3, 2, 1].map(rat => {
+        const rating = volunteer.rating_summary.find(r => r.rating === rat) || {rating: 0, total: 0};
+        return rating.rating;
+    })
+
+  }, [volunteer]);
+
   console.log('ratingList', ratingData);
   if (loading) return <Spin/>;
   if (error) return 'Error';
   console.log("volunteer", volunteer);
 
 
-  console.log("rating", ratingData);
+  console.log("rating", ratingData2);
   return (
     <>
       <Card title="Volunteer Profile">
@@ -89,10 +99,11 @@ export default function (props) {
 
         <br/><br/>
         <Descriptions title="Ratings" colon={false}></Descriptions>
-        <Ratings
-          ratingData={ratingData}
-          avg_rating={volunteer.rating_sum/volunteer.total_rating}
-          total_rating={volunteer.total_rating}/>
+
+          <RatingBreakdown
+            avg={volunteer.total_rating ? volunteer.rating_sum/volunteer.total_rating : 0}
+            total={volunteer.total_rating}
+            count={ratingData2}/>
 
       </Card>
 
