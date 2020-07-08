@@ -55,9 +55,13 @@ const InterestedVolunteers = props => {
         volunteer: activeVolunteer,
         ...values
       }
-      postFetch(`/api/volunteers/${activeVolunteer}/rate/`, fromData).then(() => {
+      postFetch(`/api/volunteers/${activeVolunteer}/rate/`, fromData).then((res) => {
         setShowModal(false);
+        let clonedData = _.cloneDeep(listData);
+        const volunteersToUpdate = _.filter(clonedData, data => data.volunteer.id === res.volunteer);
+        _.forEach(volunteersToUpdate, data => data.rating = res.rating);
         setRatedVolunteer(null);
+        setListData(clonedData);
       }).catch(err => {
         console.log('got error', err);
       })
@@ -83,25 +87,19 @@ const InterestedVolunteers = props => {
           renderItem={item => (
             <List.Item actions={
               [
-                <Button type="link" onClick={() => onRateClick(item.volunteer.id)}>Rate</Button>,
+                <Button type="link" onClick={() => onRateClick(item.volunteer.id)}>{`${item.rating? `Change` : 'Rate'}`}</Button>,
                 <Button type="link" danger>Ban</Button>,
               ]}>
               <div>
-                <Avatar src={item.volunteer.profile_pic}/>&nbsp;&nbsp;&nbsp;&nbsp;
+                <Avatar src={item.volunteer.profile_pic}/>
+                &nbsp;&nbsp;&nbsp;&nbsp;
                 <Typography.Text>
                   <Link
                     to={`/volunteers/${item.volunteer.id}`}>{item.volunteer.first_name} {item.volunteer.last_name}</Link>
                 </Typography.Text>
               </div>
               <div>
-                <Typography.Text>
-                  Avg Rating: {(item.volunteer.rating_sum/item.volunteer.total_rating).toFixed(1)}
-                </Typography.Text>
-              </div>
-              <div>
-                <Typography.Text>
-                  Signup Rating: {(item.rating).toFixed(1)}
-                </Typography.Text>
+                <Rate disabled value={item.rating}/>
               </div>
             </List.Item>)}
         />
