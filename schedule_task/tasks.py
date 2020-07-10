@@ -6,6 +6,7 @@ import environ
 import redis
 import requests
 
+from django.conf import settings
 from config.celery import app
 from .services import FacebookWebHookService
 
@@ -14,6 +15,12 @@ env = environ.Env()
 @app.task(name="schedule_task.webhook.fetch_comment")
 def fetch_comment():
     server = env.str('APP_URL', default='http://localhost:8000')
+    conn = redis.from_url(settings.REDIS_LOCATION)
+    if not conn.ping():
+        # raise Exception('Redis unavailable')
+        return
+    print('Connected to redis')
+
     url = server + '/facebook/webhook/'
     headers = {'content-type': "application/json"}
     new_comments = FacebookWebHookService.get_new_comments()
@@ -21,16 +28,6 @@ def fetch_comment():
     for comment in new_comments:
         comment_id = comment['value']['comment_id']
         cache_key = 'fetched_' + comment_id
-        redis_url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379/0'))
-        conn = redis.Redis(
-            host=redis_url.hostname,
-            port=redis_url.port,
-            decode_responses=True
-        )
-        if not conn.ping():
-            # raise Exception('Redis unavailable')
-            return
-
         fetched = conn.get(cache_key) or None
 
         if fetched:
