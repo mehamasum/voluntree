@@ -214,6 +214,8 @@ cd code/voluntree
 git pull origin master
 source .venv/bin/activate
 
+sudo supervisorctl stop all
+
 npm i
 npm run build
 
@@ -221,7 +223,7 @@ pip install -r requirements.txt
 while read line; do python -m nltk.downloader $line; done < nltk.txt
 python manage.py collectstatic --noinput
 
-sudo supervisorctl restart all
+sudo supervisorctl start all
 
 python manage.py migrate
 ```

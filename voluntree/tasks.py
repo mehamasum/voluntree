@@ -12,6 +12,7 @@ from mail_templated import send_mail
 
 from .drm import DocumentRetrievalModel as DRM
 from .question import ProcessedQuestion as PQ
+from django.conf import settings
 
 import environ
 env = environ.Env()
@@ -88,7 +89,7 @@ def send_notification_on_interested_person(notification_id):
 
 @app.task
 def send_email(to_email, send_pin):
-    send_mail('email/confirmation.tpl', {'code': send_pin}, "welcome@voluntree.com", [to_email])
+    send_mail('email/confirmation.tpl', {'code': send_pin}, settings.DEFAULT_FROM_EMAIL, [to_email])
 
 
 @app.task
