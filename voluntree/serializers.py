@@ -4,7 +4,7 @@ from django.db.models import Count, Sum
 from rest_framework import serializers
 from .models import (Page, Post, Volunteer, Interest, Notification,
                      Organization, Slot, SignUp, DateTime, Integration,
-                     VolunteerThirdPartyIntegration, Rating)
+                     VolunteerThirdPartyIntegration, Rating, Upload)
 import six
 from timezone_field import TimeZoneField as TimeZoneField_
 
@@ -31,11 +31,12 @@ class PageSerializer(serializers.ModelSerializer):
 class PostSerializer(serializers.ModelSerializer):
     page_name = serializers.SerializerMethodField()
     facebook_page_id = serializers.SerializerMethodField()
+    image = serializers.SerializerMethodField()
 
     class Meta:
         model = Post
         fields = ('id', 'status', 'page', 'page_name', 'facebook_page_id', 'facebook_post_id', 'created_at', 'signup',
-                  'append_signup_info')
+                  'append_signup_info', 'upload', 'image')
         read_only_fields = ('facebook_post_id', 'created_at',)
 
     def get_page_name(self, obj):
@@ -43,6 +44,9 @@ class PostSerializer(serializers.ModelSerializer):
 
     def get_facebook_page_id(self, obj):
         return obj.page.facebook_page_id
+
+    def get_image(self, obj):
+        return obj.upload and obj.upload.file and obj.upload.file.url
 
     def create(self, validated_data):
         user = self.context.get('request').user
@@ -194,3 +198,15 @@ class RatingSerializer(serializers.ModelSerializer):
     
     def get_rated_by(self, obj):
         return obj.user.username if obj.user else ''
+
+
+class UploadSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Upload
+        fields = ('id', 'file', 'user', 'uploaded_at')
+        read_only_fields = ('user', 'uploaded_at',)
+
+    def create(self, validated_data):
+        user = self.context.get('request').user
+        upload = Upload.objects.create(user=user, **validated_data)
+        return upload

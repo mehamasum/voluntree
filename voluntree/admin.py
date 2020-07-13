@@ -2,7 +2,7 @@ from django.contrib import admin
 from voluntree.models import (
     User, Organization, Post, Page, 
     Notification, Volunteer, Interest, Verification, Slot, SignUp, DateTime,
-    Integration, VolunteerThirdPartyIntegration, Rating)
+    Integration, VolunteerThirdPartyIntegration, Rating, Upload)
 
 
 admin.site.register(User)
@@ -19,3 +19,4 @@ admin.site.register(DateTime)
 admin.site.register(Integration)
 admin.site.register(VolunteerThirdPartyIntegration)
 admin.site.register(Rating)
+admin.site.register(Upload)

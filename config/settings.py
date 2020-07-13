@@ -10,9 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
-import environ
 import os
+
 import dj_database_url
+import environ
 
 # Project Base Paths
 # project_root/api/config/settings.py - 2 = project_root/
@@ -29,8 +30,6 @@ env = environ.Env()
 env_file = ROOT_DIR('.env')
 env.read_env(env_file)
 
-
-
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
@@ -44,7 +43,6 @@ APP_URL = env.str('APP_URL', default='')
 
 ALLOWED_HOSTS = env('DJANGO_ALLOWED_HOSTS').split(',')
 USE_X_FORWARDED_HOST = env.bool('DJANGO_USE_X_FORWARDED_HOST', default=True)
-
 
 # Application definition
 
@@ -63,13 +61,14 @@ INSTALLED_APPS = [
     'djoser',
     'django_filters',
     'timezone_field',
+    'storages',
     'voluntree',
     'schedule_task'
 ]
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES':
-    ('rest_framework.permissions.DjangoModelPermissions', ),
+        ('rest_framework.permissions.DjangoModelPermissions',),
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.TokenAuthentication'
@@ -91,7 +90,6 @@ REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema'
 }
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
@@ -107,8 +105,11 @@ MIDDLEWARE = [
 X_FRAME_OPTIONS = 'ALLOW-FROM https://facebook.com/'
 CSP_FRAME_ANCESTORS = ("'self'", 'https://www.messenger.com', 'https://www.facebook.com')
 CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "connect.facebook.net")
-CSP_FONT_SRC = ("'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://stackpath.bootstrapcdn.com")
-CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com', 'https://cdnjs.cloudflare.com')
+CSP_FONT_SRC = (
+    "'self'", "data:", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com",
+    "https://stackpath.bootstrapcdn.com")
+CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", 'https://stackpath.bootstrapcdn.com', 'http://fonts.googleapis.com',
+                 'https://cdnjs.cloudflare.com')
 CSP_IMG_SRC = ("'self'", "https:", "data:")
 CSP_CONNECT_SRC = ("'self'", "ws://localhost:8000",)
 
@@ -200,7 +201,6 @@ LOGGING = {
     },
 }
 
-
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
 
@@ -224,8 +224,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'voluntree.User'
 
-
-
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
@@ -239,22 +237,21 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT=os.path.join(BASE_DIR, 'staticfiles')
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 STATICFILES_DIRS = [os.path.join(ROOT_DIR, 'build', 'static'), ]
-
 
 # Simplified static file serving.
 # https://warehouse.python.org/project/whitenoise/
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+MEDIA_URL = '/media/'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'mediafiles')
 
 API_BROWSER_HEADER = 'Voluntree'
-
 
 FACEBOOK_GRAPH_API_VERSION = env.str('FACEBOOK_GRAPH_API_VERSION', default='v7.0')
 FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
@@ -265,11 +262,9 @@ FACEBOOK_OAUTH_SCOPE = env.str('FACEBOOK_OAUTH_SCOPE', default='')
 FACEBOOK_WEBHOOK_VERIFY_TOKEN = env.str('FACEBOOK_WEBHOOK_VERIFY_TOKEN', default='')
 WIT_AI_TOKEN = env.str('WIT_AI_TOKEN', default='')
 
-
 NATIONBUILDER_APP_ID = env.str('NATIONBUILDER_APP_ID', default='')
 NATIONBUILDER_APP_SECRET = env.str('NATIONBUILDER_APP_SECRET', default='')
 NATIONBUILDER_OAUTH_REDIRECT_URI = env.str('NATIONBUILDER_OAUTH_REDIRECT_URI', default='')
-
 
 # Celery Settings
 # http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
@@ -293,3 +288,21 @@ EMAIL_PORT = env.int('EMAIL_SMTP_PORT', default=1025)
 
 # Default from emails
 DEFAULT_FROM_EMAIL = env.str('DEFAULT_FROM_EMAIL')
+
+USE_S3 = env.bool('USE_S3', default=False)
+
+if USE_S3:
+    # aws settings
+    AWS_ACCESS_KEY_ID = env.str('AWS_ACCESS_KEY_ID')
+    AWS_SECRET_ACCESS_KEY = env.str('AWS_SECRET_ACCESS_KEY')
+    AWS_STORAGE_BUCKET_NAME = env.str('AWS_STORAGE_BUCKET_NAME')
+    AWS_DEFAULT_ACL = None
+    AWS_S3_CUSTOM_DOMAIN = f'{AWS_STORAGE_BUCKET_NAME}.s3.amazonaws.com'
+    AWS_S3_OBJECT_PARAMETERS = {'CacheControl': 'max-age=86400'}
+
+    # s3 public media settings
+    PUBLIC_MEDIA_LOCATION = 'media'
+    MEDIA_URL = f'https://{AWS_S3_CUSTOM_DOMAIN}/{PUBLIC_MEDIA_LOCATION}/'
+    DEFAULT_FILE_STORAGE = 'config.storage.PublicMediaStorage'
+
+STATICFILES_DIRS = (os.path.join(BASE_DIR, 'static'),)

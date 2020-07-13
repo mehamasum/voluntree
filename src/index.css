@@ -60,3 +60,16 @@
     height: 100%;
     border: none;
 }
+
+.hidden {
+    visibility: hidden;
+    height: 0;
+    width: 0;
+}
+
+.fb-preview-image {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    max-height: 450px;
+}

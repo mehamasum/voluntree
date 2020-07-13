@@ -11,9 +11,9 @@ from .services import (FacebookService, PostService, OrganizationService, SignUp
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer,
-                          IntegrationSerializer, RatingSerializer, DurationListSerializer)
+                          IntegrationSerializer, RatingSerializer, DurationListSerializer, UploadSerializer)
 from .models import (Post, Interest, Volunteer, Notification, Organization,
-                     Slot, DateTime, SignUp, Page, Integration, Rating)
+                     Slot, DateTime, SignUp, Page, Integration, Rating, Upload)
 from .paginations import CreationTimeBasedPagination
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
@@ -587,3 +587,9 @@ class IntegrationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Integration.objects.filter(organization=self.request.user.organization)
+
+
+class UploadViewSet(ModelViewSet):
+    queryset = Upload.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = UploadSerializer

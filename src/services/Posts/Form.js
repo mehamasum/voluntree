@@ -1,13 +1,15 @@
 import './form.css';
 import post from '../../assets/post.png';
 import React, {useState} from 'react';
-import {Button, Checkbox, Col, Form, Input, Row, Select, Typography} from 'antd';
+import {Button, Checkbox, Col, Form, Input, message, Row, Select, Typography} from 'antd';
 import Magic from "../../components/Magic";
+import FileUploader from "../../components/FileUploader";
 
 const {Option} = Select;
 
 
 const PostForm = props => {
+  const [form] = Form.useForm();
   const [showAttachInfo, setShowAttachInfo] = useState(false);
   const {onSubmit, initialValues = {}, pages, signups, loading} = props;
 
@@ -15,9 +17,26 @@ const PostForm = props => {
     setShowAttachInfo(!!value);
   }
 
+  const fileUploaderProps = {
+    name: 'file',
+    action: '/api/uploads/',
+    headers: {'Authorization': `Token ${localStorage.getItem('token')}`},
+    onChange(info) {
+      if (info.file.status === 'done') {
+        message.success(`File uploaded successfully`);
+        form.setFieldsValue({
+          upload: info.file.response.id,
+        });
+      } else if (info.file.status === 'error') {
+        message.error(`File upload failed.`);
+        console.log('File upload err', info)
+      }
+    },
+  };
+
   return (
     <React.Fragment>
-      <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical">
+      <Form name="basic" initialValues={initialValues} onFinish={onSubmit} layout="vertical" form={form}>
         <Row>
           <Col span={12} className="post-form">
             <Form.Item name="page" label="Select Page" rules={[{required: true}]}>
@@ -32,9 +51,17 @@ const PostForm = props => {
               <Input.TextArea rows={6} placeholder="What do you want to share?"/>
             </Form.Item>
 
+            <Form.Item label="Photo" rules={[{required: false}]}>
+              <FileUploader {...fileUploaderProps}/>
+            </Form.Item>
+
+            <Form.Item label="Photo" name="upload" rules={[{required: false}]} hidden>
+              <Input type="hidden" value={100}/>
+            </Form.Item>
+
             <Form.Item
               name="signup"
-              label="Select Signup"
+              label="Attach to Signup"
               extra={<> <Magic/>This will help Voluntree to automatically reply to frequently asked questions </>}
             >
               <Select placeholder="Select a signup if you want to collect sign up" allowClear onChange={onSignupSelect}>
