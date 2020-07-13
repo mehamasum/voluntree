@@ -22,9 +22,6 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
-from rest_framework.parsers import FileUploadParser
-from rest_framework.exceptions import ParseError
-from django.core.files.storage import FileSystemStorage
 
 
 class PageViewSet(ReadOnlyModelViewSet):
@@ -590,10 +587,6 @@ class IntegrationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Integration.objects.filter(organization=self.request.user.organization)
-
-
-class ImageUploadParser(FileUploadParser):
-    media_type = 'image/*'
 
 
 class UploadViewSet(ModelViewSet):
