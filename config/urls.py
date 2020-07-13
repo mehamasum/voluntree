@@ -21,6 +21,7 @@ from rest_framework.schemas import get_schema_view
 from rest_framework.documentation import include_docs_urls
 from .views import react
 from .router import DefaultRouterWithAPIViews as DefaultRouter
+from django.conf.urls.static import static
 
 from voluntree.urls import register_urls as register_voluntree_urls
 from voluntree.views import (WebhookCallbackView, SetupWebhookCallbackView, volunteer_signup_view,
@@ -49,6 +50,9 @@ urlpatterns = [
 router = DefaultRouter()
 register_voluntree_urls(router)
 urlpatterns += [ path('api/', include(router.urls)),]
+
+# if not settings.USE_S3:
+urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 urlpatterns += [
     # match the root

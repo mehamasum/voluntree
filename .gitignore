@@ -300,3 +300,5 @@ api/static/
 
 # not tracking db-instance 
 *.sqlite3
+
+mediafiles

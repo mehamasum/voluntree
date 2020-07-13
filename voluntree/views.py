@@ -11,9 +11,9 @@ from .services import (FacebookService, PostService, OrganizationService, SignUp
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
                           VolunteerSerializer, NotificationSerializer, OrganizationSerializer,
                           SlotSerializer, SignUpSerializer, DateTimeSetializer,
-                          IntegrationSerializer, RatingSerializer, DurationListSerializer)
+                          IntegrationSerializer, RatingSerializer, DurationListSerializer, UploadSerializer)
 from .models import (Post, Interest, Volunteer, Notification, Organization,
-                     Slot, DateTime, SignUp, Page, Integration, Rating)
+                     Slot, DateTime, SignUp, Page, Integration, Rating, Upload)
 from .paginations import CreationTimeBasedPagination
 from .decorators import date_range_params_check
 from datetime import datetime, timedelta
@@ -22,6 +22,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
+from rest_framework.parsers import FileUploadParser
+from rest_framework.exceptions import ParseError
+from django.core.files.storage import FileSystemStorage
 
 
 class PageViewSet(ReadOnlyModelViewSet):
@@ -587,3 +590,13 @@ class IntegrationViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Integration.objects.filter(organization=self.request.user.organization)
+
+
+class ImageUploadParser(FileUploadParser):
+    media_type = 'image/*'
+
+
+class UploadViewSet(ModelViewSet):
+    queryset = Upload.objects.all()
+    permission_classes = (IsAuthenticated, )
+    serializer_class = UploadSerializer

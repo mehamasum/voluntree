@@ -1,6 +1,6 @@
 const { createProxyMiddleware } = require('http-proxy-middleware');
 module.exports = function(app) {
-  ['/api', '/messenger'].forEach(function(path) {
+  ['/api', '/messenger', '/media'].forEach(function(path) {
     app.use(
       path,
       createProxyMiddleware({

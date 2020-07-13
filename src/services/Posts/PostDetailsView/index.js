@@ -60,6 +60,7 @@ const PostDetailsView = () => {
                               ellipsis={{rows: 3, expandable: true}}>
                               {post.status}
                             </Typography.Paragraph>
+                            {post.image? <img src={post.image} alt="Attached Image" className="fb-preview-image"/> : null}
                           </div>)}/>
                     </Skeleton>
                   </Card>
