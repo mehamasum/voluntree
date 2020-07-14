@@ -7,7 +7,7 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('voluntree', '0035_auto_20200713_1816'),
+        ('voluntree', '0034_upload'),
     ]
 
     operations = [
