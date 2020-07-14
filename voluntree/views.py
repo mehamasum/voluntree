@@ -5,7 +5,7 @@ from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
 from .interaction import InteractionHandler
-from .services import (FacebookService, PostService, OrganizationService, SignUpService,
+from .services import (FacebookService, OrganizationService,
                        NationBuilderService, SignUpService)
 
 from .serializers import (PageSerializer, PostSerializer, InterestGeterializer,
@@ -87,15 +87,33 @@ class PostViewSet(ModelViewSet):
                     separator,
                     newline_with_separator.join(slot_strings),
                 )
-                print('status', fb_status)
             else:
                 fb_status = request.data.get('status')
 
-            fb_post = PostService.create_post_on_facebook_page(
-                page, fb_status)
+            upload_id = request.data.get('upload')
+            if upload_id:
+                try:
+                    upload = Upload.objects.get(id=upload_id)
+                    file_url = upload.file.url
+                except Upload.DoesNotExist:
+                    return Response({'message': 'File does not exist'}, status=status.HTTP_400_BAD_REQUEST)
+
+                # file_url = 'https://cdn.searchenginejournal.com/wp-content/uploads/2019/11/how-to-do-a-reverse-image-search-on-google-1-5dbd15dddd843.png'
+                fb_image = FacebookService.create_photo_on_facebook_page(page, file_url)
+                if fb_image.status_code != 200:
+                    err = fb_image.json()
+                    print('Photo upload failed', err)
+                    return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+            fb_image_ids = [fb_image.json()["id"]] if upload_id else []
+            fb_post = FacebookService.create_post_on_facebook_page(page, fb_status, fb_image_ids)
+
             if fb_post.status_code != 200:
-                return Response(
-                    fb_post.json(), status=status.HTTP_400_BAD_REQUEST)
+                err = fb_post.json()
+                print('Post creation failed', err)
+                return Response(err, status=status.HTTP_400_BAD_REQUEST)
+
+
             post = serializer.save()
             post.facebook_post_id = fb_post.json().get('id', 'x_y').split('_')[1]
             post.status = fb_status
