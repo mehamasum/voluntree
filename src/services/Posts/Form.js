@@ -11,6 +11,7 @@ const {Option} = Select;
 const PostForm = props => {
   const [form] = Form.useForm();
   const [showAttachInfo, setShowAttachInfo] = useState(false);
+  const [selected, setSelected] = useState([]);
   const {onSubmit, initialValues = {}, pages, signups, loading} = props;
 
   const onSignupSelect = value => {
@@ -22,6 +23,7 @@ const PostForm = props => {
     action: '/api/uploads/',
     headers: {'Authorization': `Token ${localStorage.getItem('token')}`},
     onChange(info) {
+      setSelected(info.fileList.slice(-1));
       if (info.file.status === 'done') {
         message.success(`File uploaded successfully`);
         form.setFieldsValue({
@@ -32,6 +34,23 @@ const PostForm = props => {
         console.log('File upload err', info)
       }
     },
+    beforeUpload(file) {
+      const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
+      if (!isJpgOrPng) {
+        message.error('You can only upload JPG/PNG file!');
+      }
+      const isLt1M = file.size / 1024 / 1024 < 1;
+      if (!isLt1M) {
+        message.error('Image must smaller than 1MB!');
+      }
+      return isJpgOrPng && isLt1M;
+    },
+    accept: 'image/jpg,image/png',
+    onRemove(file) {
+      form.setFieldsValue({
+        upload: null,
+      });
+    }
   };
 
   return (
@@ -52,7 +71,7 @@ const PostForm = props => {
             </Form.Item>
 
             <Form.Item label="Photo" rules={[{required: false}]}>
-              <FileUploader {...fileUploaderProps}/>
+              <FileUploader {...fileUploaderProps} fileList={selected}/>
             </Form.Item>
 
             <Form.Item label="Photo" name="upload" rules={[{required: false}]} hidden>

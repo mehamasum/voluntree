@@ -4,7 +4,7 @@ import { UploadOutlined } from '@ant-design/icons';
 
 const FileUploader = (props) => (
   <Upload {...props}>
-    <Button>
+    <Button disabled={props.disabled}>
       <UploadOutlined /> Click to Upload
     </Button>
   </Upload>
