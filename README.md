@@ -233,4 +233,5 @@ Commonly used commands:
 htop
 systemctl list-unit-files | grep enabled
 sudo systemctl | grep running
+sudo service nginx stop
 ```

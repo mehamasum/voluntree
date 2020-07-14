@@ -94,7 +94,7 @@ class PostViewSet(ModelViewSet):
             if upload_id:
                 try:
                     upload = Upload.objects.get(id=upload_id)
-                    file_url = upload.file.url
+                    file_url = settings.APP_URL + upload.file.url
                 except Upload.DoesNotExist:
                     return Response({'message': 'File does not exist'}, status=status.HTTP_400_BAD_REQUEST)
 
