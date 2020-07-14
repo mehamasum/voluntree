@@ -15,6 +15,11 @@ server {
 
 	server_name voluntree.ml www.voluntree.ml;
 
+	location /media {
+        autoindex on;
+        alias /home/ubuntu/code/voluntree/mediafiles/;
+    }
+
 	location / {
             try_files $uri @proxy_to_app;
 	}

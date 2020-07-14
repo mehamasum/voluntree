@@ -234,4 +234,10 @@ htop
 systemctl list-unit-files | grep enabled
 sudo systemctl | grep running
 sudo service nginx stop
+service supervisord stop
+sudo supervisorctl tail -f asgi:asgi0
+sudo supervisorctl tail -f celeryworker
+
+# on restart
+sudo mkdir /run/daphne/
 ```
