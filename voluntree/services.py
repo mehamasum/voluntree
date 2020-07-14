@@ -205,18 +205,6 @@ class SignUpService:
         return form_fields, signup
 
 
-class PostService:
-    @staticmethod
-    def create_post_on_facebook_page(page, status):
-        post_create_url = ('https://graph.facebook.com/%s/feed'
-                           % page.facebook_page_id)
-        params = {
-            'access_token': page.page_access_token,
-            'message': status
-        }
-        return requests.post(post_create_url, params)
-
-
 class FacebookService:
     CONFIRMED_EVENT_UPDATE = "CONFIRMED_EVENT_UPDATE"
     FACEBOOK_GRAPH_BASE_URL = 'https://graph.facebook.com/'
@@ -440,6 +428,37 @@ class FacebookService:
     def run_wit(text, context=None):
         client = Wit(FacebookService.WIT_AI_TOKEN)
         return client.message(text, context=context)
+
+    @staticmethod
+    def create_photo_on_facebook_page(page, photo_url, published=False):
+        photo_create_url = '%s/%s/photos' % (
+            FacebookService.FACEBOOK_GRAPH_API_URL,
+            page.facebook_page_id
+        )
+        params = {
+            'access_token': page.page_access_token,
+            'url': photo_url,
+            'published': published
+        }
+        return requests.post(photo_create_url, params)
+
+    @staticmethod
+    def create_post_on_facebook_page(page, status, photo_ids=[]):
+        attached_media = []
+        for photo_id in photo_ids:
+            attached_media.append({
+                'media_fbid': photo_id
+            })
+        post_create_url = '%s/%s/feed' % (
+            FacebookService.FACEBOOK_GRAPH_API_URL,
+            page.facebook_page_id
+        )
+        params = {
+            'access_token': page.page_access_token,
+            'message': status,
+            'attached_media': json.dumps(attached_media)
+        }
+        return requests.post(post_create_url, params)
 
 class OrganizationService:
     def number_of_posts(organization_id, from_date, to_date):
