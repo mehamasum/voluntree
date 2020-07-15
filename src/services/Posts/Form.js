@@ -1,7 +1,7 @@
 import './form.css';
 import post from '../../assets/post.png';
 import React, {useState} from 'react';
-import {Button, Checkbox, Col, Form, Input, message, Row, Select, Typography} from 'antd';
+import {Alert, Button, Checkbox, Col, Form, Input, message, Row, Select, Space, Typography} from 'antd';
 import Magic from "../../components/Magic";
 import FileUploader from "../../components/FileUploader";
 
@@ -11,7 +11,7 @@ const {Option} = Select;
 const PostForm = props => {
   const [form] = Form.useForm();
   const [showAttachInfo, setShowAttachInfo] = useState(false);
-  const [selected, setSelected] = useState([]);
+  const [errorMsg, setErrorMsg] = useState(null);
   const {onSubmit, initialValues = {}, pages, signups, loading} = props;
 
   const onSignupSelect = value => {
@@ -23,7 +23,6 @@ const PostForm = props => {
     action: '/api/uploads/',
     headers: {'Authorization': `Token ${localStorage.getItem('token')}`},
     onChange(info) {
-      setSelected(info.fileList.slice(-1));
       if (info.file.status === 'done') {
         message.success(`File uploaded successfully`);
         form.setFieldsValue({
@@ -37,13 +36,17 @@ const PostForm = props => {
     beforeUpload(file) {
       const isJpgOrPng = file.type === 'image/jpeg' || file.type === 'image/png';
       if (!isJpgOrPng) {
-        message.error('You can only upload JPG/PNG file!');
+        setErrorMsg('You can only upload JPG/PNG file!');
       }
       const isLt1M = file.size / 1024 / 1024 < 1;
       if (!isLt1M) {
-        message.error('Image must smaller than 1MB!');
+        setErrorMsg('Image must smaller than 1MB!');
       }
-      return isJpgOrPng && isLt1M;
+      const isValid = isJpgOrPng && isLt1M;
+      if(isValid) {
+        setErrorMsg(null);
+      }
+      return isValid;
     },
     accept: 'image/jpg,image/png',
     onRemove(file) {
@@ -71,7 +74,10 @@ const PostForm = props => {
             </Form.Item>
 
             <Form.Item label="Photo" rules={[{required: false}]}>
-              <FileUploader {...fileUploaderProps} fileList={selected}/>
+              <Space direction="vertical">
+                {errorMsg && <Alert message={errorMsg} type="error"/>}
+                <FileUploader {...fileUploaderProps}/>
+              </Space>
             </Form.Item>
 
             <Form.Item label="Photo" name="upload" rules={[{required: false}]} hidden>
