@@ -39,7 +39,7 @@ const columns = [
     title: 'Linked Sign Up',
     render: (text, record) => (
       <Space>
-        {record.signup ? <Link to={`/signups/${record.signup}/`}><LinkOutlined/> View</Link> : '--'}
+        {record.signup ? <Link to={`/signups/${record.signup}/`}>View</Link> : '--'}
       </Space>
     ),
   },

@@ -1,5 +1,5 @@
 import React, {useMemo} from 'react';
-import {Avatar, Button, Card, Descriptions, PageHeader, Skeleton, Space, Tabs, Tag, Typography} from 'antd';
+import {Avatar, Button, Card, Descriptions, Skeleton, Space, Tabs, Tag, Typography} from 'antd';
 import {Link, useParams} from "react-router-dom";
 import {useFetch} from '../../../hooks';
 import {formatRelativeTime} from "../../../utils";
@@ -27,7 +27,12 @@ const PostDetailsView = () => {
           </Space>
         }
         extra={
-          post.signup ? <Button type="primary"><Link to={`/signups/${post.signup}/`}>View Sign Up</Link></Button> : null
+          <Space>
+            {post.signup ? <Button type="default"><Link to={`/signups/${post.signup}/`}>View Sign Up</Link></Button> : null}
+
+            <Button type="primary"><a target="_blank" rel="noopener noreferrer"
+                       href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}>Open on Facebook</a></Button>
+          </Space>
         }
       >
 
@@ -37,9 +42,7 @@ const PostDetailsView = () => {
               <Descriptions>
                 <Descriptions.Item label="Facebook Link">
                   <Typography.Paragraph copyable>
-                    <a target="_blank" rel="noopener noreferrer"
-                       href={`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}>
-                      {`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}</a>
+                    {`https://facebook.com/${post.facebook_page_id}/posts/${post.facebook_post_id}`}
                   </Typography.Paragraph>
                 </Descriptions.Item>
               </Descriptions>
@@ -60,7 +63,8 @@ const PostDetailsView = () => {
                               ellipsis={{rows: 3, expandable: true}}>
                               {post.status}
                             </Typography.Paragraph>
-                            {post.image? <img src={post.image} alt="Attached Image" className="fb-preview-image"/> : null}
+                            {post.image ?
+                              <img src={post.image} alt="Attached Image" className="fb-preview-image"/> : null}
                           </div>)}/>
                     </Skeleton>
                   </Card>
