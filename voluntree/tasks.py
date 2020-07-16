@@ -1,6 +1,7 @@
-import json
+import environ
 import logging
 from config.celery import app
+from config.logshim import LogShim
 from .models import Post, Volunteer, Notification, Page, Interest
 from .services import FacebookService
 from .utils import build_notification_message
@@ -14,13 +15,14 @@ from .drm import DocumentRetrievalModel as DRM
 from .question import ProcessedQuestion as PQ
 from django.conf import settings
 
-import environ
 env = environ.Env()
+
+logger = LogShim(logging.getLogger(__file__))
 
 
 @app.task
 def preprocess_comment_for_ml(hook_payload):
-    print('preprocess_comment_for_ml', hook_payload)
+    logger.debug('preprocess_comment_for_ml', hook_payload)
     url = urlparse(env.str('REDIS_URL', default='redis://127.0.0.1:6379'))
     conn = redis.Redis(host=url.hostname, port=url.port, decode_responses=True)
     if not conn.ping():
@@ -35,7 +37,7 @@ def preprocess_comment_for_ml(hook_payload):
         'payload': hook_payload,
         'embeding': embeding
     }
-    conn.xadd('comments:fb', { 'comment': json.dumps(res) })
+    conn.xadd('comments:fb', {'comment': json.dumps(res)})
     return res
 
 
@@ -47,6 +49,7 @@ def send_private_reply_on_comment(comment_id, page_id, message):
         page, recipient, json.loads(message))
     return res.json()
 
+
 @app.task
 def reply(psid, page_id, message):
     recipient = {'id': psid}
@@ -55,12 +58,14 @@ def reply(psid, page_id, message):
         page, recipient, json.loads(message))
     return res.json()
 
+
 @app.task
 def comment(page_id, post_id, comment_id, message):
     page = Page.objects.get(facebook_page_id=page_id)
     res = FacebookService.send_public_reply(
         page, post_id, comment_id, message)
     return res.json()
+
 
 @app.task
 def ask_for_pin(volunteer_id):
@@ -74,11 +79,13 @@ def ask_for_pin(volunteer_id):
         page, recipient, message)
     return res.json()
 
+
 @app.task
 def send_notification_on_interested_person(notification_id):
     notification = Notification.objects.get(id=notification_id)
     signup = notification.signup
-    volunteer_list = Interest.objects.all().filter(slot__date_times__signup=signup).values_list('volunteer_id', flat=True).distinct()
+    volunteer_list = Interest.objects.all().filter(slot__date_times__signup=signup).values_list('volunteer_id',
+                                                                                                flat=True).distinct()
     volunteers = Volunteer.objects.filter(id__in=volunteer_list)
     for volunteer in volunteers:
         page = Page.objects.get(facebook_page_id=volunteer.facebook_page_id)
@@ -86,6 +93,7 @@ def send_notification_on_interested_person(notification_id):
         message = build_notification_message(notification)
         FacebookService.send_tag_message(
             page, recipient, message, FacebookService.CONFIRMED_EVENT_UPDATE)
+
 
 @app.task
 def send_email(to_email, send_pin):
@@ -103,6 +111,6 @@ def find_answer(q, data):
 
     # Get Response From Bot
     res = drm.query(pq)
-    print('find answer', res)
+    logger.debug('find answer', res)
 
     return res

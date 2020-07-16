@@ -12,9 +12,13 @@ import pytz
 import datetime
 from urllib.parse import quote
 
+from config.logshim import LogShim
 from voluntree.models import Post, Volunteer, SignUp, Interest, DateTime, Slot, Page
 from voluntree.services import FacebookService, VolunteerService, SignUpService, NationBuilderService
 from voluntree.tasks import send_private_reply_on_comment, reply, comment, find_answer
+
+import logging
+logger = LogShim(logging.getLogger(__file__))
 
 
 def to_user_timezone(date, timezone=settings.TIME_ZONE):
@@ -73,18 +77,18 @@ class InteractionHandler:
             post = Post.objects.get(facebook_post_id=post_id)
         except Post.DoesNotExist:
             # TODO: ignoring for now
-            print('Ignoring comment for disabled or unknown post')
+            logger.debug('Ignoring comment for disabled or unknown post')
             return Response(status.HTTP_200_OK)
-        print('Webhook callback handle comment', data)
+        logger.debug('Webhook callback handle comment', data)
         page_id = post.page.facebook_page_id
 
         nlp = FacebookService.run_wit(comment_text, {
             'timezone': str(post.page.organization.timezone)
         })
-        print('wit', nlp)
+        logger.debug('wit', nlp)
 
         intent = InteractionHandler.first_intent(nlp)
-        print('intent', intent)
+        logger.debug('intent', intent)
 
         if intent and intent['name'] == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
             if post.signup:
@@ -98,7 +102,7 @@ class InteractionHandler:
                 if day_query and slot_query:
                     day_count = int(day_query['body'].lower().replace("day ", ""))
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
-                    print('got both day and slot in cmnt', day_count, slot_count)
+                    logger.debug('got both day and slot in cmnt', day_count, slot_count)
                     match = [field for field in fields if
                              field['day_count'] == day_count and field['slot_count'] == slot_count]
                     InteractionHandler.reconfirm_about_day_and_slot(match, page_id, post_id, comment_id)
@@ -106,7 +110,7 @@ class InteractionHandler:
                 elif specific_time and slot_query:
                     datetime_query = arrow.get(specific_time['value']).date()
                     slot_count = int(slot_query['body'].lower().replace("slot ", ""))
-                    print('got specific day and slot in cmnt', datetime_query, slot_count)
+                    logger.debug('got specific day and slot in cmnt', datetime_query, slot_count)
                     match = [field for field in fields if
                              field['date'] == datetime_query and field['slot_count'] == slot_count]
                     InteractionHandler.reconfirm_about_day_and_slot(match, page_id, post_id, comment_id)
@@ -131,7 +135,7 @@ class InteractionHandler:
 
         elif intent and intent['name'] == Intents.HOW_CAN_I_SIGNUP and intent['confidence'] > 0.8:
             message = 'Thank you for your interest. We have sent you a private reply.'
-            print('public comment', message)
+            logger.debug('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
             send_private_reply_on_comment.apply_async((data,))
         elif intent and intent['name'] == Intents.QUES_EVENT_INFO and intent['confidence'] > 0.6:
@@ -139,11 +143,11 @@ class InteractionHandler:
                 message = find_answer(comment_text, post.signup.facts)
                 if not message:
                     message = post.signup.description
-                print('public comment', message)
+                logger.debug('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.APPRECIATION and intent['confidence'] > 0.8:
             message = 'Thank you'
-            print('public comment', message)
+            logger.debug('public comment', message)
             InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.PAYMENT_INFO and intent['confidence'] > 0.6:
             payment_info = post.page.organization.payment_info
@@ -151,7 +155,7 @@ class InteractionHandler:
                 message = find_answer(comment_text, payment_info)
                 if not message:
                     message = 'Here is how you can send donations\n%s' % payment_info
-                print('public comment', message)
+                logger.debug('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.VOLUNTEER_REQUIRMENTS and intent['confidence'] > 0.6:
             volunteer_info = post.page.organization.volunteer_info
@@ -159,7 +163,7 @@ class InteractionHandler:
                 message = find_answer(comment_text, volunteer_info)
                 if not message:
                     message = 'Here are the requirements\n%s' % volunteer_info
-                print('public comment', message)
+                logger.debug('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
         elif intent and intent['name'] == Intents.VACANCIES_ON_SLOT and intent['confidence'] > 0.8:
             """
@@ -169,7 +173,7 @@ class InteractionHandler:
             """
             if post.signup:
                 fields, signup = SignUpService.get_human_readable_version(post.signup.id)
-                print(fields)
+                logger.debug(fields)
 
                 slot_query = InteractionHandler.first_entity(nlp, 'custom_signup-slot:signup-slot')
                 day_query = InteractionHandler.first_entity(nlp, 'custom_signup-day:signup-day')
@@ -197,7 +201,7 @@ class InteractionHandler:
 
                 elif specific_time:
                     datetime_query = arrow.get(specific_time['value']).date()
-                    print('date', datetime_query)
+                    logger.debug('date', datetime_query)
                     matches = [field for field in fields if field['date'] == datetime_query]
                     message = InteractionHandler.reply_about_day(matches, signup)
 
@@ -221,7 +225,7 @@ class InteractionHandler:
                     message = "Thank you for your query. Here are the details:\n\n{}".format(
                         newline_with_separator.join(slot_strings),
                     )
-                print('public comment', message)
+                logger.debug('public comment', message)
                 InteractionHandler.send_comment(page_id, post_id, comment_id, message)
 
         else:
@@ -235,7 +239,7 @@ class InteractionHandler:
         if matches and matches[0]:
             datetime_id = matches[0]['datetime_id']
             slot_id = matches[0]['slot_id']
-            print("Day and slot match for direct signup from comment", datetime_id, slot_id)
+            logger.debug("Day and slot match for direct signup from comment", datetime_id, slot_id)
             InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, datetime_id, slot_id)
         else:
             InteractionHandler.ask_for_reconfirmation(page_id, post_id, comment_id, None, None)
@@ -407,16 +411,16 @@ class InteractionHandler:
         intent_type = None
         if intent:
             intent_type = intent['name'] if 'name' in intent else intent['value']
-        print('intent', intent)
+        logger.debug('intent', intent)
 
         email_entity = InteractionHandler.first_entity(nlp, 'email')
-        print('email intent', email_entity)
+        logger.debug('email intent', email_entity)
 
         otp_entity = InteractionHandler.first_entity(nlp, 'otp')
-        print('otp intent', otp_entity)
+        logger.debug('otp intent', otp_entity)
 
         if intent_type and intent_type == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
-            print('sign up intent', intent)
+            logger.debug('sign up intent', intent)
             signups = SignUp.objects.filter(disabled=False)
 
             buttons = []
@@ -496,7 +500,7 @@ class InteractionHandler:
         slot_id = context['slot_id'] if 'slot_id' in context else None
 
         res = VolunteerService.verify_volunteer(psid, page_id, email, int(pin))
-        print('got res', res)
+        logger.debug('got res', res)
         if not res:
             # TODO: handle wrong attempt
             pass
