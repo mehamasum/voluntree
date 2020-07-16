@@ -302,3 +302,56 @@ if USE_S3:
     # s3 public media settings
     PUBLIC_MEDIA_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    'filters': {
+        'require_debug_false': {
+            '()': 'django.utils.log.RequireDebugFalse'
+        },
+        'require_debug_true': {
+            '()': 'django.utils.log.RequireDebugTrue',
+        },
+    },
+    "formatters": {
+        "verbose": {
+            "format": (
+                u"%(asctime)s [%(levelname)-8s] (%(module)s.%(funcName)s) %(message)s"
+            ),
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+        'simple': {
+            'format': '{asctime} {levelname} {message}',
+            'style': '{',
+        },
+    },
+    "handlers": {
+        'console': {
+            'level': 'DEBUG',
+            'filters': ['require_debug_true'],
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
+        "file": {
+            "level": "INFO",
+            'filters': ['require_debug_false'],
+            'class': 'logging.handlers.RotatingFileHandler',
+            "filename": "/var/log/voluntree.log",
+            "formatter": "verbose",
+            'maxBytes': 10 * 1024 * 1024,  # 10 MB
+            'backupCount': 30,
+        },
+    },
+    "loggers": {
+        "django": {
+            "handlers": ['console' if DEBUG else 'file'],
+            "level": "INFO",
+            "propagate": True
+        },
+    },
+    "root": {
+        "level": "DEBUG" if DEBUG else "INFO",
+        "handlers": ['console' if DEBUG else 'file']
+    },
+}

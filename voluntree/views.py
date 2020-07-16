@@ -4,6 +4,8 @@ from rest_framework import status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated, AllowAny, IsAdminUser
 from rest_framework.response import Response
+
+from config.logshim import LogShim
 from .interaction import InteractionHandler
 from .services import (FacebookService, OrganizationService,
                        NationBuilderService, SignUpService)
@@ -22,6 +24,9 @@ from django.views.decorators.csrf import csrf_exempt
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponseRedirect, HttpResponseNotFound
 from django.shortcuts import render
+
+import logging
+logger = LogShim(logging.getLogger(__file__))
 
 
 class PageViewSet(ReadOnlyModelViewSet):
@@ -105,7 +110,7 @@ class PostViewSet(ModelViewSet):
                 fb_image = FacebookService.create_photo_on_facebook_page(page, file_url)
                 if fb_image.status_code != 200:
                     err = fb_image.json()
-                    print('Photo upload failed', err)
+                    logger.error('Photo upload failed', err)
                     return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
             fb_image_ids = [fb_image.json()["id"]] if upload_id else []
@@ -113,7 +118,7 @@ class PostViewSet(ModelViewSet):
 
             if fb_post.status_code != 200:
                 err = fb_post.json()
-                print('Post creation failed', err)
+                logger.error('Post creation failed', err)
                 return Response(err, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -248,7 +253,7 @@ class WebhookCallbackView(APIView):
                         # TODO: handle page post
                         pass
                     elif value['item'] == 'comment':
-                        print('comment', value)
+                        logger.debug('comment', value)
                         InteractionHandler.handle_new_comment(change)
 
             elif 'messaging' in entry:
@@ -258,10 +263,10 @@ class WebhookCallbackView(APIView):
                     psid = message['sender']['id']
                     page_id = message['recipient']['id']
 
-                    print(psid, 'on', page_id, 'says', message)
+                    logger.info(psid, 'on', page_id, 'says', message)
 
                     if 'postback' in message:
-                        print(psid, 'on', page_id, 'postback', message['postback'])
+                        logger.debug(psid, 'on', page_id, 'postback', message['postback'])
                         InteractionHandler.handle_new_postback(psid, page_id, message['postback'])
                     if 'message' in message:
                         InteractionHandler.handle_text_message(psid, page_id, message['message'])
@@ -354,7 +359,7 @@ class VolunteerViewSet(ModelViewSet):
         rating = serializer.save()
 
         res = InteractionHandler.send_sharable_certificate(rating.volunteer, rating.signup)
-        print(res.json())
+        logger.debug(res.json())
 
         return Response(serializer.data)
 
@@ -459,7 +464,7 @@ def volunteer_signup_view(request, **kargs):
 
     if request.method == 'POST':
         cleaned_data = request.POST
-        print(cleaned_data)
+        logger.debug(cleaned_data)
 
         count = 0
         for dt in date_times:

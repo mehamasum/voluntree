@@ -4,14 +4,15 @@ from datetime import datetime, timedelta
 import requests
 from django.conf import settings
 
+from config.logshim import LogShim
 from .models import (Page, Volunteer, Post, Interest, Verification, SignUp,
                      Integration, VolunteerThirdPartyIntegration)
 from random import randint
-from mail_templated import send_mail
 from wit import Wit
 from itertools import groupby
 from rauth import OAuth2Service
-
+import logging
+logger = LogShim(logging.getLogger(__file__))
 
 class VerificationService:
     @staticmethod
@@ -41,9 +42,9 @@ class VerificationService:
                 volunteer_id=volunteer_id, email=email, referred_post_id=referred_post_id)
         except Verification.DoesNotExist as e:
             pin = randint(100000, 999999) # generate 6 digit random pin
-            print('-'*50)
-            print('OTP', pin)
-            print('-'*50)
+            logger.debug('-'*50)
+            logger.debug('OTP', pin)
+            logger.debug('-'*50)
             verification_object = Verification.objects.create(
                 volunteer_id=volunteer_id, email=email, pin=pin, referred_post_id=referred_post_id)
 
@@ -135,7 +136,7 @@ class SignUpService:
         iterator = groupby(date_times, lambda x: x.date)
         days = 0
         for group, grouped_date_times in iterator:
-            print(group, grouped_date_times)
+            logger.debug(group, grouped_date_times)
             days += 1
 
             slot_count = 0
@@ -172,7 +173,7 @@ class SignUpService:
         iterator = groupby(date_times, lambda x: x.date)
         days = 0
         for group, grouped_date_times in iterator:
-            print(group, grouped_date_times)
+            logger.debug(group, grouped_date_times)
             days += 1
 
             slot_count = 0
@@ -301,7 +302,7 @@ class FacebookService:
             })
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
-            print('Subscribed to page', facebook_page_id, res)
+            logger.debug('Subscribed to page', facebook_page_id, res)
 
             # setup nlp
             url = '%s/me/nlp_configs' % (
@@ -315,8 +316,7 @@ class FacebookService:
             })
             nlp = requests.post(url, headers=headers, data=params)
             res = nlp.json()
-            print('Added NLP to page', facebook_page_id, res)
-
+            logger.debug('Added NLP to page', facebook_page_id, res)
 
             # setup whitelisted domains
             url = '%s/me/messenger_profile' % (
@@ -330,8 +330,7 @@ class FacebookService:
             })
             whitelist = requests.post(url, headers=headers, data=params)
             res = whitelist.json()
-            print('Whitelisted', facebook_page_id, res)
-
+            logger.debug('Whitelisted', facebook_page_id, res)
 
             # save page in model
             name = page.get('name', '')

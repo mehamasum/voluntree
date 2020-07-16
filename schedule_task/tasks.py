@@ -8,8 +8,10 @@ import requests
 
 from django.conf import settings
 from config.celery import app
+from config.logshim import LogShim
 from .services import FacebookWebHookService
 
+logger = LogShim(logging.getLogger(__file__))
 env = environ.Env()
 
 @app.task(name="schedule_task.webhook.fetch_comment")
@@ -19,19 +21,19 @@ def fetch_comment():
     if not conn.ping():
         # raise Exception('Redis unavailable')
         return
-    print('Connected to redis')
+    logger.debug('Connected to redis')
 
     url = server + '/facebook/webhook/'
     headers = {'content-type': "application/json"}
     new_comments = FacebookWebHookService.get_new_comments()
-    print("new_comments", new_comments)
+    logger.info("new_comments", new_comments)
     for comment in new_comments:
         comment_id = comment['value']['comment_id']
         cache_key = 'fetched_' + comment_id
         fetched = conn.get(cache_key) or None
 
         if fetched:
-            print('skipping already sent callback', comment)
+            logger.debug('skipping already sent callback', comment)
             continue
 
         payload = {
@@ -78,7 +80,7 @@ def ingest_interests():
         res = conn.set("last-read-comment", key)
 
         data = interest[1]['comment']
-        print('new interest', data)
+        logger.debug('new interest', data)
         data = json.loads(data)
         app.send_task('voluntree.tasks.send_message_on_comment', (data,))
 
