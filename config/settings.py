@@ -256,7 +256,6 @@ API_BROWSER_HEADER = 'Voluntree'
 FACEBOOK_GRAPH_API_VERSION = env.str('FACEBOOK_GRAPH_API_VERSION', default='v7.0')
 FACEBOOK_APP_ID = env.str('FACEBOOK_APP_ID', default='')
 FACEBOOK_APP_SECRET = env.str('FACEBOOK_APP_SECRET', default='')
-FACEBOOK_OAUTH_REDIRECT_URI = env.str('FACEBOOK_OAUTH_REDIRECT_URI', default='')
 FACEBOOK_OAUTH_STATE = env.str('FACEBOOK_OAUTH_STATE', default='')
 FACEBOOK_OAUTH_SCOPE = env.str('FACEBOOK_OAUTH_SCOPE', default='')
 FACEBOOK_WEBHOOK_VERIFY_TOKEN = env.str('FACEBOOK_WEBHOOK_VERIFY_TOKEN', default='')
@@ -264,7 +263,6 @@ WIT_AI_TOKEN = env.str('WIT_AI_TOKEN', default='')
 
 NATIONBUILDER_APP_ID = env.str('NATIONBUILDER_APP_ID', default='')
 NATIONBUILDER_APP_SECRET = env.str('NATIONBUILDER_APP_SECRET', default='')
-NATIONBUILDER_OAUTH_REDIRECT_URI = env.str('NATIONBUILDER_OAUTH_REDIRECT_URI', default='')
 
 # Celery Settings
 # http://docs.celeryproject.org/en/latest/django/first-steps-with-django.html
