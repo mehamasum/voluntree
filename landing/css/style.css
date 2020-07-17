@@ -23485,4 +23485,19 @@ p {
     text-align: left;
   }
 }
+
+.feature-img {
+  margin: 16px auto;
+  -webkit-box-shadow: 0 22px 74px rgba(20, 21, 24, 0.18);
+    box-shadow: 0 22px 74px rgba(20, 21, 24, 0.18);
+    width: 80%;
+
+}
+
+@media all and (max-width: 768px) {
+  .feature-img {
+    margin: 64px auto;
+  }
+}
+
 /*# sourceMappingURL=style.css.map */
