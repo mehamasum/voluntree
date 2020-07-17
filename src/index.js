@@ -34,8 +34,8 @@ const App = (props) => {
           </Route>
           <PrivateRoute exact path="/" component={Dashboard} />
           <PrivateRoute exact path="/settings/:tab?" component={Settings} />
-          <PrivateRoute exact path="/facebook_login/" component={FacebookLogin} withoutTemplate/>
-          <PrivateRoute exact path="/nationbuilder_login/" component={NationBuilderLogin} withoutTemplate/>
+          <PrivateRoute exact path="/callback/facebook/" component={FacebookLogin} withoutTemplate/>
+          <PrivateRoute exact path="/callback/nation-builder/" component={NationBuilderLogin} withoutTemplate/>
 
 
           <PrivateRoute exact path="/posts/" component={PostListView} />

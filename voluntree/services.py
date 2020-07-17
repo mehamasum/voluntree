@@ -214,7 +214,7 @@ class FacebookService:
 
     FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
     FACEBOOK_APP_SECRET = getattr(settings, 'FACEBOOK_APP_SECRET', '')
-    REDIRECT_URI = getattr(settings, 'FACEBOOK_OAUTH_REDIRECT_URI', '')
+    REDIRECT_URI = getattr(settings, 'APP_URL') + '/callback/facebook/'
     STATE = getattr(settings, 'FACEBOOK_OAUTH_STATE', '')
     SCOPE = getattr(settings, 'FACEBOOK_OAUTH_SCOPE', '')
 
@@ -548,7 +548,7 @@ class NationBuilderService:
     NATIONBUILDER_BASE_URL = 'https://voluntree.nationbuilder.com/'
     NATIONBUILDER_APP_ID = getattr(settings, 'NATIONBUILDER_APP_ID', '')
     NATIONBUILDER_APP_SECRET = getattr(settings, 'NATIONBUILDER_APP_SECRET', '')
-    REDIRECT_URI = getattr(settings, 'NATIONBUILDER_OAUTH_REDIRECT_URI', '')
+    REDIRECT_URI = getattr(settings, 'APP_URL') + '/callback/nation-builder/'
     NATIONBUILDER_PUSH_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/push'
     NATIONBUILDER_REGISTER_ENDPOINT = 'https://voluntree.nationbuilder.com/api/v1/people/%s/register'
     
