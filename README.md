@@ -239,6 +239,7 @@ service supervisord stop
 sudo supervisorctl tail -f asgi:asgi0
 sudo supervisorctl tail -f celeryworker
 sudo supervisorctl restart all
+sudo systemctl restart nginx
 # on restart
 sudo mkdir /run/daphne/
 ```
