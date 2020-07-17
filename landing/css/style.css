@@ -21776,6 +21776,10 @@ p {
   margin-top: -2px;
 }
 
+.brand-logo > a > img {
+  width: 200px;
+}
+
 .site-header {
   background-color: transparent;
   position: absolute;
