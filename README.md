@@ -157,7 +157,8 @@ sudo add-apt-repository ppa:certbot/certbot
 sudo apt-get update
 sudo apt-get install certbot python3-certbot-nginx
 
-sudo certbot --nginx -d voluntree.ml -d www.voluntree.ml
+sudo certbot --nginx -d voluntree.ml -d www.voluntree.ml -d app.voluntree.ml
+# sudo certbot --nginx --expand -d voluntree.ml -d www.voluntree.ml -d app.voluntree.ml
 sudo certbot renew --dry-run
 
 # redis - (skipped, used redislab)
@@ -237,7 +238,7 @@ sudo service nginx stop
 service supervisord stop
 sudo supervisorctl tail -f asgi:asgi0
 sudo supervisorctl tail -f celeryworker
-
+sudo supervisorctl restart all
 # on restart
 sudo mkdir /run/daphne/
 ```
