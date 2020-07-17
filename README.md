@@ -242,4 +242,8 @@ sudo supervisorctl restart all
 sudo systemctl restart nginx
 # on restart
 sudo mkdir /run/daphne/
+
+sudo touch /var/log/voluntree.log
+sudo chmod 777 /var/log/voluntree.log
+sudo chmod 775 /var/log/voluntree.log
 ```
