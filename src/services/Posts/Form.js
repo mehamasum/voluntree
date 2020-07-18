@@ -48,7 +48,7 @@ const PostForm = props => {
       }
       return isValid;
     },
-    accept: 'image/jpg,image/png',
+    accept: 'image/*',
     onRemove(file) {
       form.setFieldsValue({
         upload: null,
