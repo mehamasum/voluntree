@@ -301,6 +301,7 @@ if USE_S3:
     PUBLIC_MEDIA_LOCATION = 'media'
     DEFAULT_FILE_STORAGE = 'storages.backends.s3boto3.S3Boto3Storage'
     AWS_QUERYSTRING_AUTH = False
+    AWS_LOCATION = 'local' if DEBUG else 'production'
 
 USE_FILE_LOGGER = env.bool('USE_FILE_LOGGER', default=False)
 log_handlers = {
