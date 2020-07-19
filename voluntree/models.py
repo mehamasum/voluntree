@@ -19,10 +19,15 @@ class User(AbstractUser):
     is_org_admin = models.BooleanField(default=True)
 
 
+def get_directory_path(instance, filename):
+    # file will be uploaded to MEDIA_ROOT/<org_id>/uploads/<filename>
+    return '{0}/uploads/{1}'.format(instance.user.organization.id, filename)
+
+
 class Upload(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     uploaded_at = models.DateTimeField(auto_now_add=True)
-    file = models.FileField()
+    file = models.FileField(upload_to=get_directory_path)
     user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='uploads', null=True, blank=True)
 
 

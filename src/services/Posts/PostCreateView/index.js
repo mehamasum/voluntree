@@ -27,7 +27,7 @@ const PostCreateView = () => {
     })
     .then(result => {
       setLoading(false);
-      if(status===201) history.push("/posts");
+      if(status===201) history.push(`/posts/${result.id}`);
       else {
         setErrorMsg(result.error.message);
       }
