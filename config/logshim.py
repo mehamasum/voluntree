@@ -11,7 +11,7 @@ class LogShim(object):
             self.logger.log(level, concatenated)
 
     def debug(self, *msg):
-        self.logger.log(logging.DEBUG, *msg)
+        self.log(logging.DEBUG, *msg)
 
     def info(self, *msg):
         self.log(logging.INFO, *msg)
