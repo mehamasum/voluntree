@@ -414,10 +414,8 @@ class InteractionHandler:
         logger.debug('intent', intent)
 
         email_entity = InteractionHandler.first_entity(nlp, 'email')
-        logger.debug('email intent', email_entity)
 
         otp_entity = InteractionHandler.first_entity(nlp, 'otp')
-        logger.debug('otp intent', otp_entity)
 
         if intent_type and intent_type == Intents.SIGN_UP_AS_VOLUNTEER and intent['confidence'] > 0.8:
             logger.debug('sign up intent', intent)
