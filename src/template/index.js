@@ -8,16 +8,14 @@ import {
   AppstoreOutlined,
   ClockCircleOutlined,
   DownOutlined,
+  FormOutlined,
   PlusOutlined,
   SettingOutlined,
   TeamOutlined,
-  UserOutlined,
-  FormOutlined,
-  MoneyCollectOutlined,
-  SolutionOutlined
+  UserOutlined
 } from '@ant-design/icons';
 import {Link} from 'react-router-dom';
-import {useFetch} from "../hooks";
+import useFetch from "use-http";
 import {postFetch} from "../actions";
 
 
@@ -25,7 +23,12 @@ const {Header, Sider, Content, Footer} = Layout;
 
 
 const Template = (props) => {
-  const [meResponse, , , err] = useFetch('/api/auth/users/me/');
+  const {loading, error, data = null} = useFetch(`/api/auth/users/me/`, {
+    headers: {
+      'Authorization': `Token ${localStorage.getItem('token')}`,
+      'Content-Type': 'application/json'
+    }
+  }, []);
 
   const onLoggedOutClick = () => {
     const hasToken = localStorage.getItem('token');
@@ -47,11 +50,12 @@ const Template = (props) => {
     </Menu>
   );
 
-  if (err) {
-    onLoggedOutClick();
+  if (error) {
+    localStorage.removeItem('token');
+    window.location.reload(false);
   }
 
-  if (!meResponse) {
+  if (loading) {
     return (
       <div className="full-page-loader"><Spin size="large"/></div>
     );
@@ -76,7 +80,7 @@ const Template = (props) => {
             <Dropdown overlay={menu} trigger={['click']}>
               <div className="nav-right-profile-menu">
                 <Avatar icon={<UserOutlined/>}/>
-                <Typography className="nav-right-profile-username">{meResponse.username}</Typography>
+                <Typography className="nav-right-profile-username">{data.username}</Typography>
                 <DownOutlined/>
               </div>
             </Dropdown>
@@ -95,7 +99,7 @@ const Template = (props) => {
             <Menu.Item key="/posts" icon={<ClockCircleOutlined/>}>
               <Link to="/posts">Posts</Link>
             </Menu.Item>
-            <Menu.Item key="/signups" icon={<FormOutlined />}>
+            <Menu.Item key="/signups" icon={<FormOutlined/>}>
               <Link to="/signups">Sign Ups</Link>
             </Menu.Item>
             <Menu.Item key="/volunteers" icon={<TeamOutlined/>}>
