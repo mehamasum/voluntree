@@ -277,7 +277,7 @@ class FacebookService:
         pages_token = FacebookService.get_pages_access_token(
             user_id, access_token).get('data', [])
         if not access_token or not user_id or not pages_token:
-            logger.warn('Could not verify', user_id)
+            logger.warning('Could not verify', user_id)
             return False
 
         # TODO: throw error if more than one is connected
