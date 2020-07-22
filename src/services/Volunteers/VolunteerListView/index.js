@@ -9,7 +9,7 @@ const VolunteerListView = props => {
 
   useEffect(() => {
     if(!pages) return;
-    setSelected(pages.results[0].id);
+    if(pages.results[0]) setSelected(pages.results[0].id);
   }, [pages])
 
   function handleChange(value) {
@@ -21,10 +21,10 @@ const VolunteerListView = props => {
     <React.Fragment>
       <Layout.Content className="center-content">
         <Card title="Connected Volunteers" extra={
-          pages ? <Select
+          pages && pages.results[0] ? <Select
             loading={!pages}
             onChange={handleChange}
-            defaultValue={pages.results[0] ? pages.results[0].id : ""}
+            defaultValue={pages.results[0].id}
           >
             {pages.results.map(p => (
               <Select.Option value={p.id} key={p.id}>
