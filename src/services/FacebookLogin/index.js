@@ -32,7 +32,7 @@ const FacebookLogin = () => {
   useEffect(() => {
     if(!status) return;
     let message = "";
-    if(status !== 204) message = "failed";
+    if(status !== 204) message = "Failed";
     else message = "Success";
     setMessage(message);
     setTimeout(() => {

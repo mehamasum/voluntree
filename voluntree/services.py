@@ -277,6 +277,7 @@ class FacebookService:
         pages_token = FacebookService.get_pages_access_token(
             user_id, access_token).get('data', [])
         if not access_token or not user_id or not pages_token:
+            logger.warn('Could not verify', user_id)
             return False
 
         # TODO: throw error if more than one is connected
@@ -302,7 +303,7 @@ class FacebookService:
             })
             webhook = requests.post(url, headers=headers, data=params)
             res = webhook.json()
-            logger.debug('Subscribed to page', facebook_page_id, res)
+            logger.info('Subscribed to page', facebook_page_id, res)
 
             # setup nlp
             url = '%s/me/nlp_configs' % (
@@ -316,7 +317,7 @@ class FacebookService:
             })
             nlp = requests.post(url, headers=headers, data=params)
             res = nlp.json()
-            logger.debug('Added NLP to page', facebook_page_id, res)
+            logger.info('Added NLP to page', facebook_page_id, res)
 
             # setup whitelisted domains
             url = '%s/me/messenger_profile' % (
@@ -330,7 +331,7 @@ class FacebookService:
             })
             whitelist = requests.post(url, headers=headers, data=params)
             res = whitelist.json()
-            logger.debug('Whitelisted', facebook_page_id, res)
+            logger.info('Whitelisted', facebook_page_id, res)
 
             # save page in model
             name = page.get('name', '')
