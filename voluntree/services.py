@@ -261,23 +261,21 @@ class FacebookService:
         return debug_token.get('data', {}).get('user_id')
 
     @staticmethod
-    def get_pages_access_token(user_id='', access_token=''):
+    def get_pages_access_token(access_token=''):
         params = {
             'access_token': access_token
         }
         # TODO: use graph api version
-        url = 'https://graph.facebook.com/%s/accounts' % user_id
+        url = 'https://graph.facebook.com/me/accounts'
         pages_token = requests.get(url, params).json()
         return pages_token
 
     @staticmethod
     def verify_oauth(code, user):
         access_token = FacebookService.get_access_token(code)
-        user_id = FacebookService.get_user_id(access_token)
-        pages_token = FacebookService.get_pages_access_token(
-            user_id, access_token).get('data', [])
-        if not access_token or not user_id or not pages_token:
-            logger.warning('Could not verify', user_id)
+        pages_token = FacebookService.get_pages_access_token(access_token).get('data', [])
+        if not access_token or not pages_token:
+            logger.warning('Could not verify user')
             return False
 
         # TODO: throw error if more than one is connected
